@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boost It! Spinner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fefae0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    #spinner {
+      margin-top: 30px;
+      font-size: 1.4rem;
+      padding: 20px;
+      max-width: 600px;
+      border: 2px dashed #bc6c25;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #dda15e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: #bc6c25;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Boost It!</h1>
+  <button onclick="spin()">Spin</button>
+  <div id="spinner">Click the button to get a prompt!</div>
+
+  <script>
+    const prompts = ['Tech is helpful.', 'School is good.', 'We need to protect the nature.', 'Learning abroad is a good idea.', 'Learning english is useful.', 'Online learning is different.', 'People should moving.', 'Social media changes people.', 'Reading is useful.', 'Leaders are good.', 'Tests are stressful.', 'College people are busy.', 'Art is valuable.', 'Group projects are common in universities.', 'Some people take online courses.', 'Libraries offer more than just books.', 'Sleep plays a role in academic success.', 'College people  have part-time jobs.', 'Tech changes how people learn.', 'Field trips are used in school.', 'Lectures are a common teaching method.', 'Professors  assign presentations.', 'Note-taking is good for people remember facts.', 'Learn habits affect student work.', 'Some schools use online textbooks.', 'Time management is good in college.', 'Some universities have large class sizes.', 'Academic writing requires formal language.', 'Exams usually happen at the end of the term.', 'Class discussions are part of some university courses.', 'Internships give people real-world experience.', 'Research is part of some degree programs.', 'Forests are good to ecosystems.', 'Climate changes where people live.', 'Recycling reduces waste.', 'Animals adapt to survive in their natures.', 'Water dirty air changes sea animals.', 'Robots are used in manufacturing.', 'Some people store facts in the cloud.', 'Satellites help collect weather facts.', 'Smart computers is used in customer service.', '3d printing are used in medical fields.', 'Shots help prevent diseases.', 'Moving improves heart health.', 'Dna contains genetic facts.', 'Some animals hibernate during winter.', 'Bacteria are both harmful and helpful.', 'Languages change over time.', 'Holidays reflect cultural customs.', 'Cities grow for money reasons.', 'Storytelling is common in some cultures.', 'Music can influence emotions.', 'Advertising changes consumer choices.', 'Supply and demand influence prices.', 'People  save money for emergencies.', 'Tourism arenefit a country’s money system.', 'Population growth leads to city expansion.', 'Wetlands support some species of birds.', 'Coral reefs are sensitive to temperature changes.', 'Deforestation changes rainfall patterns.', 'Insects play a role in pollination.', 'Air quality can vary between city and rural areas.', 'Electricity is essential for modern life.', 'Some animals use tools to solve problems.', 'Scientists watch patterns to make guesses.', 'The human brain controls body jobs.', 'Magnets attract certain types of metal.', 'Rivers  shape the development of cities.', 'Climate zones affect what crops can grow.', 'People migrate for money and political reasons.', 'Mountains influence local weather conditions.', 'Natural resources impact trade and industry.', 'Ancient civilizations built systems for agriculture.', 'Customs are passed from one generation to another.', 'Archaeologists learn objects to learn about the past.', 'Folktales  teach moral lessons.', 'Writing systems developed independently in different regions.', 'People  form routines to manage daily life.', 'Trade routes connected distant cultures.', 'Humans are influenced by group behavior.', 'Prices  increase when demand is high.', 'Workplace productivity are affected by motivation.', 'Bridges are designed to support heavy weight.', 'Engineers test materials for strength and flexibility.', 'Self-driving cars use sensors to detect obstacles.', 'Some devices use rechargeable batteries.', 'Code helps tell computers what to do.', 'Maps are tools that represent geographic facts.', 'Oceans affect world weather systems.', 'Time zones exist because the earth rotates.', 'Some countries depend on imports for food.', 'The equator divides the earth into two hemispheres.', 'Memories can fade over time.', 'People  mimic the behavior of others.', 'Sleep is necessary for cognitive function.', 'Emotions can influence decision-making.', 'Habits are formed through repetition.', 'Different cultures celebrate life events in unique ways.', 'Clothing  reflects cultural identity.', 'Rituals have social and symbolic meanings.', 'Cave paintings are some of the oldest forms of art.', 'Music and dance are present in every human society.', 'Charts help see facts.', 'Probability is good for predict outcomes.', 'Measurements must be accurate in scientific tests.', 'Patterns are found in both nature and math.', 'Statistics help learn human behavior.', 'Cells are the basic units of life.', 'Photosynthesis allows plants to make food.', 'Organs work together in systems within the body.', 'Some animals migrate based on the seasons.', 'Fossils provide evidence of ancient life.', 'Volcanoes form near tectonic plate boundaries.', 'The water cycle moves water through the nature.', 'Sun power comes from the sun.', 'Insects are an good part of some food chains.', 'Greenhouse gases trap heat in the atmosphere.', 'Email is a common form of workplace communication.', 'Gps is good for people find directions.', 'Some jobs are being replaced by machines.', 'People use tablets to access online textbooks.', 'Cybersecurity protects online facts.', 'The printing press changed how facts was shared.', 'Ancient roads helped connect distant regions.', 'Some laws have existed for centuries.', 'Migration has shaped the development of some countries.', 'Trade routes helped spread ideas and goods.', 'Idioms are common in spoken language.', 'Poetry  uses figurative language.', 'Speeches can influence public opinion.', 'Nonverbal communication includes gestures and facial showings.', 'Stories help teach lessons and share culture.', 'Festivals celebrate cultural identity and customs.', 'Food customs vary around the world.', 'Architecture  reflects cultural values.', 'Cultural exchange happens through travel and media.', 'Different societies have different ways of organizing families.', 'Equations help solve problems.', 'Geometry is used in architecture and design.', 'Facts are represented in graphs and tables.', 'Algorithms help computers process facts.', 'Logical reasoning is good for solve puzzles and problems.', 'Earthquakes are caused by movement in the earth’s crust.', 'Rocks can change form over time.', 'The moon changes ocean tides.', 'The atmosphere is made of different gases.', 'Weather patterns are tracked with radar.', 'Cells divide to create new cells.', 'Animals need energy to survive.', 'Plants grow toward sources of light.', 'The heart pumps blood through the body.', 'Organisms adapt to their nature.', 'Attention are affected by distractions.', 'Short-term memory holds limited facts.', 'People learn.', 'Stress can influence physical health.', 'Facial showings help communicate emotions.', 'Businesses try to increase profits.', 'Supply and demand influence market prices.', 'Marketing is good for promote products.', 'Consumers  compare prices before buying.', 'Budgets help manage their money.', 'Some people use social media to share facts.', 'Online tools help work remotely.', 'Online reviews influence consumer behavior.', 'Video conferencing connects people.', 'Mobile apps can help users manage their time.', 'Rainforests contain a wide variety of species.', 'Composting reduces food waste.', 'Solar panels convert sunlight into energy.', 'Plastic dirty air changes sea animals.', 'City areas  experience air dirty air.', 'Mnemonics help remember facts.', 'Sleep supports memory consolidation.', 'Learning in short sessions can improve focus.', 'Multitasking can reduce learning efficiency.', 'Visual learners benefit from diagrams and charts.', 'The sun is a source of energy for the earth.', 'Satellites orbit the planet to collect facts.', 'The phases of the moon follow a cycle.', 'Astronauts experience weightlessness in space.', 'Stars are classified by size and temperature.', 'Body language can change the meaning of a message.', 'Prefixes and suffixes affect word meaning.', 'Pronunciation varies between accents.', 'Translators help understand foreign texts.', 'Context is good for determine the meaning of a word.', 'Atoms are the building blocks of matter.', 'Heat causes particles to move faster.', 'Chemical reactions can produce gas or heat.', 'Liquids take the shape of their container.', 'Metals conduct electricity well.', 'The earth’s temperature changes with the seasons.', 'Hurricanes form over warm ocean water.', 'Clouds are made of tiny water droplets.', 'Wind is caused by differences in air pressure.', 'Weather forecasts use facts from satellites.', 'Doctors use stethoscopes to listen to the heart.', 'Handwashing is good for prevent the spread of germs.', 'Shots protect people from certain diseases.', 'Nutrition changes physical and mental health.', 'Moving strengthens the heart.', 'Engineers design solutions to real-world problems.', 'Simple machines make work easier.', 'Blueprints help plan buildion projects.', 'Prototypes help test new ideas before final production.', 'Engineers must consider safety and cost in their designs.', 'Hypotheses are tested through tests.', 'Scientists make observations using their senses.', 'Control variables help make tests reliable.', 'Facts are recorded in charts or graphs.', 'Conclusions explain what was learned from an investigation.', 'Continents move slowly due to plate tectonics.', 'Deserts receive very little rainfall.', 'Mountains form where plates collide.', 'Maps  use pictures to show things.', 'Rivers provide water for people and agriculture.', 'Traditional stories are passed down through generations.', 'Costumes can reflect cultural identity.', 'Art helps express personal or social ideas.', 'Dance is part of some cultural celebrations.', 'Languages have different writing systems.'];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * prompts.length);
+      document.getElementById("spinner").textContent = prompts[randomIndex];
+    }
+  </script>
+</body>
+</html>
