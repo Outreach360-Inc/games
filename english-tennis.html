@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>English Tennis</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f7f7f7;
+    }
+    #spinner {
+      font-size: 1.5em;
+      margin: 30px;
+      padding: 20px;
+      border: 2px dashed #666;
+      background: white;
+      max-width: 80%;
+      text-align: center;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎾 English Tennis 🎾</h1>
+  <div id="spinner">Click "Spin" to get a category!</div>
+  <button onclick="spin()">Spin</button>
+
+  <script>
+    const categories = ['1-syllable words', '2-syllable words', '3-syllable words', '4-syllable words', 'Words that rhyme with ___ (choose a word)', 'Same starting sound as ___ (choose a word)', 'Same ending sound as ___ (choose a word)', 'Words with double letters', 'Words that start with a vowel', 'Words that end in a vowel', 'Words with silent letters', 'Words that start and end with the same letter', 'Words ending in -ed', 'Comparatives', 'Superlatives', 'Past tense verbs', 'Words that are hard to spell', 'Words you say every day', 'Words with long vowel sounds', 'Words with short vowel sounds ', 'Words with "ch"', 'Words with "sh"', 'Irregular verbs', 'Words that are both nouns and verbs', 'Verbs you can do right now', 'Phrasal verbs', 'Words that can go in a salad', 'Words used at a party', 'Words you can find in a storybook', 'Words that describe how something feels (texture)', 'Words where the second letter is “a”', 'Words with “ai”', 'Words with “ea”', 'Irregular plurals', 'Homophones (words that sound alike but have different meanings and/or spellings)', 'Homographs (words that are spelled the same but have different meanings)', 'Words with prefixes', 'Words with suffixes', 'Adjectives', 'Adverbs', 'Prepositions', 'Countable nouns', 'Uncountable nouns', 'Words that mean the same as “good”', 'Words that make people smile', 'Words with “ck”', 'Words with “ou”', 'Words with “ie” or “ei', 'Words with “wh', 'Words used when giving advice', 'Words with "oo"', 'Words you can use with "do"', 'Words that mean the same as “happy”', 'Words that mean the same as “sad"', 'Words you can use instead of "said" in a story', 'Places with animals', 'Places where people wait', 'Small places', 'Big places', 'Things you do with your feet', 'Things you do with your hands', 'Actions that use water', 'Things you can do at the beach', 'Things you can do without standing up', 'Compound words', 'Nice things to say', 'Ways to show kindness', 'Ways to help the environment', 'Things you wish you had right now', 'Things that would confuse an alien', 'Words that start with the same letter as your name', 'Things that use batteries', 'Things that are made of plastic', 'Things made of metal', 'Things that break easily', 'Things that can be opened', 'Things you can sit on', 'Things you do in the morning', 'Things you do before bed', 'Things you do every day', 'Things that take a long time', 'Things you do on holidays', 'Things that change color', 'Things you hear on a bus', 'Things you do at the doctor’s office', 'Things people do when they’re late', 'Things that are relaxing', 'Things that make you feel excited', 'Things that make people angry', 'Things that kids love', 'Things you’d never want in your backpack', 'Ways to say goodbye', 'Ways to say thank you', 'Ways to say you don’t know', 'Strange things to say to a cat', 'Questions you ask in a store', 'Things to say when someone sneezes', 'Things to say at a restaurant', "Things you say when you can't hear someone", 'Imperatives (commands)', 'Things a chicken might say', "Other ways to say you're hungry", "Other ways to say you're tired", 'Other ways to say "no"', 'Other ways to say "yes"', 'Things a villain might say', 'Things a superhero might say', 'Things you might hear at a haunted house', 'Thoughts people have but don’t say out loud', 'Sentences using “I can’t…”', 'Sentences using “I want to…”', 'Sentences using “Let’s…”', 'Sentences using “I think…”', 'Questions using “Can you…?”', 'Things that sound like a joke but aren’t', 'Things you say when you’re full', 'Things people say when they lose something', 'Things people say when they meet someone new', 'Things people say or do when something is awkward', 'Things people say when opening a gift', 'Things you say when trying on clothes', 'Things you say when something smells bad', 'Things that would sound creepy if whispered', 'Phrases with “I need to…”', 'Phrases with “I can’t believe…”', 'Phrases with “Why did you…?”', 'Phrases with “I forgot to…”', 'Things you say when you don’t like the food', 'Things you say when you trip or fall', 'Things people say when their phone dies', 'Sentences with “because”', 'Sentences with “if”', 'Sentences with “I used to…”', 'Sentences with “too” or “enough”', 'Sentences starting with “Don’t…”', 'Things people say when they answer a phone call', 'Things people say when they want to leave', 'Things you say to yourself when trying to be brave', 'Things you might say to your future self', 'Things people say when they’re jealous', 'Sentences using “I’ve never…”', 'Sentences starting with “Next time…”', "Things people do when they're nervous", "Things people do when they're angry", "Things people do when they're excited", 'Things people do when they’re trying to be cool', 'Things people do when they’re thinking hard', 'Things people do when no one is watching', 'Things people do on in Zoom', 'Things people can do in 5 minutes', 'Things people should do every day', 'Things people would do if they won the lottery', 'Things people do to stay healthy', 'Things people do when they’re trying to save money', 'Sentences with “but”', 'Sentences with “so”', 'Sentences with “before” or “after”', 'Sentences with “some” or “any”', 'Things you’re going to do tomorrow', 'Things that have surprised you', "Things you wanted to do but couldn't", 'Things you think should be free', 'Things you’ll never do in your life', 'Things you forgot to do recently', 'Things you’re supposed to do, but don’t', 'Things that are bigger than your head', 'Things you don’t have enough of', 'Things you have too many of', 'Things that are as important as sleep', 'Things people always ask you', 'Things you want to ask a famous person', 'Things you’d do if you were invisible', 'Things that are too heavy to carry', 'Things that aren’t big enough to share', 'Things that are both fun and messy', 'Things you can do quietly', 'Words that start with the letter S', 'Words that end with the letter Y', 'Words with “ear” inside', 'Words you know how to spell in your sleep', 'Words that end in “er', 'Words that end in “le”', 'Words with “ar”', 'Words with “qu”', 'Words with “gn”', 'Words that start with “ex-”', 'Words that end in “ful”', 'Words where the letter “g” sounds like the letter “j”', 'Words where the letter “c” sounds like the letter “s”', 'Words that start with “dis-”', 'Words where the letter“s” sounds like “sh”', 'Words that have “ough”', 'Words that end in “-ce”', 'Words that start with “un-” ', 'Words that end with “-ist”', 'Words that start with “th”', 'Words that begin with “str”', 'Words that begin with “scr”', 'Words where the letter “s” sounds like the letter “z”', 'Words that start with “sc”', 'Ways to agree with someone', 'A sentence with a made-up word', 'An interesting', 'Sentences using only 3 words', 'Sentences using only 4 words', 'Sentences with exactly 6 words', 'Sentences where every word starts with the same letter', 'Sentences where all words are 1 syllable', 'Sentences where the last word is “banana”', 'Sentences where each word starts with the next letter in the alphabet', 'Sentences that could be good movie or book titles', 'Sentences that start with “Suddenly…”', 'Sentences with exactly 7 words', 'Sentences with exactly 8 words', 'Sentences that could be from a fairy tale', 'Things that could only happen in a dream'];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * categories.length);
+      document.getElementById('spinner').innerText = categories[randomIndex];
+    }
+  </script>
+</body>
+</html>
