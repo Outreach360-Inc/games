@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Alphabet Challenge 2</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/alphabet2.jpg?raw=true') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #008cba;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background-color: #005f7f;
+    }
+    #spinner {
+      font-size: 1.25rem;
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Alphabet Challenge 2</h1>
+    <button onclick="spin()">Spin Topic</button>
+    <div id="spinner">Click the button to get a new topic!</div>
+  </div>
+<script>
+    const topics = ['Things in a Video Game World', 'Big Things', 'Science Fiction', 'Stories / Fairytales / Fantasy', 'Things That Might Annoy You', 'Camping or Outdoor Adventure', 'Things That Make You Laugh', 'Things That Float', 'Superpowers or Special Abilities', 'Hobbies & Free Time Activities', 'Places in a Town / City', 'Things in a Bedroom', 'Things That Make Noise', 'Things You Find in a Park', 'Things You Can See in the Sky', 'Famous Landmarks', 'Words Associated with Time', 'Music & Musical Instruments', 'Things at the Beach', 'Things That Are Sticky', 'Things That Might Be Lost or Forgotten', 'Words Related to Friendship', 'Toys & Games', 'Nice or Cute Things', 'Sports & Games', 'Science Words', 'Things You Can Touch', 'Technology', 'Movies & Cartoons', 'Things You Can Find on a Map', 'Items in a Kitchen', 'Things That Are Colorful', 'Dangerous or Scary Things', 'Things That Go Fast', 'Animals', 'Healthy Habits or Actions', 'Things That Smell (Good or Bad!)', 'Words Related to Weather', 'Modes of Communication', 'Things You Can Collect', 'Things That Are Hot', 'Objects in the House', 'Things You Might Find in a Jungle', 'Things That Are Shiny or Sparkly', 'Things in a Hospital', 'Things You Can See Through', 'Things You Can Jump Over', 'Things You Can Buy with Pocket Money', 'Things You Find at a Carnival or Fair', 'Clothing & Accessories', 'Travel & Transportation', 'Verbs / Action Words', 'Things in a Museum', 'School Subjects / Classroom Things', 'Holiday or Party Items', 'Insects & Bugs', 'Things You Can Eat But Probably Shouldn’t', 'Things You Can’t Touch', 'Countries or Nationalities', 'Things Kids Complain About', 'Nature & Outdoors', 'Types of Buildings', 'Yummy Desserts & Sweet Treats', 'Fantasy or Magical Things', 'Items You Can Recycle', 'Jobs & Careers', 'Characters from Books or Movies', 'Things That Are Cold', 'Things That Are Round', 'Words Related to Water', 'Mini-things / Small Items', 'Things That Make You Say “Wow!”', 'Gross or Yucky Things', 'Things You Can Find in a Mall', 'Under the Sea', 'Famous People / Celebrities / Athletes', 'Food & Drinks', 'Things That Sink', 'Things That Could Be Spilled', 'Dangerous Animals', 'Things You Can Ride', 'Emotions / Feelings / Personal Descriptions', 'Items in a Grocery Store', 'Things That Go Slow', 'Words Related to Water', 'Outer Space', 'Things You See in the Street', 'Places You Can Live', 'Places You Can Work', 'Things That Taste Bad', 'Positive Adjectives', 'Negative Adjectives', 'Things You Can Make', 'Art Words', 'Traditions', 'Things That Are Green', 'Things That Are Blue', 'Things That Are Yellow', 'Things That Are Orange', 'Things That Are Purple', 'Things That Are Pink', 'Things That Are Red', 'Things That Are White', 'Things That Are Black', 'Things That Are Brown', 'Things That Are Gray', 'Words Related to the Human Body', 'Things You Can Stack', 'Things You Plug In', 'Fruits', 'Vegetables', 'Ocean Animals', 'Things That Are Cold', 'Things That Are Hot', 'Things You Catch', 'Things You Find Underground', 'Things in the Desert', 'Things That Roll', 'Things With Spots'];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * topics.length);
+      document.getElementById('spinner').textContent = topics[randomIndex];
+    }
+  </script>
+</body>
+</html>
