@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talk for a Minute / One-Minute Story</title>
+  <style>
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+              url('https://github.com/Outreach360-Inc/games/blob/main/minute.jpg?raw=true')
+              no-repeat center center fixed;
+  background-size: cover;
+  padding: 20px;
+  text-align: center;
+}
+  h1 {
+  margin-bottom: 20px;
+  color: #222;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+}
+    #spinner {
+      max-width: 600px;
+      font-size: 1.5rem;
+      margin: 30px auto;
+      padding: 20px;
+      border: 2px solid #008cba;
+      border-radius: 10px;
+      background-color: #ffffff;
+      box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #008cba;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005f7f;
+    }
+  
+    #controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+#timer {
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: #e60023; /* bright red for urgency */
+  background-color: rgba(255, 255, 255, 0.85); /* same white box as title */
+  padding: 12px 24px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+    #spinner {
+      max-width: 700px;
+      font-size: 1.6rem;
+      margin: 30px auto;
+      padding: 25px;
+      border: 3px dashed #0077cc;
+      border-radius: 12px;
+      background-color: #ffffff;
+      box-shadow: 4px 4px 18px rgba(0,0,0,0.1);
+    }
+    </style>
+</head>
+<body>
+  <h1>🎙️ Talk for a Minute / One-Minute Story</h1>
+  
+    
+    <div id="controls">
+      <button onclick="spin()">🎲 Spin Prompt</button>
+      <button onclick="startTimer()">⏱ Start Timer</button>
+      <button onclick="resetTimer()">🔁 Reset Timer</button>
+    </div>
+    
+    
+  <div id="spinner">Click the button to get a new prompt!</div>
+  <div id="timer" class="hidden">60</div>
+
+  <script>
+    const prompts = [
+      "Your morning routine",
+  "Your favorite meal and how to make it",
+  "A place you'd love to visit",
+  "A day without the internet",
+  "If animals could talk…",
+  "Superpowers you don’t want",
+  "The weirdest food you’ve ever eaten",
+  "If I were invisible for a day…",
+  "How to survive a zombie apocalypse",
+  "Why math is awesome (or terrible!)",
+  "A subject I’d add to school",
+  "If teachers were replaced by robots",
+  "Life as a dog/cat for a day",
+  "Invent your own holiday",
+  "What aliens might think of Earth",
+  "If I lived underwater",
+  "Pineapple on pizza: yes or no?",
+  "Should homework be banned?",
+  "Chocolate vs. vanilla",
+  "City life or country life?",
+  "My most embarrassing moment",
+  "A talent I wish I had",
+  "My biggest fear",
+  "A moment I felt proud",
+  "Something I want to learn",
+  "A movie everyone should see",
+  "The best song ever",
+  "A character I’d be friends with",
+  "Why books are better than movies (or not)",
+  "My dream vacation",
+  "If I could go back in time…",
+  "My survival guide for the jungle",
+  "Most interesting culture I’ve learned about",
+  "The best video game of all time",
+  "My favorite app and why",
+  "Would you rather have no phone or no computer?",
+  "How AI will change the future",
+  "If I could design a video game…",
+  "What if humans could fly?",
+  "What if school were only one day a week?",
+  "What if we had to live on Mars?",
+  "What if money grew on trees?",
+  "What if everyone had to wear the same outfit?",
+  "What if you could pause time?",
+  "What if you had to eat the same meal forever?",
+  "My favorite season and why",
+  "The best birthday party I ever had",
+  "The best smell in the world",
+  "My favorite tradition",
+  "The best gift I ever received",
+  "My favorite weekend activity",
+  "The best snack for a movie night",
+  "What I want to be when I grow up",
+  "A day I’ll never forget",
+  "What the world will be like in 100 years",
+  "A message to my future self",
+  "If I lived 100 years ago",
+  "What makes a good friend?",
+  "Why kindness matters",
+  "Why it’s important to volunteer",
+  "The most important rule in life",
+  "What makes someone a leader",
+  "Something I believe strongly in",
+  "What makes a place feel like home",
+  "The day everything went wrong",
+  "The best dream I ever had",
+  "What if you woke up and the world had changed?",
+  "My new invention that will change the world",
+  "A machine that does your homework",
+  "The perfect app that doesn’t exist yet",
+  "Describe your dream house",
+  "A rule I would add (or remove) at school",
+  "Your favorite and least favorite school subjects",
+  "One way to make school more fun",
+  "What if you could swap places with the principal of your school?",
+  "A global issue you care about",
+  "My favorite place in nature",
+  "What animals can teach us",
+  "Why we should protect the planet",
+  "What makes me unique",
+  "Things I’m grateful for",
+  "A person I admire",
+  "You’re late for the most important day of your life!",
+  "You lost your phone in a foreign country!",
+  "You just discovered you're allergic to your favorite food!",
+  "You’ve been mistaken for a celebrity!",
+  "You’re locked inside a museum overnight!",
+  "You’ve accidentally sent a message to the wrong person — and it’s embarrassing!",
+  "You’re asked to sing the national anthem… but you forget the words!",
+  "Your pet just started talking. What does it say?",
+  "You’re the only one who knows a big secret and must decide whether to tell it.",
+  "You woke up and everyone thinks you’re the president.",
+  "Your house is filling with balloons and you don’t know why.",
+  "You turn invisible… but only for 5 minutes at a time.",
+  "Your backpack is making weird noises.",
+  "You’re being followed by a duck — and it won’t leave you alone.",
+  "You’ve just invented teleportation, but it only works once.",
+  "You’re in a talent show and forgot your act.",
+  "You're in a museum and the paintings are talking to you.",
+  "The moment I knew I was in trouble...",
+  "I couldn’t believe it when the lights turned off and…",
+  "Everything changed the day I opened that mysterious envelope.",
+  "A strange package arrived at my door. Inside was…",
+  "I was walking home when I saw something glowing on the ground.",
+  "The first time I met my best friend…",
+  "I accidentally started a trend at school.",
+  "I had five minutes to save the day.",
+  "The dream that felt too real…",
+  "The most unexpected thing I saw on vacation",
+  "The day I forgot how to speak",
+  "When I was the hero of the story",
+  "The pet that almost ruined everything",
+  "If you had a TV show, what would it be about?",
+  "Create a new animal by combining two real ones.",
+  "Is it better to be really early or just on time?",
+  "Should students have a 3-day weekend?",
+  "Is social media more helpful or harmful?",
+  "Should uniforms be required in school?",
+  "Is it better to be famous or rich?",
+  "A time I learned something the hard way",
+  "A challenge I overcame",
+  "Something I believed when I was younger that turned out to be wrong",
+  "A place that feels like home to me",
+  "A tradition my family has",
+  "How to ride a bike",
+  "How to convince someone to try a weird food",
+  "How to survive a family road trip",
+  "How to apologize the right way",
+  "You’ve been shrunk to the size of an ant and need to get home.",
+  "Your phone starts speaking — and it’s mad at you!",
+  "You're the only person in the world who can't sleep.",
+  "You’re in charge of cooking dinner… for 100 people… and the power/gas goes out.",
+  "You just found out you're in a video game.",
+  "You must host a talent show, but all the performers are animals.",
+  "You’re stuck in a time loop — today keeps repeating!",
+  "Every mirror shows a different version of you.",
+  "You’re the only person who remembers how the world used to be.",
+  "You’ve just been mistaken for a spy — and someone’s chasing you!",
+  "You’re floating in space, and your communicator is broken.",
+  "A ghost wants your help solving a mystery.",
+  "You’ve woken up as your teacher!",
+  "A wish that came true (but not how I expected)",
+  "I got lost in a place I knew very well…",
+  "Something I found that changed everything",
+  "The prank that went too far",
+  "I was the only one who noticed…",
+  "I got a message in a bottle",
+  "The sound I’ll never forget",
+  "One time when I couldn’t stop laughing",
+  "My day as a completely different person",
+  "A place everyone should visit once",
+  "A job that didn’t exist 20 years ago",
+  "The weirdest job I’ve ever heard of",
+  "A job I’d never want to do",
+  "A company I’d like to create",
+  "What school should teach for the real world",
+  "What is something people take for granted?",
+  "If everyone in the world followed one rule, what should it be?",
+  "What does it mean to be successful?",
+  "Can one person change the world?",
+  "A restaurant that only serves one food",
+  "Convince me that rocks have feelings",
+  "What’s hiding in your closet?",
+  "A conversation between two pieces of fruit",
+  "If Mondays were a person…",
+  "The elevator you're in suddenly starts moving sideways.",
+  "You’ve been challenged to a dance-off… by your school principal!",
+  "You accidentally signed up for a contest — and you're winning!",
+  "You’re the only one who can hear a mysterious voice.",
+  "You’re stuck in a library overnight and the books come alive.",
+  "You’re being chased by a squirrel with a secret.",
+  "Every time you tell a lie today, something explodes.",
+  "Your house has started rotating in slow circles.",
+  "You’ve been chosen to host a reality TV show — starting now!",
+  "You pressed the wrong button and launched a rocket.",
+  "You found a portal behind your school locker.",
+  "You’ve just discovered your pet is a time traveler.",
+  "When I saw the look on their face, I knew something was wrong.",
+  "The last thing I expected to find in my cereal box was...",
+  "There was only one rule — and I broke it.",
+  "I found a map and decided to follow it.",
+  "Everyone forgot my birthday... or so I thought.",
+  "I took a shortcut through the woods and found something unexpected.",
+  "One sentence changed my life.",
+  "The oddest thing in my neighborhood is...",
+  "The day I had to teach my teacher something new",
+  "My shoes led me somewhere strange.",
+  "I caught someone doing something they shouldn’t have been doing.",
+  "The voice on the phone said, “You don’t have much time…”",
+  "What color would your personality be?",
+  "If feelings were objects, what would “hope” look like?",
+  "What would happen if we could hear people’s thoughts?",
+  "What would the world look like if no one could lie?",
+  "Something I used to be afraid of",
+  "One thing I’ve changed my mind about",
+  "A mistake that taught me something",
+  "The best advice I’ve ever received",
+  "Something I do when I feel nervous",
+  "Should we always tell the truth?",
+  "Is failure necessary for success?",
+  "Should we all be vegetarian?",
+  "Is technology making us smarter or lazier?",
+  "Describe the weirdest pizza ever.",
+  "Convince us why socks should never match.",
+  "What would your superhero catchphrase be?",
+  "A famous singer thinks you're their long-lost sibling.",
+  "You wake up with a barcode on your arm — and no explanation.",
+  "You're the only one who can understand a dog… and it's panicking.",
+  "You spilled a secret… but you don’t know whose it was.",
+  "Your arms have turned into spaghetti noodles.",
+  "You open your fridge and find a secret tunnel.",
+  "You’ve been elected mayor of your town — by accident.",
+  "Every time you blink, you teleport slightly.",
+  "A villain is threatening your school — and you’re the hero.",
+  "You’re stuck inside your favorite TV show.",
+  "You hear a countdown — and no one else can.",
+  "You’ve become the new host of a cooking show — with no ingredients.",
+  "Every time you speak, people start dancing.",
+  "I followed the music and found something unbelievable.",
+  "We all promised never to speak of it again.",
+  "The weather that day was… strange.",
+  "That sign was never there before.",
+  "Everything was fine — until the power went out.",
+  "I had a feeling I was being watched.",
+  "I woke up and everyone had vanished.",
+  "The question nobody wanted to ask was…",
+  "If only I had turned left instead of right.",
+  "I had no idea I was being recorded.",
+  "Can you really be prepared for anything?",
+  "Is curiosity more important than intelligence?",
+  "What’s something people pretend to understand but don’t?",
+  "Are rules made to be broken?",
+  "What’s the difference between being nice and being kind?",
+  "If trees could talk, what would they say?",
+  "What’s the most peaceful place you know?",
+  "Should we be allowed to own exotic pets?",
+  "What’s your perfect weather — and why?",
+  "Which fictional world would you move into?",
+  "The most overrated trend right now is…",
+  "If you could rewrite the ending to a movie, which one?",
+  "A celebrity I’d love to spend a day with",
+  "If my life were a movie, the title would be…",
+  "If you could teleport anywhere, where would you go right now?",
+  "Describe the perfect 24-hour road trip.",
+  "If you could relive one day, which would it be?",
+  "Travel to the future or the past?",
+  "If your suitcase could only hold 3 things forever…",
+  "Top 3 things you can’t live without",
+  "Describe your dream breakfast",
+  "If I were a season, I’d be…",
+  "Best animal to bring to a party",
+  "Most useful useless invention",
+  "Describe your personality as a food",
+  "If I ruled the world for one day…",
+  "The emoji that describes my life",
+  "You just found out you can only speak in rhymes today.",
+  "Every time you touch something, it turns into glitter.",
+  "Your favorite teacher has just challenged you to a rap battle.",
+  "You open your backpack and find a baby dinosaur.",
+  "You must teach a class of aliens about Earth.",
+  "Your feet won’t stop tap dancing — even when you try.",
+  "You spilled a truth serum… and now everyone’s telling secrets.",
+  "A dragon landed on the school roof.",
+  "Your favorite celebrity just texted you... by mistake.",
+  "You accidentally switched bodies with your best friend.",
+  "You’re in charge of building a rocket — and it launches in one hour.",
+  "You woke up in a world where everything is upside down.",
+  "You have to plan a surprise party… for a superhero.",
+  "You’re being interviewed on live TV… but you don’t know the topic.",
+  "Every time someone says your name, something weird happens.",
+  "I wasn’t supposed to see what I saw…",
+  "The last time I took a big risk…",
+  "My favorite memory",
+  "I finally said what I was thinking — and here’s what happened.",
+  "I discovered a hidden door in a very strange place.",
+  "Everyone was acting like it was normal… but I knew it wasn’t.",
+  "I found something buried in my backyard.",
+  "I was the last one left in the building…",
+  "The sound came every night at 3:03 a.m.",
+  "I had to decide: follow the rules, or save my friend.",
+  "The day I knew I was brave",
+  "The strangest thing I’ve ever seen on the bus",
+  "Do fish ever get bored?",
+  "If you could rename the moon, what would you call it?",
+  "Should robots have emotions?",
+  "What’s something totally useless you wish you were good at?",
+  "Why socks disappear in the laundry",
+  "Why mornings are the worst",
+  "The best sandwich ever invented",
+  "A song that makes me dance every time",
+  "Why naps are life-changing",
+  "The most ridiculous law I would make",
+  "The worst haircut I ever had",
+  "If I were a vegetable...",
+  "Why bubble wrap is underrated",
+  "What I’d name my pet dragon",
+  "What I’d do if I were 3 inches tall",
+  "You just got turned into a potato — and you’re giving a speech!",
+  "Your diary was published by accident.",
+  "You’re in the middle of a spelling bee — in a language you don’t speak.",
+  "You discover your shoes are haunted.",
+  "You get a job… but you don’t know what it is.",
+  "You have to pretend to be an expert in something you know nothing about.",
+  "A squirrel just asked you for life advice.",
+  "You can suddenly understand insects — and they’re upset.",
+  "You were cloned… and your clone is better than you.",
+  "You have to babysit a fire-breathing baby.",
+  "You open your locker and there’s a penguin inside.",
+  "You’re the emergency substitute teacher… in a circus class.",
+  "The mayor asked for your opinion, and the whole town is listening.",
+  "My neighbor has a secret. I’m sure of it.",
+  "The last message I got before the power went out was…",
+  "There was a knock at the door — and no one there.",
+  "The first time I stood up for myself",
+  "A lie I told that got out of control",
+  "The weirdest gift I ever received",
+  "Something I almost gave up on… but didn’t",
+  "I shouldn’t have opened that app",
+  "The book that changed me",
+  "When I realized I was wrong",
+  "I was only trying to help…",
+  "What if humans had no memory?",
+  "What if animals ruled the planet?",
+  "What if music could heal people?",
+  "What would school be like with no grades?",
+  "What if emotions had physical forms?",
+  "Convince me cereal is a soup",
+  "Convince me Mondays are awesome",
+  "Convince me I should never wear shoes again",
+  "Convince me aliens are already here",
+  "Convince me that broccoli is dessert",
+  "What I’d never change about myself",
+  "What people misunderstand about me",
+  "My favorite snack combination",
+  "The worst time to laugh",
+  "If I were a bug, I’d be...",
+  "What I’d name a talking plant",
+  "Your new job: translating for a baby.",
+  "You were asked to lead yoga… but you don’t know what yoga is.",
+  "A talking vending machine has fallen in love with you.",
+  "You swapped lives with your pet — and now it’s school time.",
+  "You're stuck in a maze made of cheese.",
+  "Every sentence you say causes a nearby object to float.",
+  "Everyone is singing instead of talking — and you’re the only one confused.",
+  "You woke up with antlers — and everyone is pretending it’s normal.",
+  "Your pants are trying to escape.",
+  "I had one job. Just one…and I messed it all up!",
+  "The last photo I took",
+  "I only had three minutes to decide.",
+  "No one believed me — until it was too late.",
+  "The box started to shake. Slowly.",
+  "I had to lie — or lose everything.",
+  "That dream might not have been a dream.",
+  "The map didn’t show this part…",
+  "Explain boredom to someone who’s never felt it.",
+  "Describe toast like it’s the greatest invention ever.",
+  "Describe your day… as if it were a thriller movie.",
+  "If clouds were solid, what would you build on them?",
+  "Your new house floats in the sky. Tell us about it.",
+  "You’ve been granted one wish — but you can’t use it for yourself.",
+  "The worst food combination ever",
+  "My superhero outfit would include…",
+  "If I had a statue, it would show me doing…",
+  "If homework had a flavor…",
+  "You just realized your reflection has a different personality.",
+  "You’re being followed by a cloud that only rains on you.",
+  "You must teach a penguin to drive before sunset.",
+  "You got a message: “The treasure is buried under your bed.”",
+  "Your ears have turned into waffles — now what?",
+  "You’ve been hired to plan a wedding... for two cats.",
+  "You’re trapped inside a board game — and it’s your move.",
+  "You’ve become famous for something you didn’t do.",
+  "I should have read the fine print…",
+  "Everyone was acting strange. Then I found the letter.",
+  "I was chosen — but I didn’t know why.",
+  "I wasn’t supposed to be there, but I went anyway.",
+  "It all started with a smell I recognized.",
+  "The sound that still gives me chills.",
+  "What if people could only speak in emojis?",
+  "One thing I’ve never told anyone",
+  "A time I made someone smile",
+  "Something I wish more people understood",
+  "My biggest goal right now",
+  "You accidentally set your house to “lava mode.”",
+  "Your lunch has come alive and is trying to escape.",
+  "You drank something labeled “DO NOT DRINK” — oops.",
+  "Your mirror starts arguing with you every morning.",
+  "Every time you lie, you float higher into the air.",
+  "I only had time to grab one thing before I left.",
+  "I remember everything — except how it started.",
+  "I followed the sound, even though I knew I shouldn’t.",
+  "We had always told that story as a joke… until it came true.",
+  "The last time I saw them was at the airport.",
+  "It was supposed to be a normal sleepover.",
+  "I thought I was alone — until I heard my name whispered.",
+  "If I hadn’t looked under the bed…",
+  "That day, the sky was the wrong color.",
+  "I never expected to be the villain in someone else’s story.",
+  "Something I used to hate but now love",
+  "A time I proved someone wrong",
+  "Something people always get wrong about me",
+  "What if humans had no noses?",
+  "What if everyone could read minds once per day?",
+  "What if laughter powered electricity?",
+  "What if we swapped dreams like text messages?"
+    ];
+
+
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * prompts.length);
+      document.getElementById("spinner").textContent = prompts[randomIndex];
+    }
+  
+    let countdown = null;
+    let timeLeft = 60;
+
+    function startTimer() {
+      const timerEl = document.getElementById("timer");
+      if (countdown) return;
+      timerEl.classList.remove("hidden");
+      timerEl.textContent = timeLeft;
+      countdown = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          countdown = null;
+          timerEl.textContent = "⏱ Time's up!";
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      const timerEl = document.getElementById("timer");
+      clearInterval(countdown);
+      countdown = null;
+      timeLeft = 60;
+      timerEl.textContent = "60";
+    }
+    </script>
+</body>
+</html>
