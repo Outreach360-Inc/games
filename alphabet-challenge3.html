@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Alphabet Challenge 3 Spinner</title>
+  <style>
+    body {
+      background-image: url('https://github.com/Outreach360-Inc/games/blob/main/alphabet3.jpg?raw=true');
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px 40px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+      color: #333;
+    }
+    #output {
+      font-size: 1.5em;
+      margin: 20px 0;
+      color: #222;
+      min-height: 50px;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      border: none;
+      background-color: #0074D9;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">
+      <h1>Alphabet Challenge 3</h1>
+      <div id="output">Click the button to spin!</div>
+      <button onclick="spin()">Spin</button>
+    </div>
+  </div>
+  <script>
+    const prompts = ["Values or Principles", "Art Movements", "Energy Sources", "Words Related to Social Media", "Topics in News or Debate", "Cultural Traditions", "Study Strategies or Habits", "Words from a Rsum or Interview", "Famous Events in History", "Trends Among Teenagers", "Things That Can Change a Person's Life", "Decisions You Might Regret or Be Proud Of", "Words Related to Money or Economy", "Types of Governments or Political Terms", "Ways People Can Be Influenced", "Tools Invented in the Last 100 Years", "Global Problems", "Skills You Need in Life", "Climate Change Terms", "Things People Argue About", "Scientific Discoveries", "Common Expressions or Idioms", "Things That Require Problem-Solving", "Forms of Communication", "Social Issues", "News Headlines Could Start WithÉ", "Professions / Careers", "Character Traits or Personality Words", "World Religions or Beliefs", "Conservation & Sustainability", "Ethical Dilemmas", "Rights and Freedoms", "Ways to Show Leadership", "College Majors", "Debate Phrases", "Slang Words", "Ways to Express Identity", "Habits That Improve Mental Health", "Words Related to Nutrition", "Transition Words", "Words With Affixes", "Adjectives With Three or More Syllables", "Interjections", "Things That Are Innovative", "Things That Are Misunderstood", "Things That Are Essential", "Things That Are Temporary", "Things That Are Overlooked", "Things That Are Harmful", "Things That Are Exaggerated", "Things That Are Artificial", "Things That Are Inevitable", "Things That Are Time-Consuming", "Things That Are Repetitive", "Things That Are Unpredictable", "Things That Are Symbolic", "Things That Are Confusing", "Things That Are Inefficient", "Things That Are Exhausting", "Things That Are Toxic", "Things That Are Emotional", "Things That Are Expensive", "Things That Are Fragile", "Things That Are Limited", "Things That Are Measured", "Things That Are Obsolete", "Things That Are Transformative", "Things That Are Reversible", "Things That Are Digitally Stored", "Things That Are Underfunded", "Things That Are Legally Restricted", "Things That Are Scientifically Proven", "Things That Are Likely to Evolve", "Things That Are a Source of Conflict", "Things That Are Prone to Failure", "Soft Skills", "Decisions People Regret or Are Proud Of", "Things That Affect Your Future", "Major Life Events", "Unforgettable Experiences", "Remarkable Achievements", "Terrifying Situations", "Foolish Mistakes", "Embarrassing Moments", "Courageous Acts", "Outrageous Behaviors", "Annoying Habits or Pet Peeves", "Tedious Chores", "Tragic Events", "Valuable Life Lessons", "Peaceful Places", "Things That Are Overrated", "Things That Are Ambitious", "Witty Comebacks", "Harsh Environments", "Things That Are Luxurious", "Things That Are Rebellious", "Things That Are Painful", "Things That Are Messy", "Tense Situations", "Things That Are Wasted", "Things That Are Timeless", "Things That Are Lucky", "Things That Are Massive", "Things That Are", "Irrational Fears", "Things That Are Stunning", "Worthy Causes", "Types of Competitions", "People or Things That Are Inspirational", "Things That Are Rare", "Things That Are Unfair", "Things That Are Dull", "Things That Are Satisfying", "Ways to Start a Conversation", "Ways to Make a Good Impression", "Ways to Waste Time", "Ways to Show Repect"];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * prompts.length);
+      document.getElementById('output').textContent = prompts[randomIndex];
+    }
+  </script>
+</body>
+</html>
