@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Combo Challenge Spinner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                url('https://github.com/Outreach360-Inc/games/blob/main/combo.jpg?raw=true') no-repeat center center fixed;
+       background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+color: #fff
+    }
+    #spinner {
+      margin-top: 30px;
+      font-size: 1.6rem;
+      padding: 20px;
+      max-width: 600px;
+      border: 2px solid #333;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #008cba;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    button:hover {
+      background-color: #005f7f;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌀 Combo Challenge</h1>
+  <button onclick="spin()">Spin</button>
+  <div id="spinner">Click the button to get a word!</div>
+
+  <script>
+    const words = ['access', 'advice', 'assignment', 'available', 'back', 'bad', 'big', 'blow', 'borrow', 'break', 'bring', 'build', 'buy', 'call', 'career', 'carry', 'challenge', 'change', 'check', 'choice', 'clear', 'come', 'common', 'confidence', 'conversation', 'correct', 'cut', 'dangerous', 'deal', 'decision', 'difficult', 'do', 'drop', 'easy', 'education', 'effort', 'email', 'energy', 'exam', 'experience', 'failure', 'fall', 'family', 'fast', 'figure', 'fill', 'find', 'finish', 'freedom', 'friend', 'get', 'give', 'go', 'goal', 'good', 'great', 'group', 'grow', 'habit', 'hang', 'happy', 'hard', 'have', 'health', 'healthy', 'high', 'hold', 'idea', 'important', 'information', 'interest', 'issue', 'job', 'join', 'keep', 'know', 'knowledge', 'law', 'learn', 'leave', 'lend', 'let', 'listen', 'look', 'lose', 'low', 'make', 'meet', 'mistake', 'money', 'move', 'necessary', 'negative', 'new', 'news', 'old', 'opinion', 'pass', 'pay', 'permission', 'pick', 'plan', 'popular', 'positive', 'presentation', 'pressure', 'problem', 'progress', 'project', 'pull', 'push', 'put', 'question', 'reach', 'read', 'relationship', 'report', 'responsibility', 'result', 'right', 'rule', 'run', 'sad', 'safe', 'save', 'say', 'schedule', 'set', 'show', 'shut', 'simple', 'skill', 'slow', 'small', 'smart', 'solution', 'sort', 'speak', 'speech', 'spend', 'stand', 'start', 'stick', 'strong', 'study', 'success', 'successful', 'support', 'take', 'talk', 'team', 'technology', 'tell', 'test', 'think', 'throw', 'time', 'traffic', 'turn', 'understand', 'useful', 'wake', 'walk', 'watch', 'weather', 'win', 'work', 'write', 'wrong'];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      document.getElementById("spinner").textContent = words[randomIndex];
+    }
+  </script>
+</body>
+</html>
