@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Say It! Spinner</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('https://github.com/Outreach360-Inc/games/blob/main/sayit.jpg?raw=true');
+      background-size: cover;
+      background-position: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 40px;
+      margin: 60px auto;
+      max-width: 600px;
+      text-align: center;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+    .result {
+      font-size: 1.5em;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Say It!</h1>
+    <div id="sayResult" class="result">...</div>
+    <div id="itResult" class="result">...</div>
+    <button onclick="spin()">Spin</button>
+  </div>
+
+  <script>
+    const sayOptions = ["Something gross...", "Something squishy...", "Something delicious...", "Something white...", "Something wimpy...", "Something noisy...", "Something mushy...", "Something tropical...", "Something bite-sized...", "Something yellowish...", "Something slender...", "Something rotten...", "Something bad...", "Something valuable...", "Something pink...", "Something rare...", "Something frightening...", "Something hard to see...", "Something tall...", "Something stringy...", "Something silly...", "Something furry...", "Something fat...", "Something pretty...", "Something organic...", "Something high tech...", "Something squeaky...", "Something flimsy...", "Something athletic...", "Something disgusting...", "Something crazy...", "Something curvy...", "Something dirty...", "Something dead...", "Something solid...", "Something breakable...", "Something green...", "Something plastic...", "Something odorous...", "Something soft...", "Something wild...", "Something gooey...", "Something moving...", "Something juicy...", "Something old...", "Something precious...", "Something wooden...", "Something colorful...", "Something ancient...", "Something spicy...", "Something greasy...", "Something powerful...", "Something enormous...", "Something offensive...", "Something unexpected...", "Something crunchy...", "Something repulsive...", "Something stuck...", "Something round...", "Something loose...", "Something slippery...", "Something alive...", "Something cheap...", "Something red...", "Something tough...", "Something oozing...", "Something slimy...", "Something big...", "Something edible...", "Something adorable...", "Something dangerous...", "Something smelly...", "Something sweet...", "Something brown...", "Something wrinkly...", "Something easy to find...", "Something chilly...", "Something tasteless...", "Something tasty...", "Something sticky...", "Something short...", "Something shocking...", "Something embarrassing...", "Something ugly...", "Something wet...", "Something shiny...", "Something expensive...", "Something hard...", "Something moist...", "Something hot...", "Something daring...", "Something funny...", "Something sharp...", "Something rusty...", "Something extreme...", "Something silent...", "Something tiny...", "Something bouncy..."];
+    const itOptions = ["...in the attic", "...you secretly like", "...found behind a toilet", "...found in a nursing home", "...you don't want to clean", "...you shouldn't bite", "...you shouldn't make fun of", "...found on the bottom of your shoe", "...in a bag of groceries", "...at a birthday party", "...that you might accidently sit on", "...you know too much about", "...that you can never unsee", "...you wouldn't want to find in your sandwich", "...that you wish you had", "...on the beach", "...you put in your pocket", "...you dream about", "....in a tool shed", "...you flush down the toilet", "...at the zoo", "...that makes you feel sick", "...that you love", "...you shouldn't take a selfie with", "...you shouldn't rub or pet", "...you wish would grow on trees", "...you're afraid of", "...found in the back of the refrigerator", "...that you can wipe clean", "...at school", "...that you hide", "...in the oven", "...at the circus", "...in a tree house", "...experienced during spring break", "...in a dental office", "...in an aquarium", "...you shouldn't hold when riding a bicycle", "...that makes you smile", "...that you blow up", "...you don't want to stick in a fan", "...found clogging a toilet", "...that you put in a box", "...in the closet", "...that should take first prize", "...at a football game", "...that you glue or tape", "...found in a kid's nose", "...in a blender", "...you wouldn't want to find in your dresser drawer", "...that could turn your face red", "...between your toes", "...one someone's face", "...found in your soup", "...that your cat might bring you", "...that could cause an accident", "...you wrap in toilet paper", "...that won't upset your stomach", "...that you wouldn't pay someone else to deal with", "...you don't want to sit on...", "...in the bushes", "...that should never be a pizza topping", "...in an airplane", "...found under the seat on a bus", "...in the pool", "...in a baby stroller", "...in Las Vegas", "...that you have been caught with", "...in your lunch box", "...you don't want in your hair", "...in the lost and found", "...that hurts", "...you can get at a carnival", "...that you would name a pet after", "...in the sauna", "...that you wouldn't want your mother to see", "...you don't want in the house", "...you don't want to step on", "...that might fall out of the trash", "...that you soak in water", "...at a rock concert", "...that might make you faint", "...at an amusement park", "...found in your gym back", "...that dogs eat", "...in a suitecase", "...that you play with", "...that you might accidently eat", "...found at the bottom of a purse", "...that you might find at a yard sale", "...that rattles", "...you don't know anything about", "...found in the couch cushions", "...that gets your attention", "...that tastes good", "...that has great value", "...found on the floor of a public restroom", "...that gives you a nightmare", "...found in Donald Trump's hair", "...that you kiss"];
+
+    function spin() {
+      const say = sayOptions[Math.floor(Math.random() * sayOptions.length)];
+      const it = itOptions[Math.floor(Math.random() * itOptions.length)];
+      document.getElementById('sayResult').textContent = say;
+      document.getElementById('itResult').textContent = it;
+    }
+  </script>
+</body>
+</html>
