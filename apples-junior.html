@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apples to Apples Junior</title>
+  <style>
+    body {
+      background-image: url('https://github.com/Outreach360-Inc/games/blob/main/apples1.jpg?raw=true');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .box {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .result {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #e53935;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Apples to Apples Junior</h1>
+    <div class="result" id="greenCard" style="color: green;"></div>
+    <div class="result" id="redCard1" style="color: red;"></div>
+    <div class="result" id="redCard2" style="color: red;"></div>
+    <div class="result" id="redCard3" style="color: red;"></div>
+    <div class="result" id="redCard4" style="color: red;"></div>
+    <div class="result" id="redCard5" style="color: red;"></div>
+    <button onclick="spin()">Spin!</button>
+  </div>
+  <script>
+    const greenCards = ['Sickening (disgusting, horrible)', 'Courageous (brave, bold)', 'Round (circular, ring-shaped)', 'Straight (not curved, direct)', 'Smelly (stinky, bad odor)', 'Clumsy (awkward, not graceful)', 'Athletic (sporty, active)', 'Cold (coo, chilly)', 'Slippery (slick, sliding)', 'Weird (odd, mysterious)', 'Sticky (gummy, pasty)', 'Cozy (comfortable, warm)', 'Difficult (complicated, hard)', 'Worthless (useless, meaningless)', 'Gummy (sticky, pasty)', 'Hot (very warm, heated)', 'Peaceful (calm, quiet)', 'Neat (clean, orderly)', 'Little (small, tiny)', 'Sharp (pointed, not rounded)', 'Tricky (sneaky, untrustworthy)', 'Silly (foolish, goofy)', 'Best (greatest, finest)', 'Dirty (unclean, filthy)', 'Useful (helpful, handy)', 'Crazy (silly, foolish)', 'Messy (sloppy, dirty)', 'Talented (skillful, gifted)', 'Amazing (suprising, wonderful)', 'Busy (active, unavailable)', 'Dangerous (unsafe, risky)', 'Happy (cheerful, lively)', 'Organized (orderly, neat)', 'Speedy (quick, fast)', 'Playful (fun, cheerful)', 'Furry (hairy, fuzzy)', 'Tangy (tart, tasty)', 'Heavy (not light, bulky)', 'Funny (silly, goofy)', 'Wet (watery, soaked)', 'Dainty (delicate, elegant)', 'Slow (not fast, pokey)', 'Bumpy (lumpy, bouncy)', 'Lucky (fortunate, favored)', 'Crunchy (crispy, crackling)', 'Unforgettable (memorable, treasured)', 'Honest (trustworth, truthful)', 'Colorless (faded, pale)', 'Gentle (tame, mild)', 'Wild (untamed, out of control)', 'Delicious (tasty, pleasing)', 'Smart (intelligent, clever)', 'Hairy (not bald, furry)', 'Old (not new, used)', 'Solid (firm, reliable)', 'Useless (worthless, not valuable)', 'Flat (smooth, level)', 'Surprising (unexpected, amazing)', 'Magical (mysterious, delightful)', 'Charming (pleasant, polite)', 'Crooked (bent, not straight)', 'Skillful (expert, talented)', 'Kind (nice, helpful)', 'Awful (very bad, horrible)', 'Sneaky (tricky, mean)', 'Gorgeous (beautiful, dazzling)', 'Scary (frightening, spooky)', 'Dull (not sharp, plain)', 'Gross (disgusting, yucky)', 'Mysterious (strange, secretive)', 'Mushy (soft, squishy)', 'Fascinating (interesting, attractive)', 'Powerful (strong, forceful)', 'Chewy (gummy, rubbery)', 'Healthy (not sick, well)', 'Colorful (full of color, bright)', 'Smooth (silky, soft)', 'Noisy (loud, not quiet)', 'Huge (big, large)', 'Easy (simple, not hard)', 'Good (not bad, fine)', 'Confusing (puzzling, weird)', 'Juicy (wet, squishy)', 'Trustworthy (dependable, honest)', 'Fragile (delicate, weak)', 'Spotless (clean, pure)', 'Shy (bashful, timid)', 'Energetic (active, lively)', 'Weak (not strong, sickly)', 'Thick (wide, solid)', 'Destructive (violent, damaging)', 'Adorable (lovable, cute)', 'Bright (light, intelligent)', 'Tall (not short, not low)', 'Bouncy (lively, springy)', 'Painful (hurting, sore)', 'Unhappy (sad, sorrowful)', 'Famous (well-known, important)', 'Silent (quiet, still)', 'Beautiful (pretty, lovely)', 'Ordinary (normal, common)', 'Tough (strong, hard)', 'Lazy (slow, careless)', 'Soft (not hard, tender)', 'Graceful (elegant, flowing)', 'Serious (important, thoughtful)', 'Sad (unhappy, gloomy)', 'Expensive (costly, high-priced)', 'Goofy (silly, wacky)', 'Loving (caring, kind)', 'Long (not short, stretched)', 'Natural (normal, pure)', 'Entertaining (interesting, fun)', 'Horrible (frightening, awful)', 'Annoying (borthersome, irritating)', 'Glittering (sparkling, gleaming)', 'Terrible (awful, dreadful)', 'Plain (simple, dull)', 'Mean (unkind, nasty)', 'Valuable (expensive, important)', 'Harmful (hurting, damaging)', 'Sweet (sugary, nice)', 'Friendly (kind, nice)', 'Slimy (slippery, gooey)', 'Squishy (soft, mushy)', 'Thin (slender, narrow)'];
+
+    const column2 = ['Quarterback', 'Cleats', 'Tire Swing', 'The Moon', 'A Crow', 'Jedi Knights', 'Musical Chairs', 'Santa Claus', 'A Nest', 'Pillows', 'PAW Patrol', 'Softball', 'LeBron James', 'Draco Malfoy', 'Clouds', 'Cotton Candy', 'Cupcakes', 'Glass', 'Getting Lost', 'Goalie', 'Halloween', 'Paddington', 'Ice', 'A Park', 'Mario Kart', 'Surprise Parties', 'Camels', 'A Clubhouse', 'Roller Coaster', 'Winning a Contest', 'Superman', 'Skinned Knees', 'Camping', 'Snowboarding', 'Ballerinas', 'Magicians', 'Elevators', 'Band-Aids', 'Minecraft', 'Eggs', 'Hamsters', 'Macaroni and Cheese', 'Jellyfish', 'American Ninja Warrior', 'Pimples', 'Caps', 'Unicorns', 'Steven Universe', 'Junie B. Jones', 'Patrick Star', "Kids' Choice Awards", 'Brothers', 'A Scrunchie', 'Cooking Dinner', 'Turkeys', 'Snow Fort', 'Transformers', 'Hockey', 'Volunteering', 'My Family', 'Eyeglasses', 'Shopping', 'The Rock', 'Measles', 'Feathers', 'Cyborg', 'Wrestling', 'Crayons', 'Erasers', 'Skydiving', 'Imagie Dragons', 'Chocolate Milk', 'Kindergarten', 'Buzz Lightyear', 'A Train', 'Waterparks', 'A Wipeout', 'Superpowers', 'New York City', 'Teenage Mutant Ninja Turtles', 'Octopus', 'Canvs', 'Scissors', 'Ghosts', 'Zendaya', 'Muffins', 'Blood', 'Stephen Curry'];
+const column3 = ['Red Roses', 'Hogwarts', 'London Bridge', 'Tool Box', 'Stirng Cheese', 'Worms', 'The Death Star', 'Aliens', 'The President', 'Potato Chips', 'She-Ra', 'A Swimming Pool', 'Spinach', 'Poop Emojis', 'Scooby-Doo', 'Maracas', 'The Police', 'Dragons', 'Pokémon', 'A Submarine', 'Mr. Krabs', 'Doughnuts', 'School Dances', 'Girlfriends', 'Braces', 'Bubble Gum', 'Artists', 'A Crown', 'Brushing Your Teeth', 'The Big Bad Wolf', 'Rain Forests', 'Tin Foil', 'Pigs', 'A Car Wash', 'Ninjas', 'Butterflies', 'Substitute Teachers', 'Kisses', 'A Beanstalk', 'Pitcher', 'French Fries', 'Sleepovers', 'Ironman', 'Cinnamon Toast Crunch', 'Living in Space', 'Cheaters', 'Airplanes', 'Dodgeball', 'Glue Stick', 'Swamps', 'Video Games', 'Sand', 'Ice Cream', 'Speedboat', 'Kangaroos', 'Sun Block', 'Chimpanzees', 'Shooting Star', 'Cruise Ship', 'Forklift', 'Africa', 'Jurassic World', "America's Got Talent", 'Flossing', 'Forest Fires', 'A Car Crash', 'Crying', 'Tyrannosaurus Rex', 'Subway', 'Underpants', 'Rudolph', 'Hospitals', 'Spaceships', 'A Stable', 'Piñatas', 'Jet Engine', 'Watching Cartoons', 'YouTube', 'Football', 'Show and Tell', 'Hermione Granger', 'Chapstick', 'Kickball', 'Boyfriends', 'A Safe', 'Coloring Your Hair', 'Tree Frogs', 'Trampoline'];
+const column4 = ['Bounce House', 'Robots', 'Flies', 'Willy Wonka', 'Microwave Oven', 'Big Dogs', 'Skeletor', 'Helium Balloons', 'Try-Outs', 'Frozen', 'Harry Potter', 'Captain Underpants', 'Popcorn', 'Batman', 'A Lullaby', 'Chewing Your Fingernails', 'Secret Compartment', 'Toasted Marshmallows', 'Poison Ivy', 'Gingerbread House', 'Slime', 'Hiccups', 'A Factory', 'Peanuts', 'Caterpillars', 'Taylor Swift', 'Life Jackets', 'A Desert', 'Race Car Drivers', 'Frozen Yogurt', 'Snow Day', 'John Cena', 'Coding', 'Miniature Golf', 'Teachers', 'Baby Food', 'Mountain Climbing', 'Beast Boy', 'Going to the Dentist', 'Sleepaway Camp', 'Water Balloons', 'Fruit Roll-Ups', 'Boomerang', 'KFC', 'Avocado', 'Lobsters', 'Diary of a Wimpy Kid', 'Tom Brady', 'Scuba Diving', 'The Ocean', 'Spying', 'Eyes', 'Comic Books', 'Cherries', 'Raven', 'Baby Shark', 'Simone Biles', 'Bedroom Closet', 'Presents', 'Getting a Shot', 'Tooth Fairy', 'Microscope', 'Bee Stings', 'Sisters', 'Helicopters', 'Minions', 'Dolphins', 'The Flash', 'Magic Tricks', 'A Volcano', 'Scientists', 'Glitter', 'Sweet 16 Party', 'Lord Voldemort', 'Pinocchio', 'Rainbows', 'High School', 'Soccer', 'Horses', 'A Junkyard', 'Pierced Ears', 'Chicken Pox', 'Teenagers', 'Lucky Charms', 'A Mermaid', 'Rock Stars', 'Garbage', 'Surfing'];
+const column5 = ['Tightrope Walking', 'The Batmobile', 'Serena Williams', 'Niagara Falls', 'Panda Bears', 'Pizza Hut', 'Headphones', 'The Last Day of School', 'Mickey Mouse', 'Diving Board', 'Recess', 'Frosty the Snowman', 'Birthday Money', 'Going to Disneyland', 'Abraham Lincoln', 'A Broken Leg', 'Being on TV', 'Cereal Aisle', 'Scooters', 'Gozilla', 'A Bathroom', 'Music', 'Brains', 'The Avengers', 'Pillow Fights', 'Elsa', 'Barbie Doll', 'A Funeral', 'Snow Monkeys', "McDonald's", "Straight A's", 'Pool Party', 'Farmers', 'Basketball', 'Getting Your Tonsils Out', 'A Prince', 'United States', 'A Slam Dunk', 'Sunburns', 'My Town', 'Tattoos', 'Mushrooms', 'Castles', 'Science Experiments', 'Frog Tongue', 'Woody', 'Motorcycles', 'Black Widow Spider', 'SpongeBob SquarePants', 'Honey', 'Walking the Dog', 'My Friends', 'Flashlights', 'Shoveling Snow', 'He-Man', 'Cavities', 'Juggling', 'Double Cheeseburger', 'Recital', 'Giants', 'Going to School', 'Ariana Grande', 'A Burp', 'Bowling', 'Teeth', 'The Chicken Dance', 'Gymnastics', 'Thanksgiving Day', 'Michael Jordan', 'Dirty Dishes', 'Reading', 'Fortune Tellers', 'Beach Balls', 'Going to a Concert', 'A Princess', 'Kevin Hart', 'Computers', 'Music Lessons', 'Doctors', 'Bacon', 'Getting a Haircut', 'Woodpeckers', 'Vanilla Pudding', 'Zebras', 'The Statue of Liberty', 'A Pop Quiz', 'Snowflakes', 'Mt. Fuji'];
+const column6 = ['A PBJ Sandwich', 'Climbing a Tree', 'Thunder', 'Secret Passages', 'Rain', 'Haunted House', 'Smartphones', 'Fairies', 'The White House', 'King Kong', 'A Rocket Launch', 'Mashed Potatoes', 'Green Eggs and Ham', 'Alligators', 'Hippopotamus', 'A Mummy', "The Pincipal's Office", 'A Hiking Trail', 'Getting Marries', 'Perfume', 'Playing with Dolls', 'Stomach Ache', 'Skeletons', 'Winter', 'Math', 'Hitting a Home Run', 'Star Wars', 'Lightsabers', 'Cheetos', 'A Fruit Tree', 'Telling Scary Stories', 'Tadpole', 'Lizards', 'A Sick Day', 'Skateboards', 'Baseball', 'Sea Turtles', 'Hammerhead Sharks', 'Hulk', 'Bulldozer', 'Waffles', 'Ears', 'Marco Polo', 'Waves', 'Emu', 'Justice League', 'The Beach', 'My School', 'Sword Fighting', 'Mud', 'Buried Treasure', 'School Supplies', 'Flying Fish', 'Wonder Woman', 'Monster Trucks', 'Black Cats', 'Spider-Man', 'Peacocks', 'Classroom', 'Selfies', 'Gorillas', 'A Candy Store', 'My Allowance', 'Broccoli', 'Stinkor', 'Just Dance', 'Sushi', 'Mosquito Bites', 'Bunk Beds', 'School Pictures', 'Floods', 'Wolverine', 'Swimming', 'Bigfoot', 'Soldiers', 'High Heels', "Valentine's Day", 'My Best Friend', 'Milking a Cow', 'Sea Star', 'Taco Bell', 'Cheerleaders', 'Velociraptors', 'Volleyball', 'Driving a Car', 'A Leaky Boat', 'Indoor Playground', 'Lasso'];
+
+    function getRandomItem(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function spin() {
+      document.getElementById("greenCard").textContent = "" + getRandomItem(greenCards);
+      document.getElementById("redCard1").textContent = "" + getRandomItem(column2);
+      document.getElementById("redCard2").textContent = "" + getRandomItem(column3);
+      document.getElementById("redCard3").textContent = "" + getRandomItem(column4);
+      document.getElementById("redCard4").textContent = "" + getRandomItem(column5);
+      document.getElementById("redCard5").textContent = "" + getRandomItem(column6);
+    }
+  </script>
+</body>
+</html>
