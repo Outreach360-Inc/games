@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HH4 U5-8 Bingo Spinner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f0f8ff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      font-size: 1.5em;
+      color: #333;
+      text-align: center;
+    }
+    .spinner-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 10px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #spin-button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background: #6a5acd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #spin-button:hover {
+      background: #483d8b;
+    }
+    #image-display {
+      margin-top: 20px;
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #image-display img {
+      max-width: 100%;
+      max-height: 60vh;
+      border: 4px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>HH4 U5-8 Bingo Spinner</h1>
+  <div class="spinner-container">
+    <button id="spin-button">SPIN</button>
+    <div id="image-display"></div>
+  </div>
+
+  <script>
+    const images = [
+  "https://docs.google.com/drawings/d/e/2PACX-1vTxRz8dob1QhywLDKaMRUXbYuV9Q4KHBWOyoi6KkIJaPQdyYqfx9W9UKOcCf8VNxrxD2K8zpg89_D-Z/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQMuw5uPx3i8aArzjrb8K3KU9UVBdE5T0Phzmp0w8LHA6QPL11Lw0C5JR84E6DrW9oQOPtOzo0m8d2K/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRTm1Bk_Gr_oLV5Uevoxt6A26898WVU7S9PP1KssKmExyJmpdgdoq75GA9skHeSKWJ5MbWkJpZ6hA6L/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTL52qngwYtLkwpbvCtcyz4pYqXM3zPpAqRa7rQTV-Dhx31fyvB0uu7r__JRaJBhD13bJ5k9WqaTlW9/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRfUKr_iM9omc-_0bkzDdsNJao0MUIdJ397ub1Z9tFHHNPbKBvoLjP1JX-Mz1ysDFTTBkws1_gp8O1T/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQvWLCnbnYHdMa2KAqSgYXteYnEJVCIx7kXfxJ07wGJmZuwszJpQLc1nCQ9TgwDHJZJg0kYKhRRxCKm/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vR2kE9ZTMz4XCbGqZZBg9GBGLPYPlPuh0p2YOuIGgEq4akV8U8V0gKAqu9ggPXXahSX1SWpf_OhIc1E/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSslq6UULiZR4R7dAzto8DFleiSsvjaAGNPY05F5GULAPpJpQkMgIgKqDOpT00eh9435XoLR-ffgC8A/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vS31v7XPRaxmf4leNeOsiQVs-PiL1hCGm5slmfUhW1Rnhx44Chrpb4F9uQ4mVKyYszQNSsh0kuzL4U8/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRTlsUXY96Rzu5lVfbNYKFH5MKLW3QLhscJ-cn0cHsV4MY9sq5WN4zhpNqZeGfdcxsymvDQXlNGtxKa/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQuM0PVIpKPFsDyZVVtNmZtJhJyDxIxc1x9eDjUWPVa_ssx5e0ljGgQA2OefiAiDZpbqdRBV6rvQ-d3/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQOJ7B7yqsle45JKQLS8HQo_IbT54ms5i0tUbESOHuAeXlnPo-vsySvpEy3VJEsD408tx8oVf_n1R9b/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSRGFS_ENtxUOD4wnzINzaidf7E01zseOD-NfOpNBf2V2nFLn8hLK-VFcE7_LEqEaG0zeCYUkGjLKdJ/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTeIcepm1lJBgh_tUwbN3f-UEFBpJhg5HMNMXQ5QgVWrJ-4Uved24mTwAWnN21vdJQj_TGTy-7YezXm/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQjwMZrqKdaXDcBS3WCrx9gzeWtgfw8BSMFwvwR0H17xesyYueYu6V8FRdsQheM5ISjeY6ItE6Q4KmG/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRsZMuEbVQdRCfa3vSHF7qMXzchz4fZTB-I9p4_DQuymt2hV1HSfPuJTR6MYuoxrK0Akvr-sF8_5Pq3/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTalWd61oo01Syz-i-aQ1VFS-8Ck8hlhTt8fPKcqHKEVEYMOnEI08RR2c5CCq7QyR_ng9wPtq-IFL84/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vT85h1K7JBaqekr8ZCGCVM7ASukLC57kZsQbU22wLJQI1cRKGnSEZ5LGeXeCTizse8EP6CXUp-NGOdZ/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQ1fvUFfZbanMuzRa-beCbEhB4CjtFlCOEmKyOFo8RQk_11BUXvuVmDrHzQeDS5Mm2jTkkz12YKqWED/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRSxuye-dPv3CevcE0FRIaIm1eyXqsVRzteg_85DKfFbFz4ClDi8uM5kCQe1SY07AGLC4VcR0iRtssH/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQ1PI4ctI_EYHvcUh2ZIFSZRheKCN-KTeSRnbMUWC7KLcKyWL8A2Hxz2xkWz97OaHVbQwhX_nKhXV4-/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTP0bah7nT7KsHZAK-HEbsE4oj9QNB29nB9tXjkQtcMVR1Yv8PajJaNyCW1GNS0UQHwTU-RcHYt8-8c/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vT-qckawvgifmM-ysOC7WwSZJeklS4ATeXK9266zJ7oy42yf89kb7EOEFGFG01CaHH5eKUrf06cXNxz/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTvKTete49Z3aSzY5af4dGtBpY6-PKYkLTH5uolV_mesPKiBRDAFa6bsGf7v174U6kPvVn2o2lD2Q2u/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRNZrXTWdsO0A8sXRKgoK8btJ0Lm2f2X9dkUzxajnYRzozlQU8N1hNtesiw7cGI_qcLPL8CCE6xcsGK/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTrfE2oBKyjojlbSEdPs639F5wXOHzOOMU5OFpyv9-oGCS2jwNk3_k63mfcpRbSRb6R_KmBXjc9FLrd/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vR45VfVZ_Y70k9-_sLt1Go8d2HyBoKNR2fp0ykFf6I52ApgOoGad-3ztB-rdvzg7_ZxPK3yjhuq03dY/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQRTR_wY253Abo-c9xVAaEwRuLHWrqfVhME0CyO_D2fx5XbSYbfnLKdlTSz4dbztSRH-XxtwAgRU4E-/pub?w=552&h=562"
+];
+
+    const button = document.getElementById('spin-button');
+    const imageDisplay = document.getElementById('image-display');
+
+    button.addEventListener('click', () => {
+      const randomIndex = Math.floor(Math.random() * images.length);
+      const selectedImage = images[randomIndex];
+      imageDisplay.innerHTML = `<img src="${selectedImage}" alt="HH1 Bingo Image">`;
+    });
+  </script>
+</body>
+</html>
