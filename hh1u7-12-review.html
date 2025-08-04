@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HH1 Units 1-6 Review Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      text-align: center;
+    }
+    .board {
+  display: flex;
+  flex-wrap: wrap;
+  width: 792px;
+  border: 3px solid #333;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+    .space {
+  flex: 0 0 calc(100% / 9);
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #999;
+  box-sizing: border-box;
+  background: hsl(calc(360 * var(--i) / 54), 90%, 85%);
+  position: relative;
+}
+    .start { background: lightgreen; font-weight: bold; }
+    .finish { background: gold; font-weight: bold; }
+    .player {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: #000;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    #die {
+      font-size: 30px;
+      padding: 10px 20px;
+      background: #ff6347;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #cardBox {
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px dashed #999;
+      width: 500px;
+      min-height: 100px;
+      background: #fffbe0;
+    }
+    #drawCard {
+      padding: 10px 20px;
+      background: #4682b4;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button id="resetGame" onclick="resetGame()" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 1000; font-size: 14px; padding: 8px 12px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">🔁 Reset Game</button>
+
+  <h1>HH1 Units 7–12 Review Game</h1>
+  
+  <div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+  <input type="text" id="newPlayerName" placeholder="Enter player name" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;" />
+  <button onclick="addPlayer()" style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Add Player</button>
+  <button onclick="startGame()" style="padding: 8px 12px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">Start Game</button>
+  <div id="playerList" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+</div>
+  </div>
+    
+  <div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px; margin-top: 20px;">
+  <div style="flex: 0 0 200px; max-width: 200px; font-size: 14px;">
+  
+<button id="die" onclick="rollDie()" style="display:none; font-size: 20px; padding: 6px 10px; width: 100%;">🎲 Roll</button>
+  <p id="rollResult" style="margin: 8px 0;"></p>
+  <div id="cardBox" style="display:none; padding: 10px; border: 1px solid #ccc; background: #fffbe0; width: 100%; box-sizing: border-box;">
+    <div id="cardText" style="font-size: 13px;"></div>
+  </div>
+    
+<button id="die" style="display:none;" onclick="rollDie()">🎲 Roll</button>
+    <p id="rollResult"></p>
+    <div id="cardBox" style="display:none;">
+      <div id="cardText"></div>
+    </div>
+  </div>
+  <div class="board" id="gameBoard"></div>
+  
+<button id="die" style="display:none;" onclick="rollDie()">🎲 Roll</button>
+  <p id="rollResult"></p>
+  <div id="cardBox" style="display:none;">
+    <div id="cardText"></div>
+  </div>
+</div>
+
+  
+  <script>
+    const board = document.getElementById('gameBoard');
+    const boardSize = 54;
+    let players = [];
+    let currentPlayerIndex = 0;
+
+    function addPlayer() {
+      const nameInput = document.getElementById('newPlayerName');
+      const name = nameInput.value.trim();
+      if (name) {
+        players.push({ name: name, position: 0 });
+        const span = document.createElement('span');
+      span.textContent = name;
+      span.style.padding = "5px 10px";
+      span.style.background = "#eee";
+      span.style.borderRadius = "5px";
+      span.style.border = "1px solid #ccc";
+      document.getElementById('playerList').appendChild(span);
+        nameInput.value = '';
+      }
+    }
+
+    function startGame() {
+      if (players.length === 0) {
+        alert("Please add at least one player.");
+        return;
+      }
+      document.getElementById('die').disabled = false;
+      document.getElementById("die").style.display = "inline-block"; document.getElementById("cardBox").style.display = "block";
+  document.getElementById("resetGame").style.display = "inline-block"; drawBoard();
+      updatePlayers();
+    }
+
+    function drawBoard() {
+      board.innerHTML = "";
+      for (let i = 0; i < boardSize; i++) {
+        const space = document.createElement('div');
+        space.className = 'space';
+        space.style.setProperty('--i', i);
+        if (i === 0) space.classList.add('start');
+        if (i === boardSize - 1) space.classList.add('finish');
+        space.id = 'space-' + i;
+        space.textContent = (i === 0) ? "Start" : (i === boardSize - 1) ? "Finish" : i;
+        board.appendChild(space);
+      }
+    }
+
+    function updatePlayers() {
+      document.querySelectorAll('.player').forEach(p => p.remove());
+      players.forEach((p, index) => {
+        const token = document.createElement('div');
+        token.className = 'player';
+        token.textContent = p.name;
+        token.style.background = index % 2 === 0 ? '#000' : '#800000';
+        const space = document.getElementById('space-' + p.position);
+        space.appendChild(token);
+      });
+    }
+
+    function rollDie() {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      const currentPlayer = players[currentPlayerIndex];
+      document.getElementById('rollResult').textContent = currentPlayer.name + " rolled a " + roll;
+      currentPlayer.position += roll;
+      if (currentPlayer.position >= boardSize - 1) {
+        currentPlayer.position = boardSize - 1;
+        alert("🎉 " + currentPlayer.name + " reached the finish!");
+      }
+      updatePlayers();
+  drawCard();
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    }
+
+    const cards = [
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1bmyH5rMVE55r0hg6sIzsPzT03YlcmUpuntnm8DpBlOc/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1pIWql5zkihPEzmJq8e28HvOdJynse-Nwew8vSJwxx8w/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1qtIoQWG3-mi6yxbnayGNv3dIUQb02pO7umldBSHG6ac/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1yo2whbrAHK6Qj2BMmaCITcx8Xx_o9TXr8C6brrGeZCA/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1qqBWWZer4HUO3JUgXsEdHzRbzBhHJJTUHapCZJ8FZl4/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1J41h-VOTOQgbTWKLq9pPYwxh-I6u5bSoxMgePCp5Bp0/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1g-O_vPrqoSALaxiac2mGAo61y0FzgLZG-qDtXE2qT_0/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1i3wzfKO42Bfhx45VvUpQL5OaFK4BUea3sS6uvDXoYyA/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1hoxnfFM5BdSQTMbfSfzTw42ZPz8c2s_Etn1__yX5rkg/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1mHZw_XmZ4epwLBE-HUxAWKkimTRzIIVtpcl3uxxcnyg/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1hytxrvVMZ9Jmcs3Cx0UwSVGwCjYMJ8i89oTnsKZRptI/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1nKYTHOqkaNuqGsPeHcWV8RZAGp6FWmTiT848B6Lh0ZI/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1WJDXetjz_co4DNjInSmrO3_-yt3Td9Y6LrrrK6BPncc/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1uon9BLlIpAPM_VgrYlTQqKqh8XMfeA7BlW1iKnKuK0o/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/10-r3WBdyf1U4EUpw2sbzCc-AFYZqT2SVerRL4jhP0Qs/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1DIJVQc3O77Vf_ct9vqysHGtT6GcbQRMJTif3wFqA2yY/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1ZQDbs6RnawXvNfapNFHzfUy0JcaXLBbMxhKeq7avxaY/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1__GVPkmWSstGsYQ3wh1sVkADH_irrCA-a7m05Fr8RG4/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/15f3ozDIPs4Joc2cn2baQ6LmSjMuPKw17jN1gHvJo4pg/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1K_PF87aqgdtTOK3oDl9Svl4mIiTW6DmSCRC9Sb676uU/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1hdmoQu9EQONGu7RFK9P9k5It7GpyPa9Z6Nf18WeuZ3A/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1d8JpZWv1l3KXWlf_hvjtZfWg3-klZqvnL7kGXkmEAu4/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1iG8x1JNMWD6IC-x-GZcD_qvPp-KLBpE1A_tyuB8sfE4/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1LFaIHtUfXEbdHiff7AkhLlSA3YL6RW0iEGu4oDLC9mo/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1BPXvUJRHidMtDBdSkFO4A1ScGR1b5f5wdlQ0Q8fDJJY/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1E6NICYjR0wHQjn7kd8vroGu205q_jsaUkJyP-lmbByE/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1hADen-HjQhD1R4qTDkdfQvuzj2pEymdgz9n9uYs5EtA/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1wZk17ZApDg86JZKT_0-yls1GJluS3uzmTqaDxw_z6aY/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1sw5dlxbK-aqPsTVso_htABn2y01t1sp_E_m_PPVmtJk/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1a7MgqfkrWtJNiU5Ic3MeliDgyxbyM24Y8n6AuQJbYWk/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1WMXAArlSOTcmN0jG4uPnF_NobG23xPZA_iOdY7c_mvs/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1-q6UAPibdCedmjOFiiQoZunuDYAsi-6xPNtUbUaDLrc/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1_r6WZOgtA0l2RwMUByznWEkfIHEIN0FxJTFG21vuuBU/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/11aKl7VDwAOXXm1LVn3ovWNHPJsFkYV12sk1N9LtvCqM/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/18gjkXwnieyYYTyn0pFrS8r_1lxSsilXJwAVxyNDWtao/pub?w=555&h=409]]",
+"✍️ Write the word. [[Image:https://docs.google.com/drawings/d/1viQ3R96vdbFB9JZQI6zjq7QilbIj4_rqFf2CO7zGGkw/pub?w=555&h=409]]",
+"💬 Say a sentence. [Image:https://docs.google.com/drawings/d/1bmyH5rMVE55r0hg6sIzsPzT03YlcmUpuntnm8DpBlOc/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1pIWql5zkihPEzmJq8e28HvOdJynse-Nwew8vSJwxx8w/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1qtIoQWG3-mi6yxbnayGNv3dIUQb02pO7umldBSHG6ac/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1yo2whbrAHK6Qj2BMmaCITcx8Xx_o9TXr8C6brrGeZCA/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1qqBWWZer4HUO3JUgXsEdHzRbzBhHJJTUHapCZJ8FZl4/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1J41h-VOTOQgbTWKLq9pPYwxh-I6u5bSoxMgePCp5Bp0/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1g-O_vPrqoSALaxiac2mGAo61y0FzgLZG-qDtXE2qT_0/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1i3wzfKO42Bfhx45VvUpQL5OaFK4BUea3sS6uvDXoYyA/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1hoxnfFM5BdSQTMbfSfzTw42ZPz8c2s_Etn1__yX5rkg/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1mHZw_XmZ4epwLBE-HUxAWKkimTRzIIVtpcl3uxxcnyg/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1hytxrvVMZ9Jmcs3Cx0UwSVGwCjYMJ8i89oTnsKZRptI/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1nKYTHOqkaNuqGsPeHcWV8RZAGp6FWmTiT848B6Lh0ZI/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1WJDXetjz_co4DNjInSmrO3_-yt3Td9Y6LrrrK6BPncc/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1uon9BLlIpAPM_VgrYlTQqKqh8XMfeA7BlW1iKnKuK0o/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/10-r3WBdyf1U4EUpw2sbzCc-AFYZqT2SVerRL4jhP0Qs/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1DIJVQc3O77Vf_ct9vqysHGtT6GcbQRMJTif3wFqA2yY/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1ZQDbs6RnawXvNfapNFHzfUy0JcaXLBbMxhKeq7avxaY/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1__GVPkmWSstGsYQ3wh1sVkADH_irrCA-a7m05Fr8RG4/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/15f3ozDIPs4Joc2cn2baQ6LmSjMuPKw17jN1gHvJo4pg/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1K_PF87aqgdtTOK3oDl9Svl4mIiTW6DmSCRC9Sb676uU/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1hdmoQu9EQONGu7RFK9P9k5It7GpyPa9Z6Nf18WeuZ3A/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1d8JpZWv1l3KXWlf_hvjtZfWg3-klZqvnL7kGXkmEAu4/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1iG8x1JNMWD6IC-x-GZcD_qvPp-KLBpE1A_tyuB8sfE4/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1LFaIHtUfXEbdHiff7AkhLlSA3YL6RW0iEGu4oDLC9mo/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1BPXvUJRHidMtDBdSkFO4A1ScGR1b5f5wdlQ0Q8fDJJY/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1E6NICYjR0wHQjn7kd8vroGu205q_jsaUkJyP-lmbByE/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1hADen-HjQhD1R4qTDkdfQvuzj2pEymdgz9n9uYs5EtA/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1wZk17ZApDg86JZKT_0-yls1GJluS3uzmTqaDxw_z6aY/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1sw5dlxbK-aqPsTVso_htABn2y01t1sp_E_m_PPVmtJk/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1a7MgqfkrWtJNiU5Ic3MeliDgyxbyM24Y8n6AuQJbYWk/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1WMXAArlSOTcmN0jG4uPnF_NobG23xPZA_iOdY7c_mvs/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1-q6UAPibdCedmjOFiiQoZunuDYAsi-6xPNtUbUaDLrc/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1_r6WZOgtA0l2RwMUByznWEkfIHEIN0FxJTFG21vuuBU/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/11aKl7VDwAOXXm1LVn3ovWNHPJsFkYV12sk1N9LtvCqM/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/18gjkXwnieyYYTyn0pFrS8r_1lxSsilXJwAVxyNDWtao/pub?w=555&h=409]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/1viQ3R96vdbFB9JZQI6zjq7QilbIj4_rqFf2CO7zGGkw/pub?w=555&h=409]]",
+"❓ Ask a question. [Image:https://docs.google.com/drawings/d/1bmyH5rMVE55r0hg6sIzsPzT03YlcmUpuntnm8DpBlOc/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1pIWql5zkihPEzmJq8e28HvOdJynse-Nwew8vSJwxx8w/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1qtIoQWG3-mi6yxbnayGNv3dIUQb02pO7umldBSHG6ac/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1yo2whbrAHK6Qj2BMmaCITcx8Xx_o9TXr8C6brrGeZCA/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1qqBWWZer4HUO3JUgXsEdHzRbzBhHJJTUHapCZJ8FZl4/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1J41h-VOTOQgbTWKLq9pPYwxh-I6u5bSoxMgePCp5Bp0/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1g-O_vPrqoSALaxiac2mGAo61y0FzgLZG-qDtXE2qT_0/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1i3wzfKO42Bfhx45VvUpQL5OaFK4BUea3sS6uvDXoYyA/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1hoxnfFM5BdSQTMbfSfzTw42ZPz8c2s_Etn1__yX5rkg/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1mHZw_XmZ4epwLBE-HUxAWKkimTRzIIVtpcl3uxxcnyg/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1hytxrvVMZ9Jmcs3Cx0UwSVGwCjYMJ8i89oTnsKZRptI/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1nKYTHOqkaNuqGsPeHcWV8RZAGp6FWmTiT848B6Lh0ZI/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1WJDXetjz_co4DNjInSmrO3_-yt3Td9Y6LrrrK6BPncc/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1uon9BLlIpAPM_VgrYlTQqKqh8XMfeA7BlW1iKnKuK0o/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/10-r3WBdyf1U4EUpw2sbzCc-AFYZqT2SVerRL4jhP0Qs/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1DIJVQc3O77Vf_ct9vqysHGtT6GcbQRMJTif3wFqA2yY/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1ZQDbs6RnawXvNfapNFHzfUy0JcaXLBbMxhKeq7avxaY/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1__GVPkmWSstGsYQ3wh1sVkADH_irrCA-a7m05Fr8RG4/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/15f3ozDIPs4Joc2cn2baQ6LmSjMuPKw17jN1gHvJo4pg/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1K_PF87aqgdtTOK3oDl9Svl4mIiTW6DmSCRC9Sb676uU/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1hdmoQu9EQONGu7RFK9P9k5It7GpyPa9Z6Nf18WeuZ3A/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1d8JpZWv1l3KXWlf_hvjtZfWg3-klZqvnL7kGXkmEAu4/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1iG8x1JNMWD6IC-x-GZcD_qvPp-KLBpE1A_tyuB8sfE4/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1LFaIHtUfXEbdHiff7AkhLlSA3YL6RW0iEGu4oDLC9mo/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1BPXvUJRHidMtDBdSkFO4A1ScGR1b5f5wdlQ0Q8fDJJY/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1E6NICYjR0wHQjn7kd8vroGu205q_jsaUkJyP-lmbByE/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1hADen-HjQhD1R4qTDkdfQvuzj2pEymdgz9n9uYs5EtA/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1wZk17ZApDg86JZKT_0-yls1GJluS3uzmTqaDxw_z6aY/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1sw5dlxbK-aqPsTVso_htABn2y01t1sp_E_m_PPVmtJk/pub?w=555&h=409]]",
+"❓ Ask a question. [Image:https://docs.google.com/drawings/d/1a7MgqfkrWtJNiU5Ic3MeliDgyxbyM24Y8n6AuQJbYWk/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1WMXAArlSOTcmN0jG4uPnF_NobG23xPZA_iOdY7c_mvs/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1-q6UAPibdCedmjOFiiQoZunuDYAsi-6xPNtUbUaDLrc/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1_r6WZOgtA0l2RwMUByznWEkfIHEIN0FxJTFG21vuuBU/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/11aKl7VDwAOXXm1LVn3ovWNHPJsFkYV12sk1N9LtvCqM/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/18gjkXwnieyYYTyn0pFrS8r_1lxSsilXJwAVxyNDWtao/pub?w=555&h=409]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/1viQ3R96vdbFB9JZQI6zjq7QilbIj4_rqFf2CO7zGGkw/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [Image:https://docs.google.com/drawings/d/1bmyH5rMVE55r0hg6sIzsPzT03YlcmUpuntnm8DpBlOc/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1pIWql5zkihPEzmJq8e28HvOdJynse-Nwew8vSJwxx8w/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1qtIoQWG3-mi6yxbnayGNv3dIUQb02pO7umldBSHG6ac/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1yo2whbrAHK6Qj2BMmaCITcx8Xx_o9TXr8C6brrGeZCA/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1qqBWWZer4HUO3JUgXsEdHzRbzBhHJJTUHapCZJ8FZl4/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1J41h-VOTOQgbTWKLq9pPYwxh-I6u5bSoxMgePCp5Bp0/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1g-O_vPrqoSALaxiac2mGAo61y0FzgLZG-qDtXE2qT_0/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1i3wzfKO42Bfhx45VvUpQL5OaFK4BUea3sS6uvDXoYyA/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1hoxnfFM5BdSQTMbfSfzTw42ZPz8c2s_Etn1__yX5rkg/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1mHZw_XmZ4epwLBE-HUxAWKkimTRzIIVtpcl3uxxcnyg/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1hytxrvVMZ9Jmcs3Cx0UwSVGwCjYMJ8i89oTnsKZRptI/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1nKYTHOqkaNuqGsPeHcWV8RZAGp6FWmTiT848B6Lh0ZI/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1WJDXetjz_co4DNjInSmrO3_-yt3Td9Y6LrrrK6BPncc/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1uon9BLlIpAPM_VgrYlTQqKqh8XMfeA7BlW1iKnKuK0o/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/10-r3WBdyf1U4EUpw2sbzCc-AFYZqT2SVerRL4jhP0Qs/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1DIJVQc3O77Vf_ct9vqysHGtT6GcbQRMJTif3wFqA2yY/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1ZQDbs6RnawXvNfapNFHzfUy0JcaXLBbMxhKeq7avxaY/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1__GVPkmWSstGsYQ3wh1sVkADH_irrCA-a7m05Fr8RG4/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/15f3ozDIPs4Joc2cn2baQ6LmSjMuPKw17jN1gHvJo4pg/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1K_PF87aqgdtTOK3oDl9Svl4mIiTW6DmSCRC9Sb676uU/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1hdmoQu9EQONGu7RFK9P9k5It7GpyPa9Z6Nf18WeuZ3A/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1d8JpZWv1l3KXWlf_hvjtZfWg3-klZqvnL7kGXkmEAu4/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1iG8x1JNMWD6IC-x-GZcD_qvPp-KLBpE1A_tyuB8sfE4/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1LFaIHtUfXEbdHiff7AkhLlSA3YL6RW0iEGu4oDLC9mo/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1BPXvUJRHidMtDBdSkFO4A1ScGR1b5f5wdlQ0Q8fDJJY/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1E6NICYjR0wHQjn7kd8vroGu205q_jsaUkJyP-lmbByE/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1hADen-HjQhD1R4qTDkdfQvuzj2pEymdgz9n9uYs5EtA/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1wZk17ZApDg86JZKT_0-yls1GJluS3uzmTqaDxw_z6aY/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1sw5dlxbK-aqPsTVso_htABn2y01t1sp_E_m_PPVmtJk/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [Image:https://docs.google.com/drawings/d/1a7MgqfkrWtJNiU5Ic3MeliDgyxbyM24Y8n6AuQJbYWk/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1WMXAArlSOTcmN0jG4uPnF_NobG23xPZA_iOdY7c_mvs/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1-q6UAPibdCedmjOFiiQoZunuDYAsi-6xPNtUbUaDLrc/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1_r6WZOgtA0l2RwMUByznWEkfIHEIN0FxJTFG21vuuBU/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/11aKl7VDwAOXXm1LVn3ovWNHPJsFkYV12sk1N9LtvCqM/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/18gjkXwnieyYYTyn0pFrS8r_1lxSsilXJwAVxyNDWtao/pub?w=555&h=409]]",
+"🔠 Spell the word aloud. [[Image:https://docs.google.com/drawings/d/1viQ3R96vdbFB9JZQI6zjq7QilbIj4_rqFf2CO7zGGkw/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [Image:https://docs.google.com/drawings/d/1bmyH5rMVE55r0hg6sIzsPzT03YlcmUpuntnm8DpBlOc/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [[Image:https://docs.google.com/drawings/d/1pIWql5zkihPEzmJq8e28HvOdJynse-Nwew8vSJwxx8w/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [[Image:https://docs.google.com/drawings/d/1qtIoQWG3-mi6yxbnayGNv3dIUQb02pO7umldBSHG6ac/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [[Image:https://docs.google.com/drawings/d/1yo2whbrAHK6Qj2BMmaCITcx8Xx_o9TXr8C6brrGeZCA/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [[Image:https://docs.google.com/drawings/d/1qqBWWZer4HUO3JUgXsEdHzRbzBhHJJTUHapCZJ8FZl4/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What shape is this? [[Image:https://docs.google.com/drawings/d/1J41h-VOTOQgbTWKLq9pPYwxh-I6u5bSoxMgePCp5Bp0/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1g-O_vPrqoSALaxiac2mGAo61y0FzgLZG-qDtXE2qT_0/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1i3wzfKO42Bfhx45VvUpQL5OaFK4BUea3sS6uvDXoYyA/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1hoxnfFM5BdSQTMbfSfzTw42ZPz8c2s_Etn1__yX5rkg/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1mHZw_XmZ4epwLBE-HUxAWKkimTRzIIVtpcl3uxxcnyg/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1hytxrvVMZ9Jmcs3Cx0UwSVGwCjYMJ8i89oTnsKZRptI/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: What are these? [[Image:https://docs.google.com/drawings/d/1nKYTHOqkaNuqGsPeHcWV8RZAGp6FWmTiT848B6Lh0ZI/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1WJDXetjz_co4DNjInSmrO3_-yt3Td9Y6LrrrK6BPncc/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1uon9BLlIpAPM_VgrYlTQqKqh8XMfeA7BlW1iKnKuK0o/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is he? [[Image:https://docs.google.com/drawings/d/10-r3WBdyf1U4EUpw2sbzCc-AFYZqT2SVerRL4jhP0Qs/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is he? [[Image:https://docs.google.com/drawings/d/1DIJVQc3O77Vf_ct9vqysHGtT6GcbQRMJTif3wFqA2yY/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1ZQDbs6RnawXvNfapNFHzfUy0JcaXLBbMxhKeq7avxaY/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is he? [[Image:https://docs.google.com/drawings/d/1__GVPkmWSstGsYQ3wh1sVkADH_irrCA-a7m05Fr8RG4/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/15f3ozDIPs4Joc2cn2baQ6LmSjMuPKw17jN1gHvJo4pg/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is he? [[Image:https://docs.google.com/drawings/d/1K_PF87aqgdtTOK3oDl9Svl4mIiTW6DmSCRC9Sb676uU/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1hdmoQu9EQONGu7RFK9P9k5It7GpyPa9Z6Nf18WeuZ3A/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is he? [[Image:https://docs.google.com/drawings/d/1d8JpZWv1l3KXWlf_hvjtZfWg3-klZqvnL7kGXkmEAu4/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1iG8x1JNMWD6IC-x-GZcD_qvPp-KLBpE1A_tyuB8sfE4/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Who is she? [[Image:https://docs.google.com/drawings/d/1LFaIHtUfXEbdHiff7AkhLlSA3YL6RW0iEGu4oDLC9mo/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she angry? [[Image:https://docs.google.com/drawings/d/1BPXvUJRHidMtDBdSkFO4A1ScGR1b5f5wdlQ0Q8fDJJY/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she happy? [[Image:https://docs.google.com/drawings/d/1E6NICYjR0wHQjn7kd8vroGu205q_jsaUkJyP-lmbByE/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she hungry? [[Image:https://docs.google.com/drawings/d/1hADen-HjQhD1R4qTDkdfQvuzj2pEymdgz9n9uYs5EtA/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she thirsty? [[Image:https://docs.google.com/drawings/d/1wZk17ZApDg86JZKT_0-yls1GJluS3uzmTqaDxw_z6aY/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she tired? [[Image:https://docs.google.com/drawings/d/1sw5dlxbK-aqPsTVso_htABn2y01t1sp_E_m_PPVmtJk/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Is she sad? [Image:https://docs.google.com/drawings/d/1a7MgqfkrWtJNiU5Ic3MeliDgyxbyM24Y8n6AuQJbYWk/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/1WMXAArlSOTcmN0jG4uPnF_NobG23xPZA_iOdY7c_mvs/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/1-q6UAPibdCedmjOFiiQoZunuDYAsi-6xPNtUbUaDLrc/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/1_r6WZOgtA0l2RwMUByznWEkfIHEIN0FxJTFG21vuuBU/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/11aKl7VDwAOXXm1LVn3ovWNHPJsFkYV12sk1N9LtvCqM/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/18gjkXwnieyYYTyn0pFrS8r_1lxSsilXJwAVxyNDWtao/pub?w=555&h=409]]",
+"🤷 Answer in a full sentence: Do you like...? [[Image:https://docs.google.com/drawings/d/1viQ3R96vdbFB9JZQI6zjq7QilbIj4_rqFf2CO7zGGkw/pub?w=555&h=409]]",
+"🖍️ Draw a triangle.",
+"🖍️ Draw a diamond.",
+"🖍️ Draw a star.",
+"🖍️ Draw a circle.",
+"🖍️ Draw a rectangle.",
+"🖍️ Draw a square.",
+"🖍️ Draw two notebooks.",
+"🖍️ Draw three pencil cases.",
+"🖍️ Draw four markers.",
+"🖍️ Draw five rulers.",
+"🖍️ Draw six glue sticks.",
+"🖍️ Draw one pair of scissors.",
+"🖍️ Draw a sister.",
+"🖍️ Draw a mom.",
+"🖍️ Draw a dad.",
+"🖍️ Draw a grandpa.",
+"🖍️ Draw a grandma.",
+"🖍️ Draw a brother.",
+"🖍️ Draw a cook.",
+"🖍️ Draw a police officer.",
+"🖍️ Draw a teacher.",
+"🖍️ Draw a student.",
+"🖍️ Draw a doctor.",
+"🖍️ Draw a nurse.",
+"🖍️ Draw an angry person.",
+"🖍️ Draw a tired person.",
+"🖍️ Draw a hungry person.",
+"🖍️ Draw a sad person.",
+"🖍️ Draw a thirsty person.",
+"🖍️ Draw a happy person.",
+"🖍️ Draw seven rabbits.",
+"🖍️ Draw eight birds.",
+"🖍️ Draw nine turtles.",
+"🖍️ Draw ten cats.",
+"🖍️ Draw two dogs.",
+"🖍️ Draw one fish.",
+"🎤 Sing it. [[https://youtu.be/cfcokmn78pM]]",
+"🎤 Sing it. [[https://youtu.be/yF2u-vUMIgM]]",
+"🎤 Sing it. [[https://youtu.be/FZ23mvSm0D8]]",
+"🎤 Sing it. [[https://youtu.be/r11JzVAkKLc]]",
+"🎤 Sing it. [[https://youtu.be/rLS9-SJ1RyI]]",
+"🎤 Sing it. [[https://youtu.be/8iEmS3TPwAU]]",
+"🎭 Act it out with a friend. [[https://youtu.be/TKJvXb2fsDY]]",
+"🎭 Act it out with a friend. [[https://youtu.be/AQQbGiASXME]]",
+"🎭 Act it out with a friend. [[https://youtu.be/MvCG3QjPCXY]]",
+"🎭 Act it out with a friend. [[https://youtu.be/rSVes0ZPS94]]",
+"🎭 Act it out with a friend. [https://youtu.be/eMVKWRAat2U]]",
+"🎭 Act it out with a friend. [[https://youtu.be/8oe3YWGiGfI]]",
+"🤷 Answer in a full sentence: How old are you?",
+"🤷 Answer in a full sentence: How are you today?"
+];
+
+    function drawCard() {
+      const randomIndex = Math.floor(Math.random() * cards.length);
+      document.getElementById('cardText').innerHTML = cards[randomIndex]
+        .replace(/\[\[Image:(.*?)\]\]/g, '<br><img src="$1" style="max-width:100%; height:auto;"/>')
+      .replace(/https:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<br><img src="$1" style="max-width:100%; height:auto;"/>')
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<br><img src="$1" style="max-width:100%; height:auto;"/>')
+      .replace(/\[\[(https?:\/\/www\.youtube\.com\/watch\?v=[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[(https?:\/\/youtu\.be\/[\w-]+)\]\]/g, '$1')
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<br><img src="$1" style="max-width:100%; height:auto;"/>')
+      .replace(/\[\[(https?:\/\/www\.youtube\.com\/watch\?v=[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[(https?:\/\/youtu\.be\/[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[|\]\]/g, '')  // Catch-all to remove any remaining brackets
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
+    }
+  
+  function resetGame() {
+    players = [];
+    currentPlayerIndex = 0;
+    document.getElementById('playerList').innerHTML = '';
+    document.getElementById('die').style.display = 'none';
+    document.getElementById('resetGame').style.display = 'none';
+    document.getElementById('cardBox').style.display = 'none';
+    document.getElementById('rollResult').textContent = '';
+    board.innerHTML = '';
+  }
+
+</script></div>
+</body>
+</html>
