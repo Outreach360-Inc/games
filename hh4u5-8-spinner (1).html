@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HH3 Units 5-8 Bingo Spinner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f0f8ff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      font-size: 1.5em;
+      color: #333;
+      text-align: center;
+    }
+    .spinner-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 10px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #spin-button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background: #6a5acd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #spin-button:hover {
+      background: #483d8b;
+    }
+    #image-display {
+      margin-top: 20px;
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #image-display img {
+      max-width: 100%;
+      max-height: 60vh;
+      border: 4px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>HH3 Units 5–8 Bingo Spinner</h1>
+  <div class="spinner-container">
+    <button id="spin-button">SPIN</button>
+    <div id="image-display"></div>
+  </div>
+
+  <script>
+    const images = [
+  "https://docs.google.com/drawings/d/e/2PACX-1vT-q_poFf_6amwAtVDHmDywdXkn1dZWPt-7gkKo4zstj4K-xEzzRlrr55IXeRxp5OjEOkua2h--R6Th/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRX5lMo9_MjrXW6ZzASfcA4ID-pFzWohIUk_lGZyVU4u4HlmshBbeO1bmZiIgJBUlHWhkbBVw-mkCJG/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQHVdkIKCC6ddedCxOEGsghE_NXqBiVcI05QkqZUR0AGGKpXquLLP3HTCXcPO9air9S3vfHlJsT-kfY/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTtLS-XCFgJq8kgnhoK495KXVVyD_XHh5J9C0DcyVmgIjNDjTdoz1iIFgco42HPnfgxURmA0_21OrBA/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTuqeVm_qU5g1ahgmQsEtqDw1bFZfbBXEYlRm74jBt1mRidZrwZ7l7x9LcpFQlKPlVEWXBlPs_7TStu/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSE4CMsDSjwhRpiM25EynUTg38pRVW6PFDm13F8glr8nx6zn8irX7WHyYcZjwHNJYuJ2bMMoKOyZxye/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vT4HYefOSkRlaL3Ez2RiVYKWoPwuFRsKXy9NTKmlszWog_aB8kmDffl7urnMEqigu8IoNP-bYsIXPUQ/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRbe5Ghk2nIPX0CCHagacTme1mAYMfDOFR3Z3U7EENpj5VxHP6TInvWUIQgxjrIaILPF4boy-I8c4tH/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTLACIk58owuDWVhA1Sr7hhT4qqnbif7axuIULXCe5oAYqhuM2A7xX_Vng8M3fcQE64AkH_3udVVCXd/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRf7K55_lXWmr-YIeKZ_Xn8u33e3dY4lVHt1y8RdDG5027vvUrJeBOH5bYn3GR2qLydnmKkFTIeNnAJ/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSiXi7IRcN19jday35u78T00qYewrH5kXyhqXS6vrYPZBlQ0VSTYXr0uSqUcGUo7D2owJn7O6ZdHTd0/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRTcr4LnlDaje9rxTOYwoX-yLv8Tk7QK08i5hlMx1gZONyZ7kKa8_tj5p75DWjGzHTuJXb56yNDy4vr/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQIE46dwU4p53MXeHq3VSGb9vcxYF1fPHqDakUYKkLAd3eKKtECj8Ol4fS2UIUDdSZfk9sh0WbJUqf0/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSbkKONIOIZEKWeCfTlPStFnTl_TwsnaBXFVeabOVIFwak7HDQnlL6yzIdxiDMHoCAvda-xDYYF1ZCD/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQeIQ_Q2esUWnmgep9DgJ7e62k5sHz54DdZ03P56BoZ_tL-R2MhKSdcsltSHGTvj1zX7UnVOwooK7zI/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQ99MyFGdTcuS6dnb8tD0T6U9WPqNBfgG8_VL_keAgk-oh6wOQHGxUFmfX9gtv0Ccb45HQv7-yztnv4/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vScRA60IFJD8dgrKnXzQfQwAJmAd2gBZ0HvhzSz3hnkauUf2-Wt1KMWIy7Sj8ap8FnEAq8eyh16GwPQ/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vR9j_K9L2HFJpy3QOUzQf9Il2-k8GM5GricX9zBpfb989U8HczfeXxJTqs843ERAGyQscUE6_zqq4vj/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vRJrOKvba7iJ-pTE_TvoX_dfLl7VJqbQjK9yeeApswonXHb3MOxZY7uiDsSM0rC2TR4jwlh9XFJc5f5/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQfsOvxzfyzHfvADEA08oehiGTCsIdxwEy2dkbF-j1m5d3RrAPiTfje4n-laLTW34614H48eiYfo6hn/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vSJR0m_w_MebGo_fMrO74JN3xGj_ru9mz7xnEvmqNMXaNPDlOvkQ1vdBmw8nq8aM5qRKcYGtqD4FLBl/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQHioVIUFikeh7rOz-APBDLktDz0g21tXFspKSLqDQe1x76N4XEz-oWKo60Biw9mxM19a2zJB0OMPNF/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQ2tK0V-4P12nI-mNR-MpX3NgNrDan2iW_zSEPF0Xtu65ipTNAkYdC9ZpFyojhvAo1WvRinuel0P7So/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vS-Rl0RnYLXbuweO570oCjYrUOLcZaNyu9RYEkk31fLP5eiDfKC7GpCXa7Sels-v9cypoMe4X95XTxa/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vTgX9a4dWb9gef_-or6Udus30UNN1-AYKAw-8hp3i0eLPYRKzA_kYvXTg1RLQenK-dkSBGU_PE8tI4c/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vS6lv7vaZmFbHvEHCLjQCiyVneyqiPgGA0FccVacqHQ_uVcub9LtBBmm9dpspc3XtI1JqVIDGsgFEnv/pub?w=552&h=562",
+  "https://docs.google.com/drawings/d/e/2PACX-1vQKhfLM2JcLpIkuOlc0On5Mx3uBkipSfC9vAuAw02rLEAWUuovitOL5yzjVmRccGcmhxo_FGccl0MZs/pub?w=552&h=562"
+];
+
+    const button = document.getElementById('spin-button');
+    const imageDisplay = document.getElementById('image-display');
+
+    button.addEventListener('click', () => {
+      const randomIndex = Math.floor(Math.random() * images.length);
+      const selectedImage = images[randomIndex];
+      imageDisplay.innerHTML = `<img src="${selectedImage}" alt="HH1 Bingo Image">`;
+    });
+  </script>
+</body>
+</html>
