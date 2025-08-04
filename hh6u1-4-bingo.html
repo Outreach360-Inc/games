@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HH6 Units 1-4 Bingo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+        }
+        body {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #2a2a2a;
+        }
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 12px;
+            width: fit-content;
+            margin: 30px auto 0;
+        }
+        .cell {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            user-select: none;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+        }
+        .cell:hover {
+            background-color: #f0f0f0;
+        }
+        .cell.clicked,
+        .cell.free {
+            background-color: #6a5acd;
+            color: #fff;
+        }
+        .cell.free {
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>HH6 Units 1-4 Bingo</h1>
+    <div class="bingo-board" id="bingo-board"></div>
+
+    <script>
+        const words = ['sail on a boat', 'see a musical', 'go to a water park', 'visit grandparents', 'eat out at a restaurant', 'have a sleepover', 'write emails to friends', 'build a model plane', 'go on a cruise', 'go rafting', 'go rock climbing', 'go snorkeling', 'go whale watching', 'ride a camel', 'go horseback riding', 'explore a cave', 'into the box', 'out of the box', 'through the pipe', 'up the stairs', 'down the stairs', 'around the box', 'under the box', 'over the box', 'draw comics', 'build model rockets', 'read books', 'learn foreign languages', 'play musical instruments', 'act in school plays'];
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function generateBoard() {
+            const board = document.getElementById("bingo-board");
+            shuffle(words);
+            let index = 0;
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                if (i === 12) {
+                    cell.textContent = "FREE";
+                    cell.classList.add("free");
+                } else {
+                    cell.textContent = words[index++];
+                    cell.addEventListener("click", function() {
+                        cell.classList.toggle("clicked");
+                    });
+                }
+                board.appendChild(cell);
+            }
+        }
+        generateBoard();
+    </script>
+</body>
+</html>
