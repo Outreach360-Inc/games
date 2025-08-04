@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HH4 Units 7-12 Review Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      text-align: center;
+    }
+    .board {
+  display: flex;
+  flex-wrap: wrap;
+  width: 792px;
+  border: 3px solid #333;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+    .space {
+  flex: 0 0 calc(100% / 9);
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #999;
+  box-sizing: border-box;
+  background: hsl(calc(360 * var(--i) / 54), 90%, 85%);
+  position: relative;
+}
+    .start { background: lightgreen; font-weight: bold; }
+    .finish { background: gold; font-weight: bold; }
+    .player {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: #000;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    #die {
+      font-size: 30px;
+      padding: 10px 20px;
+      background: #ff6347;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #cardBox {
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px dashed #999;
+      width: 500px;
+      min-height: 100px;
+      background: #fffbe0;
+    }
+    #drawCard {
+      padding: 10px 20px;
+      background: #4682b4;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button id="resetGame" onclick="resetGame()" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 1000; font-size: 14px; padding: 8px 12px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">🔁 Reset Game</button>
+
+  <h1>HH4 Units 7–12 Review Game</h1>
+  
+  <div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+  <input type="text" id="newPlayerName" placeholder="Enter player name" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;" />
+  <button onclick="addPlayer()" style="padding: 8px 12px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Add Player</button>
+  <button onclick="startGame()" style="padding: 8px 12px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">Start Game</button>
+  <div id="playerList" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+</div>
+  </div>
+    
+  <div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px; margin-top: 20px;">
+  <div style="flex: 0 0 200px; max-width: 200px; font-size: 14px;">
+  
+<button id="die" onclick="rollDie()" style="display:none; font-size: 20px; padding: 6px 10px; width: 100%;">🎲 Roll</button>
+  <p id="rollResult" style="margin: 8px 0;"></p>
+  <div id="cardBoxInstructions" style="display:none; font-size: 14px; color: #333; margin-bottom: 6px;">🖱️ Click the image to enlarge it.</div>
+  <div id="cardBox" style="display:none; padding: 10px; border: 1px solid #ccc; background: #fffbe0; width: 100%; box-sizing: border-box;">
+    <div id="cardText" style="font-size: 13px;"></div>
+  </div>
+    
+<button id="die" style="display:none;" onclick="rollDie()">🎲 Roll</button>
+    <p id="rollResult"></p>
+    <div id="cardBoxInstructions" style="display:none; font-size: 14px; color: #333; margin-bottom: 6px;">🖱️ Click the image to enlarge it.</div>
+  <div id="cardBox" style="display:none;">
+      <div id="cardText"></div>
+    </div>
+  </div>
+  <div class="board" id="gameBoard"></div>
+  
+<button id="die" style="display:none;" onclick="rollDie()">🎲 Roll</button>
+  <p id="rollResult"></p>
+  <div id="cardBoxInstructions" style="display:none; font-size: 14px; color: #333; margin-bottom: 6px;">🖱️ Click the image to enlarge it.</div>
+  <div id="cardBox" style="display:none;">
+    <div id="cardText"></div>
+  </div>
+</div>
+
+  
+  <script>
+    const board = document.getElementById('gameBoard');
+    const boardSize = 54;
+    let players = [];
+    let currentPlayerIndex = 0;
+
+    function addPlayer() {
+      const nameInput = document.getElementById('newPlayerName');
+      const name = nameInput.value.trim();
+      if (name) {
+        players.push({ name: name, position: 0 });
+        const span = document.createElement('span');
+      span.textContent = name;
+      span.style.padding = "5px 10px";
+      span.style.background = "#eee";
+      span.style.borderRadius = "5px";
+      span.style.border = "1px solid #ccc";
+      document.getElementById('playerList').appendChild(span);
+        nameInput.value = '';
+      }
+    }
+
+    function startGame() {
+      if (players.length === 0) {
+        alert("Please add at least one player.");
+        return;
+      }
+      document.getElementById('die').disabled = false;
+      document.getElementById("die").style.display = "inline-block"; document.getElementById("cardBox").style.display = "block";
+  document.getElementById("cardBoxInstructions").style.display = "block";
+  document.getElementById("resetGame").style.display = "inline-block"; drawBoard();
+      updatePlayers();
+    }
+
+    function drawBoard() {
+      board.innerHTML = "";
+      for (let i = 0; i < boardSize; i++) {
+        const space = document.createElement('div');
+        space.className = 'space';
+        space.style.setProperty('--i', i);
+        if (i === 0) space.classList.add('start');
+        if (i === boardSize - 1) space.classList.add('finish');
+        space.id = 'space-' + i;
+        space.textContent = (i === 0) ? "Start" : (i === boardSize - 1) ? "Finish" : i;
+        board.appendChild(space);
+      }
+    }
+
+    function updatePlayers() {
+      document.querySelectorAll('.player').forEach(p => p.remove());
+      players.forEach((p, index) => {
+        const token = document.createElement('div');
+        token.className = 'player';
+        token.textContent = p.name;
+        token.style.background = index % 2 === 0 ? '#000' : '#800000';
+        const space = document.getElementById('space-' + p.position);
+        space.appendChild(token);
+      });
+    }
+
+    function rollDie() {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      const currentPlayer = players[currentPlayerIndex];
+      document.getElementById('rollResult').textContent = currentPlayer.name + " rolled a " + roll;
+      currentPlayer.position += roll;
+      if (currentPlayer.position >= boardSize - 1) {
+        currentPlayer.position = boardSize - 1;
+        alert("🎉 " + currentPlayer.name + " reached the finish!");
+      }
+      updatePlayers();
+  drawCard();
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    }
+
+    const cards = [
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSRGFS_ENtxUOD4wnzINzaidf7E01zseOD-NfOpNBf2V2nFLn8hLK-VFcE7_LEqEaG0zeCYUkGjLKdJ/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTeIcepm1lJBgh_tUwbN3f-UEFBpJhg5HMNMXQ5QgVWrJ-4Uved24mTwAWnN21vdJQj_TGTy-7YezXm/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQjwMZrqKdaXDcBS3WCrx9gzeWtgfw8BSMFwvwR0H17xesyYueYu6V8FRdsQheM5ISjeY6ItE6Q4KmG/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsZMuEbVQdRCfa3vSHF7qMXzchz4fZTB-I9p4_DQuymt2hV1HSfPuJTR6MYuoxrK0Akvr-sF8_5Pq3/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTalWd61oo01Syz-i-aQ1VFS-8Ck8hlhTt8fPKcqHKEVEYMOnEI08RR2c5CCq7QyR_ng9wPtq-IFL84/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT85h1K7JBaqekr8ZCGCVM7ASukLC57kZsQbU22wLJQI1cRKGnSEZ5LGeXeCTizse8EP6CXUp-NGOdZ/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQ1fvUFfZbanMuzRa-beCbEhB4CjtFlCOEmKyOFo8RQk_11BUXvuVmDrHzQeDS5Mm2jTkkz12YKqWED/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRSxuye-dPv3CevcE0FRIaIm1eyXqsVRzteg_85DKfFbFz4ClDi8uM5kCQe1SY07AGLC4VcR0iRtssH/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQ1PI4ctI_EYHvcUh2ZIFSZRheKCN-KTeSRnbMUWC7KLcKyWL8A2Hxz2xkWz97OaHVbQwhX_nKhXV4-/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTP0bah7nT7KsHZAK-HEbsE4oj9QNB29nB9tXjkQtcMVR1Yv8PajJaNyCW1GNS0UQHwTU-RcHYt8-8c/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT-qckawvgifmM-ysOC7WwSZJeklS4ATeXK9266zJ7oy42yf89kb7EOEFGFG01CaHH5eKUrf06cXNxz/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTvKTete49Z3aSzY5af4dGtBpY6-PKYkLTH5uolV_mesPKiBRDAFa6bsGf7v174U6kPvVn2o2lD2Q2u/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRNZrXTWdsO0A8sXRKgoK8btJ0Lm2f2X9dkUzxajnYRzozlQU8N1hNtesiw7cGI_qcLPL8CCE6xcsGK/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTrfE2oBKyjojlbSEdPs639F5wXOHzOOMU5OFpyv9-oGCS2jwNk3_k63mfcpRbSRb6R_KmBXjc9FLrd/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vR45VfVZ_Y70k9-_sLt1Go8d2HyBoKNR2fp0ykFf6I52ApgOoGad-3ztB-rdvzg7_ZxPK3yjhuq03dY/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRTR_wY253Abo-c9xVAaEwRuLHWrqfVhME0CyO_D2fx5XbSYbfnLKdlTSz4dbztSRH-XxtwAgRU4E-/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vR1gOCo8f-i9FiJiQSSZ8vXX6MdEP1Ly9cWhwBXa4_Cv8p__OaBaA3SmIYTFxPVrrxOiSeLC3Q6AkXR/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTX7X-EibA7XrhhmtsTyoxIytVrMuFnUdD8aG3z3jrpbZHsM6fCuCnwQPSSp06z-hAvsohszzMsqCW4/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSfKo3LVvst64-t3hDTVhkd0IYJzpEosW91n2h6PfXPmqtT_jOklD6dR2EnuT7kZDGnAV0oelR8G8I0/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQKsR6xKxETyGMrJ-VZKmstNe6tO8CR8kV6VCJk2DL2NmQYx5Zp_rPI0xIfSMLv9nZv4lAbVS0wUi2i/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT6tJ75J0qDNfaFXJa1AcFXZEGFhMwbTtKGxhxTKjRXyPLL8jQ59tKPPFb0JkuGFF6fhIQuI4UKB3qX/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSxH7RGQLG6vepx3yHMyAk7dGIre8yuA7naW8PY_ackPGB4D6Twuo8nm2dzy2vrrMKms192ovOwKEaw/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRMpqzsugfKB4JkOTHQcEYPCf0w1Wqn5C3r7N9K9DBAB597nonRVmYhapidmBMBtmdA56QmVejwk0Wh/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTKAq7fiXb-MPY6u-dugOk_NfEFeGyLkXJA_dI33jf--TIpwcttOT9oOEcr-L7mgXqnRxFx6p52XFWB/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT1PzXqjYe-6HaZoYILtbHULOE_cE_AcmoCfY0ZuFNjEJ6SLL0HrNTva6AV4SQnGkuPpuqUMQ6oVUoA/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQSKCYaEIcgvCi7kui3YQz6oaHzbobiOMFwPoxgCmnQRYyYkIuwahL-5G394jRriZMbnZ5rcMYrBK3W/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSi9vTyDzaXwvN5ZEmWQ4yW9YRhx_7odB1oUYanfdEF_57V2U4rcB600bRXFIhWEYcKGurAjFiTixx-/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQcCjIp-voUszQfB6Qmn4ovis87WZX4ijh7docyaFXy6wWQKH2pAde9RLmlaTRuB1fRXMrbisV3DBXS/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRBlmRRICrRypa9tuB2s7iAsHwbfP0MGyghc2lN3zsWdsnG8Qry5k3_e2wNxOJvbsIrCqGkxdOsy4vP/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS5FbJ-AJTFlkv9mZFnMiyrtQz1PMilvXxe2w2MkzZh7X2hjUNRBgKzy1-F5mTAWC_pf1OBtx9_kmws/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQo4tugAJuVNLU-E7BjJQ7DTvyX76gOBjXCMWkVjxSm8XLxQS_Lq3FD9Gzf6yfGY-T662n1u68pWByU/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQe4fba7VHEW2QIr_fFVCL_Ij8h4iLw9_X6P92GeUUAmmG__SCKwSf3EKqET2tU8XCLZHc4wFkQ0xPF/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQFvxz4LhZGPLuEN3uq3Gne0ruDzPvnhVVziVyZUAzd_Dk9xr-K42l15rfZuKmONWO4TQId29d89dfn/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQxKihOgvCzztLqgMn1t2j0ezqBHteOqSQarIT27n_tyzMqM_sftsQX3svH8FW9K_SGor6NljXWo8nk/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRvptppy4x68fdetwiNTEF_G6t3G-WS3UU3J7Wgl8bMSs8NxJfIxrbSKcfCAhruU_mWt2cPHA_Naxyg/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRJ6ODDbwNfCFRIe0z2QnyanQCt2LTNfPeDhTG41SiSfUGWPVWu2exTF9LwMH3HhXQuNwtWMIe_8xej/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT1IIjPrrvnGXeEtL1sIS1OqtsXXyPHfQC111OeJNtS1qcwqpZgUmtxIIqkYUvLB4-sWXRgLJDL8Rim/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRGyvczfBPA23dwQ1ZNV9_FZ9l5CDF0GmI_DyBuHgCewD6bWJdlVp3NIq-7l4YGKly4-VJA6DiD6EQh/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTLI_FOoYJfoN2_xoUeCnfdRjrNGdz9fy4Td59tBwNuOlv-wNznfzM1C8Fp5cDRBtiewe76VEP98Yzl/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQDqXyG7k476ptyEwRHjQ08GVarQPLO26Rjj0trJvkqPg9ljHAai9ll48GwAfUG9EqoqSnM1Wd2rxh1/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTw99ehTqPhRsdan8WMz4-fDC2naQDmgvjtmePiaGANUVWfxNA4972nl0x-o-DBYGPmPhJ23OFgEAPL/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsor5BgUDW-iFXOiVoAedyWyFYQoK3lnI88qonAK6XRH6H318CpToVN6xE5LyklGVEL77QTe2WgXhh/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSg2x3dlLNW4AXJscN-svdzpWi3DBZ7-UECaRD0pGzqivlk_aai2s6G5e-BM-BwdmaHxLyiZwYU0PU7/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRD07_0iDcPirWb1iaXetVRmw5FLVqebJsHF0_rwF1TOqW0JXcLFISoVYv4XWxuCsX8jwHvMK6wyUaH/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQJLZxYpCUSQ9FVbwIj-Nbfn808xjYCcIQ1mtRnPnS2kQ_cnBJuoMOJNrKZUr0xB0DInhBxkc641Xxi/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSpjxeBr5xgBBTd-dLgxqGarbhN2ockwcYDZh2JhLZMq6zumHjfnxwe6I0pD_2DX_-1qLv56P3qbMTt/pub?w=552&h=562]]",
+"💬 Say a sentence. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT4Hm36RlM59XoPi3qLL6fSx83toQ6dMfKrk7Efd8a0Jvu4_zpII3vTr-JhyWwdeq7eQwiPnNTIyj1c/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSRGFS_ENtxUOD4wnzINzaidf7E01zseOD-NfOpNBf2V2nFLn8hLK-VFcE7_LEqEaG0zeCYUkGjLKdJ/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTeIcepm1lJBgh_tUwbN3f-UEFBpJhg5HMNMXQ5QgVWrJ-4Uved24mTwAWnN21vdJQj_TGTy-7YezXm/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQjwMZrqKdaXDcBS3WCrx9gzeWtgfw8BSMFwvwR0H17xesyYueYu6V8FRdsQheM5ISjeY6ItE6Q4KmG/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsZMuEbVQdRCfa3vSHF7qMXzchz4fZTB-I9p4_DQuymt2hV1HSfPuJTR6MYuoxrK0Akvr-sF8_5Pq3/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTalWd61oo01Syz-i-aQ1VFS-8Ck8hlhTt8fPKcqHKEVEYMOnEI08RR2c5CCq7QyR_ng9wPtq-IFL84/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT85h1K7JBaqekr8ZCGCVM7ASukLC57kZsQbU22wLJQI1cRKGnSEZ5LGeXeCTizse8EP6CXUp-NGOdZ/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQ1fvUFfZbanMuzRa-beCbEhB4CjtFlCOEmKyOFo8RQk_11BUXvuVmDrHzQeDS5Mm2jTkkz12YKqWED/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRSxuye-dPv3CevcE0FRIaIm1eyXqsVRzteg_85DKfFbFz4ClDi8uM5kCQe1SY07AGLC4VcR0iRtssH/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQ1PI4ctI_EYHvcUh2ZIFSZRheKCN-KTeSRnbMUWC7KLcKyWL8A2Hxz2xkWz97OaHVbQwhX_nKhXV4-/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTP0bah7nT7KsHZAK-HEbsE4oj9QNB29nB9tXjkQtcMVR1Yv8PajJaNyCW1GNS0UQHwTU-RcHYt8-8c/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT-qckawvgifmM-ysOC7WwSZJeklS4ATeXK9266zJ7oy42yf89kb7EOEFGFG01CaHH5eKUrf06cXNxz/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTvKTete49Z3aSzY5af4dGtBpY6-PKYkLTH5uolV_mesPKiBRDAFa6bsGf7v174U6kPvVn2o2lD2Q2u/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRNZrXTWdsO0A8sXRKgoK8btJ0Lm2f2X9dkUzxajnYRzozlQU8N1hNtesiw7cGI_qcLPL8CCE6xcsGK/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTrfE2oBKyjojlbSEdPs639F5wXOHzOOMU5OFpyv9-oGCS2jwNk3_k63mfcpRbSRb6R_KmBXjc9FLrd/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vR45VfVZ_Y70k9-_sLt1Go8d2HyBoKNR2fp0ykFf6I52ApgOoGad-3ztB-rdvzg7_ZxPK3yjhuq03dY/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRTR_wY253Abo-c9xVAaEwRuLHWrqfVhME0CyO_D2fx5XbSYbfnLKdlTSz4dbztSRH-XxtwAgRU4E-/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vR1gOCo8f-i9FiJiQSSZ8vXX6MdEP1Ly9cWhwBXa4_Cv8p__OaBaA3SmIYTFxPVrrxOiSeLC3Q6AkXR/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTX7X-EibA7XrhhmtsTyoxIytVrMuFnUdD8aG3z3jrpbZHsM6fCuCnwQPSSp06z-hAvsohszzMsqCW4/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSfKo3LVvst64-t3hDTVhkd0IYJzpEosW91n2h6PfXPmqtT_jOklD6dR2EnuT7kZDGnAV0oelR8G8I0/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQKsR6xKxETyGMrJ-VZKmstNe6tO8CR8kV6VCJk2DL2NmQYx5Zp_rPI0xIfSMLv9nZv4lAbVS0wUi2i/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT6tJ75J0qDNfaFXJa1AcFXZEGFhMwbTtKGxhxTKjRXyPLL8jQ59tKPPFb0JkuGFF6fhIQuI4UKB3qX/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSxH7RGQLG6vepx3yHMyAk7dGIre8yuA7naW8PY_ackPGB4D6Twuo8nm2dzy2vrrMKms192ovOwKEaw/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRMpqzsugfKB4JkOTHQcEYPCf0w1Wqn5C3r7N9K9DBAB597nonRVmYhapidmBMBtmdA56QmVejwk0Wh/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTKAq7fiXb-MPY6u-dugOk_NfEFeGyLkXJA_dI33jf--TIpwcttOT9oOEcr-L7mgXqnRxFx6p52XFWB/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT1PzXqjYe-6HaZoYILtbHULOE_cE_AcmoCfY0ZuFNjEJ6SLL0HrNTva6AV4SQnGkuPpuqUMQ6oVUoA/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQSKCYaEIcgvCi7kui3YQz6oaHzbobiOMFwPoxgCmnQRYyYkIuwahL-5G394jRriZMbnZ5rcMYrBK3W/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSi9vTyDzaXwvN5ZEmWQ4yW9YRhx_7odB1oUYanfdEF_57V2U4rcB600bRXFIhWEYcKGurAjFiTixx-/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQcCjIp-voUszQfB6Qmn4ovis87WZX4ijh7docyaFXy6wWQKH2pAde9RLmlaTRuB1fRXMrbisV3DBXS/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRBlmRRICrRypa9tuB2s7iAsHwbfP0MGyghc2lN3zsWdsnG8Qry5k3_e2wNxOJvbsIrCqGkxdOsy4vP/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS5FbJ-AJTFlkv9mZFnMiyrtQz1PMilvXxe2w2MkzZh7X2hjUNRBgKzy1-F5mTAWC_pf1OBtx9_kmws/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQo4tugAJuVNLU-E7BjJQ7DTvyX76gOBjXCMWkVjxSm8XLxQS_Lq3FD9Gzf6yfGY-T662n1u68pWByU/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQe4fba7VHEW2QIr_fFVCL_Ij8h4iLw9_X6P92GeUUAmmG__SCKwSf3EKqET2tU8XCLZHc4wFkQ0xPF/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQFvxz4LhZGPLuEN3uq3Gne0ruDzPvnhVVziVyZUAzd_Dk9xr-K42l15rfZuKmONWO4TQId29d89dfn/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQxKihOgvCzztLqgMn1t2j0ezqBHteOqSQarIT27n_tyzMqM_sftsQX3svH8FW9K_SGor6NljXWo8nk/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRvptppy4x68fdetwiNTEF_G6t3G-WS3UU3J7Wgl8bMSs8NxJfIxrbSKcfCAhruU_mWt2cPHA_Naxyg/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRJ6ODDbwNfCFRIe0z2QnyanQCt2LTNfPeDhTG41SiSfUGWPVWu2exTF9LwMH3HhXQuNwtWMIe_8xej/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT1IIjPrrvnGXeEtL1sIS1OqtsXXyPHfQC111OeJNtS1qcwqpZgUmtxIIqkYUvLB4-sWXRgLJDL8Rim/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRGyvczfBPA23dwQ1ZNV9_FZ9l5CDF0GmI_DyBuHgCewD6bWJdlVp3NIq-7l4YGKly4-VJA6DiD6EQh/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTLI_FOoYJfoN2_xoUeCnfdRjrNGdz9fy4Td59tBwNuOlv-wNznfzM1C8Fp5cDRBtiewe76VEP98Yzl/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQDqXyG7k476ptyEwRHjQ08GVarQPLO26Rjj0trJvkqPg9ljHAai9ll48GwAfUG9EqoqSnM1Wd2rxh1/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTw99ehTqPhRsdan8WMz4-fDC2naQDmgvjtmePiaGANUVWfxNA4972nl0x-o-DBYGPmPhJ23OFgEAPL/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsor5BgUDW-iFXOiVoAedyWyFYQoK3lnI88qonAK6XRH6H318CpToVN6xE5LyklGVEL77QTe2WgXhh/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSg2x3dlLNW4AXJscN-svdzpWi3DBZ7-UECaRD0pGzqivlk_aai2s6G5e-BM-BwdmaHxLyiZwYU0PU7/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRD07_0iDcPirWb1iaXetVRmw5FLVqebJsHF0_rwF1TOqW0JXcLFISoVYv4XWxuCsX8jwHvMK6wyUaH/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQJLZxYpCUSQ9FVbwIj-Nbfn808xjYCcIQ1mtRnPnS2kQ_cnBJuoMOJNrKZUr0xB0DInhBxkc641Xxi/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSpjxeBr5xgBBTd-dLgxqGarbhN2ockwcYDZh2JhLZMq6zumHjfnxwe6I0pD_2DX_-1qLv56P3qbMTt/pub?w=552&h=562]]",
+"❓ Ask a question. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vT4Hm36RlM59XoPi3qLL6fSx83toQ6dMfKrk7Efd8a0Jvu4_zpII3vTr-JhyWwdeq7eQwiPnNTIyj1c/pub?w=552&h=562]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQu2tgdroAEpz-1FgGfxRFiJaFVBqc4zYAGRpbWJqmv2ajBh3hX-ufLk8_QPiG-DwoYyYZj9X795sRz/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQu2tgdroAEpz-1FgGfxRFiJaFVBqc4zYAGRpbWJqmv2ajBh3hX-ufLk8_QPiG-DwoYyYZj9X795sRz/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQu2tgdroAEpz-1FgGfxRFiJaFVBqc4zYAGRpbWJqmv2ajBh3hX-ufLk8_QPiG-DwoYyYZj9X795sRz/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQu2tgdroAEpz-1FgGfxRFiJaFVBqc4zYAGRpbWJqmv2ajBh3hX-ufLk8_QPiG-DwoYyYZj9X795sRz/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTGDVgCOsqzi7x8ecARdJqQhBEN1LZ45Fl3ziIjFArTKzw4hhBqMtFqDFSQKJfQleEfpskPr5OdsBI-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTGDVgCOsqzi7x8ecARdJqQhBEN1LZ45Fl3ziIjFArTKzw4hhBqMtFqDFSQKJfQleEfpskPr5OdsBI-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTGDVgCOsqzi7x8ecARdJqQhBEN1LZ45Fl3ziIjFArTKzw4hhBqMtFqDFSQKJfQleEfpskPr5OdsBI-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTGDVgCOsqzi7x8ecARdJqQhBEN1LZ45Fl3ziIjFArTKzw4hhBqMtFqDFSQKJfQleEfpskPr5OdsBI-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS6NZsq9pSfUu7fZmTBbJDIjT5ah4K5h7RGf-BjVQI-vOp2uRWf1Eo2mZn6iLT11Z9GmZo6nIrXY1Be/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS6NZsq9pSfUu7fZmTBbJDIjT5ah4K5h7RGf-BjVQI-vOp2uRWf1Eo2mZn6iLT11Z9GmZo6nIrXY1Be/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS6NZsq9pSfUu7fZmTBbJDIjT5ah4K5h7RGf-BjVQI-vOp2uRWf1Eo2mZn6iLT11Z9GmZo6nIrXY1Be/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vS6NZsq9pSfUu7fZmTBbJDIjT5ah4K5h7RGf-BjVQI-vOp2uRWf1Eo2mZn6iLT11Z9GmZo6nIrXY1Be/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRW86w75Ak4WZ3E6o9Gw2OwAzwxnpqmpzFHMvR-K5OJAVqudpmLIVpqVOsDHId6AaO2-G0nMUHGK1s/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRW86w75Ak4WZ3E6o9Gw2OwAzwxnpqmpzFHMvR-K5OJAVqudpmLIVpqVOsDHId6AaO2-G0nMUHGK1s/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRW86w75Ak4WZ3E6o9Gw2OwAzwxnpqmpzFHMvR-K5OJAVqudpmLIVpqVOsDHId6AaO2-G0nMUHGK1s/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQRW86w75Ak4WZ3E6o9Gw2OwAzwxnpqmpzFHMvR-K5OJAVqudpmLIVpqVOsDHId6AaO2-G0nMUHGK1s/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSCfd8w7AcKKCjB9pUJFmLGDB7hKx1gtP1sWv9KagZIGq5I1fyZQlNkrLmkX4e8zJ7C-5oUro7IgyeV/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSCfd8w7AcKKCjB9pUJFmLGDB7hKx1gtP1sWv9KagZIGq5I1fyZQlNkrLmkX4e8zJ7C-5oUro7IgyeV/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSCfd8w7AcKKCjB9pUJFmLGDB7hKx1gtP1sWv9KagZIGq5I1fyZQlNkrLmkX4e8zJ7C-5oUro7IgyeV/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSCfd8w7AcKKCjB9pUJFmLGDB7hKx1gtP1sWv9KagZIGq5I1fyZQlNkrLmkX4e8zJ7C-5oUro7IgyeV/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSXach56PajE3mEc81PFqw4dxEEqZsdd_1Ep8tEGxmuKzaubIGn7xIZczjjUWe3yJPcVhjEUlFXJyT-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSXach56PajE3mEc81PFqw4dxEEqZsdd_1Ep8tEGxmuKzaubIGn7xIZczjjUWe3yJPcVhjEUlFXJyT-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSXach56PajE3mEc81PFqw4dxEEqZsdd_1Ep8tEGxmuKzaubIGn7xIZczjjUWe3yJPcVhjEUlFXJyT-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vSXach56PajE3mEc81PFqw4dxEEqZsdd_1Ep8tEGxmuKzaubIGn7xIZczjjUWe3yJPcVhjEUlFXJyT-/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRrnEjH-kiMSRI6TvrRboVhBxkpgkGep8IoH32nWLOMFPhijDJB1112z_Aoc7Q65sNBXsWN3e2KwsbS/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRrnEjH-kiMSRI6TvrRboVhBxkpgkGep8IoH32nWLOMFPhijDJB1112z_Aoc7Q65sNBXsWN3e2KwsbS/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRrnEjH-kiMSRI6TvrRboVhBxkpgkGep8IoH32nWLOMFPhijDJB1112z_Aoc7Q65sNBXsWN3e2KwsbS/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRrnEjH-kiMSRI6TvrRboVhBxkpgkGep8IoH32nWLOMFPhijDJB1112z_Aoc7Q65sNBXsWN3e2KwsbS/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsXACbKcDn9YZRxQtamak1UufZ9cctYIgZW3FuNbfEkeoTxXc6oaEHjmex1GdmtP4JDV_JHJZMMDd2/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsXACbKcDn9YZRxQtamak1UufZ9cctYIgZW3FuNbfEkeoTxXc6oaEHjmex1GdmtP4JDV_JHJZMMDd2/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsXACbKcDn9YZRxQtamak1UufZ9cctYIgZW3FuNbfEkeoTxXc6oaEHjmex1GdmtP4JDV_JHJZMMDd2/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRsXACbKcDn9YZRxQtamak1UufZ9cctYIgZW3FuNbfEkeoTxXc6oaEHjmex1GdmtP4JDV_JHJZMMDd2/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vToqXgHtm8UJEOHrZ4pUfgeUgWITCPWK7BzpWkvR4zWlI-euK7PRBicYxYztl7MDXIH52wh61FINM-n/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vToqXgHtm8UJEOHrZ4pUfgeUgWITCPWK7BzpWkvR4zWlI-euK7PRBicYxYztl7MDXIH52wh61FINM-n/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vToqXgHtm8UJEOHrZ4pUfgeUgWITCPWK7BzpWkvR4zWlI-euK7PRBicYxYztl7MDXIH52wh61FINM-n/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vToqXgHtm8UJEOHrZ4pUfgeUgWITCPWK7BzpWkvR4zWlI-euK7PRBicYxYztl7MDXIH52wh61FINM-n/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQuitepwQeyUfJwAgTTmYz5EzWuSFNw_rSb4eycdvUy6tQ2qcdjY0gVbshBxpKZMoe52QC7c8ofD79L/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQuitepwQeyUfJwAgTTmYz5EzWuSFNw_rSb4eycdvUy6tQ2qcdjY0gVbshBxpKZMoe52QC7c8ofD79L/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQuitepwQeyUfJwAgTTmYz5EzWuSFNw_rSb4eycdvUy6tQ2qcdjY0gVbshBxpKZMoe52QC7c8ofD79L/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vQuitepwQeyUfJwAgTTmYz5EzWuSFNw_rSb4eycdvUy6tQ2qcdjY0gVbshBxpKZMoe52QC7c8ofD79L/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRC3W8b5GxhujWFV3FEbBEWw-HYHz64xTxrau42_jcLO5c2p6PLBPSgdcheIarW12ymNggpHu0agu0f/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRC3W8b5GxhujWFV3FEbBEWw-HYHz64xTxrau42_jcLO5c2p6PLBPSgdcheIarW12ymNggpHu0agu0f/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRC3W8b5GxhujWFV3FEbBEWw-HYHz64xTxrau42_jcLO5c2p6PLBPSgdcheIarW12ymNggpHu0agu0f/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vRC3W8b5GxhujWFV3FEbBEWw-HYHz64xTxrau42_jcLO5c2p6PLBPSgdcheIarW12ymNggpHu0agu0f/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTYGGiAXbElxHr61sMpEhou1K5M3_2eI2i41LKPF4_QiaRXbyHZHaI700qXQa1Yp58SfqrIU3I8mdw1/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTYGGiAXbElxHr61sMpEhou1K5M3_2eI2i41LKPF4_QiaRXbyHZHaI700qXQa1Yp58SfqrIU3I8mdw1/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTYGGiAXbElxHr61sMpEhou1K5M3_2eI2i41LKPF4_QiaRXbyHZHaI700qXQa1Yp58SfqrIU3I8mdw1/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTYGGiAXbElxHr61sMpEhou1K5M3_2eI2i41LKPF4_QiaRXbyHZHaI700qXQa1Yp58SfqrIU3I8mdw1/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTAntSc_nCHQ9YsbqenTQ2BTnHf3NS_I47T_iEnZBmoMxbGUHevQZumEly-M_OeY7giTNO7c3Ceyiv8/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTAntSc_nCHQ9YsbqenTQ2BTnHf3NS_I47T_iEnZBmoMxbGUHevQZumEly-M_OeY7giTNO7c3Ceyiv8/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTAntSc_nCHQ9YsbqenTQ2BTnHf3NS_I47T_iEnZBmoMxbGUHevQZumEly-M_OeY7giTNO7c3Ceyiv8/pub?w=620&h=100]]",
+"❓💬 Make a question and answer using the grammar structure. [[Image:https://docs.google.com/drawings/d/e/2PACX-1vTAntSc_nCHQ9YsbqenTQ2BTnHf3NS_I47T_iEnZBmoMxbGUHevQZumEly-M_OeY7giTNO7c3Ceyiv8/pub?w=620&h=100]]",
+"🖍️ Draw an artist.",
+"🖍️ Draw a dentist.",
+"🖍️ Draw a vet.",
+"🖍️ Draw a pilot.",
+"🖍️ Draw a scientist.",
+"🖍️ Draw a race car driver.",
+"🖍️ Draw a farmer.",
+"🖍️ Draw a firefighter.",
+"🎭 Act it out: fly a plane",
+"🎭 Act it out: go to space",
+"🎭 Act it out: build houses",
+"🎭 Act it out: help sick animals",
+"🎭 Act it out: make movies",
+"🎭 Act it out: travel the world",
+"🎭 Act it out: teach children",
+"🎭 Act it out: work on a farm",
+"🖍️ Draw short hair.",
+"🖍️ Draw a ponytail.",
+"🖍️ Draw a mustache.",
+"🖍️ Draw straight hair.",
+"🖍️ Draw a beard.",
+"🖍️ Draw long hair.",
+"🖍️ Draw shoulder-length hair.",
+"🖍️ Draw glasses.",
+"🖍️ Draw curly hair.",
+"🎭 Act it out: a fever",
+"🎭 Act it out: a runny nose",
+"🎭 Act it out: an earache",
+"🎭 Act it out: a cold",
+"🎭 Act it out: a toothache",
+"🎭 Act it out: a headache",
+"🎭 Act it out: a sore throat",
+"🎭 Act it out: a stomachache",
+"🎭 Act it out: go to an aquarium",
+"🎭 Act it out: go on a bus tour",
+"🎭 Act it out: go camping",
+"🎭 Act it out: stay in a hotel",
+"🎭 Act it out: swim in the ocean",
+"🎭 Act it out: visit a museum",
+"🎭 Act it out: stay home",
+"🎭 Act it out: have a barbecue",
+"🎭 Act it out: wash a car",
+"🎭 Act it out: go to a ball game",
+"🎭 Act it out: get a haircut",
+"🎭 Act it out: stay up late",
+"🎭 Act it out: eat out",
+"🎭 Act it out: buy shoes",
+"🎤 Sing it. https://youtu.be/JsWH5xijZDk",
+"🎤 Sing it. https://youtu.be/9GCBUmj5gKU",
+"🎤 Sing it. https://youtu.be/Vsd5aK95CR4",
+"🎤 Sing it. https://youtu.be/hw21DmAf-3Y",
+"🎤 Sing it. https://youtu.be/Kn0AnOeGV8E",
+"🎤 Sing it. https://youtu.be/-rpav9QgIdA",
+"🎭 Act it out with a friend. https://youtu.be/NnJyn5guWrU",
+"🎭 Act it out with a friend. https://youtu.be/36oKZtlcul4",
+"🎭 Act it out with a friend. https://youtu.be/4smpoKYNEoc",
+"🎭 Act it out with a friend. https://youtu.be/1U18w_TV5n4",
+"🎭 Act it out with a friend. https://youtu.be/APiVxwXm2ak",
+"🎭 Act it out with a friend. https://youtu.be/hLtyHF4TORc"
+];
+
+    function drawCard() {
+      const randomIndex = Math.floor(Math.random() * cards.length);
+      document.getElementById('cardText').innerHTML = cards[randomIndex]
+        .replace(/\[\[Image:(.*?)\]\]/g, '<img src="$1" onclick="magnifyImage(this.src)" style="max-width:100%; height:auto; cursor: zoom-in;" />')
+      .replace(/https:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<img src="$1" onclick="magnifyImage(this.src)" style="max-width:100%; height:auto; cursor: zoom-in;" />')
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<img src="$1" onclick="magnifyImage(this.src)" style="max-width:100%; height:auto; cursor: zoom-in;" />')
+      .replace(/\[\[(https?:\/\/www\.youtube\.com\/watch\?v=[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[(https?:\/\/youtu\.be\/[\w-]+)\]\]/g, '$1')
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/\[\[Image:(.*?)\]\]/g, '<img src="$1" onclick="magnifyImage(this.src)" style="max-width:100%; height:auto; cursor: zoom-in;" />')
+      .replace(/\[\[(https?:\/\/www\.youtube\.com\/watch\?v=[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[(https?:\/\/youtu\.be\/[\w-]+)\]\]/g, '$1')
+      .replace(/\[\[|\]\]/g, '')  // Catch-all to remove any remaining brackets
+      .replace(/https?:\/\/www\.youtube\.com\/watch\?v=([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>')
+      .replace(/https?:\/\/youtu\.be\/([\w-]+)/g, '<br><iframe width="100%" height="160" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
+    }
+  
+  function resetGame() {
+    players = [];
+    currentPlayerIndex = 0;
+    document.getElementById('playerList').innerHTML = '';
+    document.getElementById('die').style.display = 'none';
+    document.getElementById('resetGame').style.display = 'none';
+    document.getElementById('cardBox').style.display = 'none';
+    document.getElementById('rollResult').textContent = '';
+    board.innerHTML = '';
+  }
+
+
+  function magnifyImage(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = "flex";
+    modalImg.src = src;
+  }
+</script></div>
+
+<!-- Magnify Modal -->
+<div id="imageModal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center;">
+  <span onclick="document.getElementById('imageModal').style.display='none'" style="position:absolute;top:20px;right:30px;color:#fff;font-size:40px;cursor:pointer;">&times;</span>
+  <img id="modalImage" style="max-width:90%; max-height:90%;" />
+</div>
+</body>
+</html>
