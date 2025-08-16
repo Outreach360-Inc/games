@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Story Cubes 1</title>
+  
+  <style>
+    body {
+      background-image: url('https://github.com/Outreach360-Inc/games/blob/main/story-cubes1.png?raw=true');
+      background-size: cover;
+      background-position: center;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .cube {
+      display: inline-flex;
+      width: 120px;
+      height: 120px;
+      margin: 10px;
+      background-color: white;
+      color: black;
+      border: 2px solid black;
+      border-radius: 12px;
+      padding: 10px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1em;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2em;
+      word-wrap: break-word;
+      word-break: break-word;
+      cursor: pointer;
+    }
+    .cube img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    #cube-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1.2em;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      cursor: pointer;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+    .modal-content {
+      background-color: #222;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 60%;
+      max-width: 500px;
+      text-align: center;
+      color: white;
+    }
+    .modal-content img {
+      max-width: 100%;
+      max-height: 60vh;
+    }
+    .modal-text {
+      font-size: 2em;
+      font-weight: bold;
+      line-height: 1.4em;
+      padding: 20px 10px;
+      color: white;
+    }
+    .close {
+      color: #fff;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body>
+  
+<div style="display: inline-block; text-align: center; margin-bottom: 20px;">
+  <h1 style="color:black; background-color:white; padding: 12px 24px; border-radius: 8px; display: block; box-shadow: 4px 4px 10px rgba(0,0,0,0.4);">Story Cubes 1</h1>
+  <button onclick="rollCubes()">🎲 Roll</button>
+  
+</div>
+
+  
+  
+  <p style="margin-top: 10px; font-size: 1.2em; font-weight: bold; color: #fff;">Click any cube to enlarge it.</p>
+  <div id="cube-container">
+    <div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div><div class="cube">?</div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content" id="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const columns = {'col1': ['https://docs.google.com/drawings/d/e/2PACX-1vQqCVucrazfZPtWBj0RCnK7XMq_1D4W_SDoovadcy2KWpYlpwElXKck-e-qd9_F1KBgxSwM9yT2WGgx/pub?w=960&h=720 ', 'a chair', 'a clock', 'a desk', 'a globe', 'a map', 'a bench', 'a picnic table', 'glue sticks', 'markers', 'notebooks', 'pencil cases', 'rulers', 'scissors', 'clay', 'glue', 'paint', 'a colored pencil', 'paper', 'tape', 'a coffee table', 'a lamp', 'a picture', 'a rug', 'a sofa', 'a TV', 'bed', 'bookcase', 'box', 'computer', 'toys', 'wall', 'a bathtub', 'a dining table', 'a dresser', 'a mirror', 'a refrigerator', 'a sink', 'a stove', 'a toilet', 'puzzle', 'a jacket', 'pants', 'a shirt', 'a skirt', 'shoes', 'a sweater', 'a dress', 'jeans', 'shorts', 'sneakers', 'a sweatshirt', 'a T-shirt', 'earrings', 'helmet', 'necklace', 'a model plane', 'a banner', 'a gift'], 'col2': ['a chicken', 'a cow', 'a goat', 'a goose', 'a horse', 'a sheep', 'a duck', 'a bear', 'an elephant', 'a giraffe', 'a lion', 'a tiger', 'a zebra', 'birds', 'cats', 'dogs', 'fish', 'rabbits', 'turtles', 'grandma', 'grandpa', 'mom', 'dad', 'brother', 'sister', 'a cook', 'a doctor', 'a teacher', 'a nurse', 'a student', 'a police officer', 'an artist', 'a dentist', 'a race car driver', 'a farmer', 'a firefighter', 'a pilot', 'a scientist', 'a vet', 'a quick runner', 'a slow runner', 'a good singer', 'a quiet chess player', 'a loud drum player', 'a careful driver', 'a celebrity', 'a person', 'cheetah', 'deer', 'fox', 'giraffe', 'hippopotamus', 'rhinoceros', 'wolf'], 'col3': ['pink', 'brown', 'white', 'gray', 'black', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'happy', 'sad', 'angry', 'tired', 'hungry', 'thirsty', 'big', 'small', 'long', 'short', 'old', 'new', 'hot', 'warm', 'cool', 'cold', 'humid', 'dry', 'breezy', 'stormy', 'difficult', 'comfortable', 'expensive', 'beautiful', 'colorful', 'pretty', 'terrible', 'good', 'awful', 'wonderful', 'loud', 'delicious', 'sweet', 'soft', 'hard', 'sick', 'short hair', 'long hair', 'straight hair', 'curly hair', 'shoulder-length hair', 'a ponytail', 'a beard', 'a mustache', 'glasses', 'a cold', 'an earache', 'a fever', 'a runny nose', 'a headache', 'a sore throat', 'a stomachache', 'a toothache'], 'col4': ['apples', 'bananas', 'grapes', 'peaches', 'oranges', 'watermelons', 'chicken', 'fish', 'spaghetti', 'a sandwich', 'fried rice', 'salad', 'chips', 'a cookie', 'ice cream', 'juice', 'a candy bar', 'popcorn', 'a bottle of (water)', 'a bottle of (ketchup)', 'a box of (cereal)', 'a box of (cookies)', 'a bunch of (bananas)', 'a bunch of (grapes)', 'a can of (tomato sauce)', 'a can of (soup)', 'a carton of (milk)', 'a carton of (eggs)', 'a loaf of bread', 'loaves of bread', 'a lot of: cookies', 'a lot of: sandwiches', 'a lot of: ice cream', 'a lot of: lemonade', 'a few: potato chips', 'a few: hot dogs', 'a little: pizza', 'a little: fruit'], 'col5': ['dancing', 'jumping', 'running', 'singing', 'sleeping', 'walking', 'drawing', 'drinking', 'painting', 'reading', 'talking', 'writing', 'get up', 'wash his face', 'brush her teeth', 'do homework', 'have a snack', 'watch TV', 'read a book', 'go to bed', 'drawing pictures', 'in-line skating', 'listening to music', 'playing badminton', 'riding a bike', 'taking pictures', 'go shopping', 'go swimming', 'go to the movies', 'practice the piano', 'take a nap', 'take a walk', 'walk the dog', 'write stories', 'making dinner', 'feeding the dog', 'cleaning the desk', 'talking on the phone', 'taking a bath', 'working on the computer', 'wake up', 'start school', 'finish school', 'come home', 'eat dinner', 'go to sleep', 'go to an aquarium', 'go on a bus tour', 'go camping', 'stay in a hotel', 'swim in the ocean', 'visit a museum', 'buy shoes', 'eat out', 'get a haircut', 'go to a ball game', 'have a barbecue', 'stay up late', 'stay home', 'wash a car', 'go running', 'have a picnic', 'ride a kick scooter', 'eat out at a restaurant', 'see a musical', 'sail on a boat', 'visit grandparents', 'write emails to friends', 'go to a water park', 'have a sleepover', 'go rock climbing', 'go horseback riding', 'go rafting', 'go snorkeling', 'go whale watching', 'go on a cruise', 'explore a cave', 'ride a camel', 'act in school plays', 'build model rockets', 'draw comics', 'learn foreign languages', 'read books', 'play musical instruments', 'borrow books', 'buy a birthday card', 'shop for groceries', 'see an exhibition', 'mail a package', 'report a missing dog', 'jog on the track', 'wait for the train', 'march in the parade', 'ride a unicycle', 'pose for pictures', 'take a selfie', 'make masks', 'sell cotton candy', 'leave the fair', 'arrive at the fair', 'carry the books', 'drink water', 'look for a book', 'talk to the librarian', 'use the computer', 'wait in line', 'wear headphones', 'write a report', 'go camping', 'ride in a hot air balloon', 'see a play', 'travel by plane', 'visit the Eiffel Tower', 'ride a tricycle', 'tie her shoes', 'use chopsticks', 'draw a person', 'peel a banana', 'get dressed', 'learn French', 'live in London', 'study for an exam', 'teach English', 'read a magazine', 'wait for a bus', 'count to twenty', 'write his name'], 'col6': ['a pond', 'a tree', 'bank', 'hospital', 'library', 'post office', 'restaurant', 'https://docs.google.com/drawings/d/e/2PACX-1vTxj4XiPUkzg0E8AKEymsGWNSDtgJL2GwSadvF0ifWEggFRPIGKQY5j2b5gY_t5508aOCOIDWISLzO2/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQBYtSOpWAExIZjp2X50EzxxGeGZG5AqjZR1KDyMugejLPHFkyK4D53d1p4cDeqvt5LAxJsEl9-UZGZ/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vR5eCiX2RllFYVbapnks88fMBgu65alkOt3vz57K0Hsz85q1-_o2UlOdb64HPTI1LpoNVJCsGydf38a/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTv4wCKK4fR7UXGBLOjz5tuhMTBzbk2MGXF3FimVVt-lS5K3SEFwd7bOxh-Jy_b06vTkFCp4GzUGc7n/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSr-Mh3fDnPb-Hinb_cgZDdk3XBAV7dNhPFfcYklQC5KcnY6t5nSoYplfoOUo3DqFZFp6kT6b2l6S4A/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQoTk_YS8e0jfhmrvcby_5X2vIcPV5Az0noGi-__Qm8mA6Js2dXAwkmTSN0xZ4pXCps2up6mr6JPYDD/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSZCBxSjNGhpVELXFygYx1Cl_UeFuFsSlunNgFAFKtzzcH4XgEV3M_oQdn4_nf1-TZHKbKPrv9LfVdf/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vS2-7uFE3VTsCti7YA07_FW0hut2XUltXA-xSShpA59eXzH1KB5FqCLV5vvm5thpoBIv_foAqHhtHB_/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vRiu2SBg2pPaUatOsvQyhEt4hj7eiHS5hXfuZt19qjs8_VigfjkTY4a_2t5HlPTZWpdWT0WRw7EYlEX/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vR3AFxAG8OWebxHiY6GSe2Yp59gMa8JyU8jIJSnx4IvBGpbt8QyCxZJomvWpPkDYcNGQ4AJa_egoTR9/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSLdkkCgnru4LLRB_LueG8gMeWdrnh9BlCNx1ybZvMLRBByygeRCooxyJZKq5BwP6diYwjexr5fV7kW/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vT4QmzRWsVGY_6PUx65iRScPP0dOPQ7lJYcJ1EID_eh886xxqGO4thISs98EKvaGETsRlToomdTSpJp/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTuibVMQyKUbeztDO-CNJcRfYehVC3-XTEF1ur52-ecsB_tq9alvSSZQl7SvOPT7aUvEN0caoh72tgG/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSWQPiQuLg5EO9Pyo1dytZ6-mc4FOdd_CvASHBVBaheljxd6RVyX-7TSYQHXSMCbRUHCksz2GtKkdOB/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQRK44pYXDDsKQwo-UrSQy7n7EGd4j3sD2bjHfdTLg_AiP7bF9qlG6zNr-gDaouCOrc6HAQ4mGOzZnI/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTFUQr8SCsUz5UhmxpNdpJkmnZHKZX64Z841K2cPzsosmXxDlYAUILp96GVdoaEeKhqH_A6EHVtb4qq/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQ-JUD8GLkEQhHdhhHYavChGsl-mg3MlaxJckoDVLF_F9OAzLhEa21oK_5AMsOougXNACu8j8tt7I7O/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vS-k6H3whiuEYqov32UFV1D3QPo_dnZVxn2SUx68q5lAco8wpPvXqoALjLUztHeIPOoTh39QxhV7IEJ/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTbIU6TnOmTQkYTh8_2W4bMio3mlie2pkU7JzwNgPaUPFRO3-vty_OCynk6bz7EGw9CSDrQox3CBFXh/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQztM22YVcnJ_eT0ZbFkJxQi9tO7tKn2F0DC6Myn9lQZmO6d66kVqr3C-SDop1E3-14TPuyta0hP1w3/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQx0LfJZkiC3xPqR3kjeAglWMyI4vVSTaIjUl7JVCGoDHIKxG1NZDHMdj2UfIfP-KpkuOX8xPFCmIE4/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSJrvBdnhmXG0KlxfR5fBI8bm4pte2ilNIxoXZollmBQeVssAZjnYFTiqovpp_qdLgrkj6fyomW5BTA/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vR6Nn2T1l1Ht4ioMo_EWKmD40RzmG1McjMXdpfcjw6nk0V7xgevpGOmUnUcGf83catkKm76Q5YBHSKn/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSujxcKOlL20NOnsuGDQycMLXs7gJFpc3vswwMQDBhMqnnRFF-YjXn0hIsz2eolgaOdJcssosYBzov1/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTYkcdyLqwRmiXnDPUnnTDxTji2n7zkfx0eGrU2Tf0H8Ymj9KcuDp_nd7tvnkF4KK0TZqEvmQMP9EjF/pub?w=960&h=720', 'London'], 'col7': ['days of the week', 'always', 'usually', 'sometimes', 'never', 'sunny', 'cloudy', 'rainy', 'snowy', 'windy', 'foggy', 'spring', 'summer', 'fall', 'winter', 'hot', 'warm', 'cool', 'cold', 'humid', 'dry', 'breezy', 'stormy', 'months of the year', 'day', 'week', 'month', 'year', 'first', 'next', 'after that'], 'col8': ['https://docs.google.com/drawings/d/e/2PACX-1vQ32ES1khM9GT4KitfCV9dnpu90ArH2oWVuLWD8QY_y8Fc1p1bwAi8GCKLJVPLsjvu38MJX0akGtojA/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vToNpMovJ7YNJVPrqQaF5EuOqEAhNINKmIV-Rves9Dc68yQzTH9aoPDVEkE2vYD6THt640jX4xhGPAS/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vR1wlqwGtAXoJ0O7HEIs9Wj-dsDRH50LBJV7Fn61fVId62TP65EDpDdsYHjHYF9Tc1tN33E7bcZz54y/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTQNiIou664jwzW-iN0ltt5TDc8HayOzeKKRtJGKBwo9w8kIRGhzMUav90ROoVMwJdZhXT8JWcIT0Ln/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vQUsamyHmLsesnN8YrjLvb54lU5LkKmk2T7_7rbNFD3PkAN8k9kwflqXll08QqJJ8Ns6OtQmlic-TN1/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vShtVvyLaLJY8S-oB8kKLL6LoTCJuecE1l_C1dOfNZnhskWJCE_KRRAeeppYJA9k-WS32BmANqoGItZ/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vRTj_bQZpTyscwDEmdVOzxtWxEeMf5FUOvE0OacQeY8UFXZdbrkQPAqk88vwBgQcCZ4mo0HLu_qFhQa/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vTCjgVIugw6v11CxJIPBswj2tjfUloBzIe0Erqhn4TjRlCr9r0me_-IZ6Fi-P2ofuT_T29QgxZCJCRD/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vRu7-9um-Ip4zeN6zqFfBEKVc8syIVMCOiP3EiYXJY556UE_OeBehgebRKz_r_Bq-AiajOlua9YZYzP/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vSmI4Roo4owRDNLS519LzDqpfI4I5nUevi6yyWfZb_3_HwuF2ESA1_kI0qFRb2y0zXj9mbXBVVbIH1d/pub?w=960&h=720', 'https://docs.google.com/drawings/d/e/2PACX-1vRZTZnsdusKQfdNeBu0Jjx--jVIcJPCgj_h6eZWKxok5dP6HT-aGDU3fq4c7YzugQE7Z1uHi3d_9lR6/pub?w=960&h=720', 'down the stairs', 'over the box', 'under the box', 'around the box', 'through the pipe'], 'col9': ['a bike', 'a camera', 'a jump rope', 'a kite', 'a skateboard', 'a soccer ball', 'climb a tree', 'fly a kite', 'play the drum', 'play hopscotch', 'play soccer', 'ride a bike', 'art', 'English', 'math', 'music', 'science', 'social studies', 'PE', 'band practice', 'Chinese class', 'dance class', 'soccer practice', 'swimming class', 'taekwondo class', 'build sandcastles', 'have picnics', 'go sledding', 'go to the beach', 'make snowmen', 'pick apples', 'plant flowers', 'rake leaves', 'play the cello', 'play the guitar', 'practice the violin', 'go to a concert', 'play basketball', 'play badminton', 'go to a soccer game', 'do face painting', 'eat cotton candy', 'have a hula hoop contest', 'run in a race', 'play Frisbee', 'wear school T-shirts', 'have a sack race', 'play tug-of-war', 'build a campfire', 'catch fireflies', 'go fishing', 'go canoeing', 'set up a tent', 'sleep in a sleeping bag', 'tell scary stories', 'look at the stars', 'mow the lawn', 'do the laundry', 'set the table', 'take out the garbage', 'wash the dishes', 'water the plants', 'clean the windows', 'dust the furniture', 'mop the floor', 'pick up the toys', 'put away the books', 'sweep the floor', 'vacuum the floor', 'wipe the table', 'bake a cake', 'decorate the room', 'go shopping for a gift', 'order pizza', 'wrap the gift', 'art club', 'book club', 'drama club', 'Spanish club', 'music club', 'science club'], 'col10': ['be the president of his country', 'climb Mount Everest', 'invent a flying car', 'go to the Moon', 'win a gold medal', 'own a farm', 'stop global warming', 'fly a plane', 'go to space', 'help sick animals', 'build houses', 'make movies', 'teach children', 'travel the world', 'work on a farm', 'take a bus', 'take the subway', 'take a taxi', 'take the tram', 'take the train', 'drive a car', 'ride a motorcycle', 'walk']};
+
+    function isImage(url) {
+      return typeof url === 'string' && (
+        url.includes('docs.google.com/drawings') ||
+        url.match(/\.(png|jpg|jpeg|gif)$/)
+      );
+    }
+
+    function openModal(content) {
+      const modalBody = document.getElementById('modal-body');
+      modalBody.innerHTML = '';
+      if (isImage(content)) {
+        const img = document.createElement('img');
+        img.src = content.trim();
+        modalBody.appendChild(img);
+      } else {
+        const text = document.createElement('div');
+        text.className = 'modal-text';
+        text.textContent = content;
+        modalBody.appendChild(text);
+      }
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function rollCubes() {
+      const container = document.getElementById('cube-container');
+      container.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const col = columns['col' + i];
+        const item = col[Math.floor(Math.random() * col.length)];
+        const div = document.createElement('div');
+        div.className = 'cube';
+        div.onclick = () => openModal(item);
+        if (isImage(item)) {
+          const img = document.createElement('img');
+          img.src = item.trim();
+          div.appendChild(img);
+        } else {
+          div.textContent = item;
+        }
+        container.appendChild(div);
+      }
+    }
+
+    // Allow clicking outside modal to close it
+    window.onclick = function(event) {
+      const modal = document.getElementById('modal');
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
