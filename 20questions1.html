@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Twenty Questions 1</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/20questions1.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #spinner {
+      font-size: 1.5rem;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005f99;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Twenty Questions 1</h1>
+    <button onclick="spin()">Spin</button>
+    <div id="spinner">Click the button to get an item or action!</div>
+  </div>
+  <script>
+    const prompts = ['a clock', 'a desk', 'a bookcase', 'a globe', 'a chair', 'a map', 'a sheep', 'a cow', 'a horse', 'a duck', 'a goat', 'a goose', 'a chicken', 'build sandcastles', 'go sledding', 'make snowmen', 'climb a tree', 'have picnics', 'pick apples', 'build a campfire', 'a picnic table', 'rake leaves', 'catch fireflies', 'fly a kite', 'a pond', 'a flower', 'go canoeing', 'go fishing', 'look at the stars', 'set up a tent', 'tell scary stories', 'plant flowers', 'have a picnic', 'go to the beach', 'sleep in a sleeping bag', 'a tree', 'a bench', 'a diamond', 'a square', 'watermelons', 'grapes', 'peaches', 'a circle', 'a triangle', 'oranges', 'a star', 'bananas', 'apples', 'a rectangle', 'glue sticks', 'a colored pencil', 'paper', 'pencil cases', 'notebooks', 'markers', 'rulers', 'scissors', 'tape', 'sister', 'mom', 'brother', 'dad', 'grandpa', 'grandma', 'feeding the dog', 'do homework', 'listening to music', 'taking pictures', 'play tug-of-war', 'read a book', 'go swimming', 'go swimming', 'go to bed', 'drinking', 'run in a race', 'do face painting', 'reading', 'wash a car', 'have a hula hoop contest', 'take out the garbage', 'writing', 'go to space', 'eat a hot dog', 'read a book', 'go to a ball game', 'come home', 'watch TV', 'have a barbecue', 'get a haircut', 'practice the piano', 'clean the room', 'play the guitar', 'go to an aquarium', 'stay in a hotel', 'have a snack', 'feed the dog', 'make movies', 'making dinner', 'get up', 'playing badminton', 'go running', 'take a nap', 'visit a museum', 'have a sack race', 'build houses', 'brush her teeth', 'practice the violin', 'wear school T-shirts', 'eat dinner', 'get dressed', 'cleaning the desk', 'singing', 'play badminton', 'fly a kite', 'walking', 'work on a farm', 'in-line skating', 'write stories', 'play basketball', 'wash his face', 'stay up late', 'travel the world', 'wake up', 'play Frisbee', 'take a walk', 'go on a bus tour', 'eat cotton candy', 'go to a concert', 'jumping', 'start school', 'dancing', 'eat dinner', 'do the laundry', 'buy shoes', 'drawing pictures', 'painting', 'go camping', 'go shopping', 'eat out', 'running', 'go to sleep', 'sleeping', 'mow the lawn', 'eat breakfast', 'finish school', 'teach children', 'taking a bath', 'stay home', 'talking on the phone', 'go to school', 'go to a soccer game', 'wash the dishes', 'talking', 'working on the computer', 'go to the movies', 'set the table', 'help sick animals', 'fly a plane', 'swim in the ocean', 'ride a kick scooter', 'walk the dog', 'drawing', 'riding a bike', 'play the cello', 'bookstore', 'parking lot', 'shoe store', 'pet store', 'bedroom', 'art museum', 'at school', 'bakery', 'post office', 'hospital', 'backyard', 'supermarket', 'kitchen', 'shopping mall', 'at home', 'zoo', 'train station', 'dining room', 'museum', 'movie theater', 'at work', 'library', 'living room', 'sports park', 'bank', 'police station', 'bathroom', 'stationery store', 'airport', 'beach', 'amusement park', 'clothing store'];
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * prompts.length);
+      document.getElementById('spinner').textContent = prompts[randomIndex];
+    }
+  </script>
+</body>
+</html>
