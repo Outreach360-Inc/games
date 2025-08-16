@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Category Race 1</title>
+  <style>
+    body {
+      background-image: url('https://github.com/Outreach360-Inc/games/blob/main/category-race1.png?raw=true');
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      margin: 5% auto;
+      padding: 30px;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    #category {
+      font-size: 1.8em;
+      margin: 20px 0;
+      min-height: 40px;
+    }
+    #timer {
+      font-size: 2em;
+      margin-top: 20px;
+      color: red;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Category Race 1</h1>
+    <div id="category">Click "Spin" to get a category!</div>
+    <button onclick="spin()">Spin</button>
+    <button onclick="startTimer()">Start 30 Second Timer</button>
+    <div id="timer"></div>
+  </div>
+
+  <script>
+    const categories = ['Farm animals', 'Jungle animals', 'Sea animals', 'Insects', 'Birds', 'Reptiles', 'Dinosaurs', 'Baby animals', 'Animals that fly', 'Fruits', 'Vegetables', 'Drinks', 'Breakfast foods', 'Lunch foods', 'Dinner foods', 'Snacks', 'Sweets', 'Things you can cook', 'Things you can eat raw', 'School subjects', 'Things in a classroom', 'People at school', 'Things you write with', 'Things you read', 'Things you learn', 'School supplies', 'Games at school', 'Things you do at school', 'Places in a school', 'Things in a living room', 'Things in a kitchen', 'Things in a bedroom', 'Things in a bathroom', 'Furniture', 'Appliances', 'Things you find in a garden', 'Parts of a house', 'Things you clean with', 'Things you use to cook', 'Family members', 'Jobs', 'People you know', 'People who help us', 'Superheroes', 'Characters from stories', 'Famous people', 'Things babies need', 'Feelings', 'Parts of the body', 'Places in a town', 'Countries', 'Cities', 'Places you go on vacation', 'Places to buy things', 'Places with water', 'Places with trees', 'Buildings', 'Places to eat', 'Places to play', 'Things you wear on your head', 'Things you wear on your feet', 'Things you wear in winter', 'Things you wear in summer', 'Things you wear for sports', 'Colors of clothes', 'Materials for clothes', 'Things you wear at night', 'Things you wear for rain', 'Accessories', 'Sports you play with a ball', 'Sports you play in a team', 'Winter sports', 'Water sports', 'Hobbies', 'Things you need for a sport', 'Actions in sports', 'Things you do for fun', 'Games', 'Musical instruments', 'Words to describe people', 'Words to describe food', 'Words to describe animals', 'Words to describe feelings', 'Words to describe a house', 'Opposite words (big/small)', 'Words to describe colors', 'Words to describe weather', 'Words to describe sounds', 'Words to describe things you like', 'Actions in the kitchen', 'Actions at school', 'Actions you do in the morning', 'Actions you do in the evening', 'Actions with your hands', 'Actions with your feet', 'Actions you do when you are happy', 'Actions you do when you are tired', 'Actions with a ball', 'Actions you do in a garden', 'Things that fly', 'Things that go on water', 'Things that go on the road', 'Parts of a car', 'Things you ride', 'People who drive things', 'Places to get on a train', 'Things you need to travel', 'Types of boats', 'Kinds of bicycles', 'Types of weather', 'Things you see in the sky', 'Things you see in a forest', 'Things that grow', 'Parts of a tree', 'Things that are hot', 'Things that are cold', 'Things you need for rain', 'Things you need for sun', 'Natural disasters', 'Numbers', 'Shapes', 'Colors', 'Things that are round', 'Things that are square', 'Things that are red', 'Things that are blue', 'Things that are black', 'Things that are big', 'Things that are small', 'Holiday foods', 'Things for a birthday party', 'Holidays', 'Things you do on a holiday', 'Gifts', 'Things for Halloween', 'Things for Christmas', "Things for a New Year's party", 'Foods for a party', 'Things you wear to a party', 'Months of the year', 'Days of the week', 'Seasons', 'Times of day', 'Words for time', 'Things you do in the morning', 'Things you do in the afternoon', 'Things you do at night', 'Things you do on the weekend', 'Things that go fast', 'Things you can see', 'Things you can hear', 'Things you can taste', 'Things you can touch', 'Things that smell good', 'Things that are loud', 'Things that are quiet', 'Things that feel soft', 'Things that feel hard', 'Things that are sweet', 'Parts of a computer', 'Things with a screen', 'Things you use to talk to people', 'Things you use to play games', 'Things that need batteries', 'Things you plug in', 'Things you can watch', 'Words for the internet', 'Apps', 'Social media sites', 'Words for music', 'Things you use to draw', 'Kinds of art', 'People who make art', 'Things you can listen to', 'Things you can sing', 'Things you can draw', 'Colors for art', 'Parts of a song', 'Things you do to stay healthy', 'Things you use when you are sick', 'Parts of a hospital', 'Healthy foods', 'Body parts', 'Doctors', 'Feelings when you are sick', 'Things you need to sleep', 'Words for exercise', 'Things you use to wash', 'Things in the sky', 'Things in a bag', 'Things you can find in a box', 'Things you can open', 'Things you can close', 'Things that are made of wood', 'Things that are made of metal', 'Things that are made of plastic', 'Things that are long', 'Things that are short', 'Tools', 'Kitchen utensils', 'Garden tools', 'Toys', 'Office supplies', 'Space objects', 'Characters from movies', 'Things in a forest', 'Things in a desert', 'Cooking verbs', 'Cleaning verbs', 'Movement verbs', 'Speaking verbs', 'Reading verbs', 'Thinking verbs', 'Actions you do with your mouth', 'Actions you do with your eyes', 'Actions with a pen', 'Actions with a phone', 'Words to describe smells', 'Words to describe temperature', 'Words to describe size', 'Words to describe speed', 'Words for how things feel to touch', 'Words to describe taste', 'Words to describe how things look', 'Classroom objects', 'Kitchen objects', 'Garden objects', "Words with 'sun'", "Words with 'sea'", "Words with 'fire'", "Words with 'snow'", "Words with 'foot'", "Words with 'house'", 'Prepositions of place', 'Prepositions of time', 'Words for direction', 'Words for movement', 'Words for location', 'Words for distance', 'Words for position', 'Words for comparison', 'Words for joining', 'Words for questions', 'Things in a hospital', 'Things in a police station', 'Things in a fire station', 'Things in a library', 'Things in a supermarket', 'Things in a post office', 'Things in a bank', 'Things in a hotel', 'Things in a restaurant', 'Things with buttons', 'Things with wheels', 'Things that make noise', 'Things that are soft', 'Things that are hard', 'Things that are sour', 'Cartoon characters', 'Fairytale characters', 'Things you can buy at the store', 'Things you can do at the park', 'Things you can do at the beach', 'Things you can find in the forest', 'Things you can find in the ocean', 'Things you can see at night', 'Things you can see in the day', 'Things that are alive', 'Parts of a bike', 'Parts of a skateboard', 'Parts of a scooter', 'Things you use for a picnic', 'Things you use for a barbecue', 'Things you use for a campfire', 'Things you use for camping', 'Things you use for fishing', 'Things you use for cooking', 'Things you use for cleaning'];
+    let timerInterval;
+
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * categories.length);
+      document.getElementById('category').innerText = categories[randomIndex];
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      let timeLeft = 30;
+      document.getElementById('timer').innerText = timeLeft;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer').innerText = "Time's up!";
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
