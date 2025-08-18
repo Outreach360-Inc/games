@@ -3055,6 +3055,66 @@ grid.appendChild(activitiesCol);
 })();
 </script>
 
+<!-- AI-INJECT (2025-08-18): Always show labels + reset to fresh set after each Spin -->
+<!-- AI-INJECT (2025-08-18): Always show labels + reset to fresh set after each Spin -->
+<!-- AI-INJECT (2025-08-18): Always show labels + reset labels and notes after each Spin -->
+<script id="ai-always-show-labels-after-spin">
+(function(){
+  function resetForNewImage(){
+    try {
+      // === Labels ===
+      var img   = document.getElementById('viewerImage');
+      var layer = document.getElementById('labelLayer');
+
+      // Clear any labels for the current image so each spin starts fresh
+      if (img){
+        var src = img.getAttribute('src') || '';
+        try { sessionStorage.removeItem('pp2_labels::' + src); } catch(e){}
+      }
+      if (layer){
+        var items = layer.querySelectorAll('.label-item');
+        for (var i = 0; i < items.length; i++){ items[i].remove(); }
+      }
+
+      // Ensure labels are visible (even if user hid them previously)
+      document.body.classList.remove('pp2-labels-hidden');
+      var toggle = document.getElementById('overlayLabelsToggleBtn');
+      if (toggle){ toggle.textContent = 'Hide Labels'; }
+
+      // === Notes ===
+      // Clear notes textarea and remove persisted notes
+      try { sessionStorage.removeItem('pp2_notes'); } catch(e){}
+      var notesTA = document.getElementById('panelNotes');
+      if (notesTA){ notesTA.value = ''; }
+    } catch(e){ /* no-op */ }
+  }
+
+  // Run after the Spin button is clicked
+  function hookSpin(){
+    var spinBtn = document.getElementById('spinBtn');
+    if (!spinBtn) return;
+    var h = function(){ setTimeout(resetForNewImage, 0); };
+    spinBtn.addEventListener('click', h, true);
+    spinBtn.addEventListener('click', h, false);
+  }
+
+  // Also run after any showImage() call (new image shown programmatically)
+  if (typeof window.showImage === 'function'){
+    var _showImage = window.showImage;
+    window.showImage = function(){
+      var r = _showImage.apply(this, arguments);
+      setTimeout(resetForNewImage, 0);
+      return r;
+    };
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', hookSpin);
+  } else {
+    hookSpin();
+  }
+})();
+</script>
 </body>
 </html>
 
