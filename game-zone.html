@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🎲 Game Zone</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+
+<style>
+  :root{
+    --purple:#6a3bd1; --purple-dark:#4d26a8; --ink:#1e2430;
+
+    /* CTA colors */
+    --cta1:#ff7a1a; --cta1b:#ea4235;
+    --cta2:#89c83b; --cta2b:#6aae22;
+    --cta3:#2b7a64; --cta3b:#145a46;
+    --cta4:#41b5e6; --cta4b:#268fc0;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:"Nunito", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    color:var(--ink);
+    background:linear-gradient(90deg,#1ea2ff 0%,#8fd2ff 52%,#c6f3ff 100%);
+  }
+
+  /* Exactly one screen tall, split into three rows */
+  .screen{
+    height:100svh;                      /* mobile-safe viewport */
+    display:grid;
+    grid-template-rows:minmax(0,1fr) auto auto; /* hero grows, band + ctas size to content */
+    overflow:hidden;                    /* avoid scrollbars */
+  }
+
+  /* 1) HERO */
+  .hero{ position:relative; overflow:hidden; }
+  .hero img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover; object-position:center;
+    display:block;
+  }
+
+  /* 2) PURPLE BAND */
+  .band{
+    background:linear-gradient(0deg, var(--purple), var(--purple-dark));
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Baloo 2", system-ui, sans-serif;
+    font-weight:800; text-transform:uppercase; letter-spacing:.35em;
+    font-size:clamp(12px,2.1vw,22px);
+    padding:.55em 1em;
+    border-top:6px solid #fff;          /* white rules like your image */
+    border-bottom:6px solid #fff;
+    text-align:center;
+  }
+
+  /* 3) CTAs on white */
+  .ctas{
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(10px,1.6vh,18px) 14px clamp(14px,2vh,22px);
+  }
+  .cta-row{
+    width:min(1180px, 96%);
+    display:grid; gap:clamp(12px,1.4vw,18px);
+    grid-template-columns:repeat(4,1fr);
+  }
+  @media (max-width: 980px){ .cta-row{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width: 520px){ .cta-row{ grid-template-columns:1fr; } }
+
+  .cta{
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; text-decoration:none; color:#fff;
+    font-weight:1000; text-transform:uppercase; letter-spacing:.03em;
+    font-size:clamp(14px,1.6vw,22px);
+    line-height:1.15;
+    padding:clamp(10px,1.4vh,14px) clamp(14px,2vw,18px);
+    min-height:56px;
+    border-radius:999px;
+    box-shadow:0 12px 0 rgba(0,0,0,.18), 0 18px 26px rgba(0,0,0,.20);
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    user-select:none; -webkit-tap-highlight-color:transparent;
+  }
+  .cta:hover{ filter:brightness(1.04) }
+  .cta:active{ transform:translateY(1px); box-shadow:0 9px 0 rgba(0,0,0,.18) }
+
+.cta{
+  /* use per-button variables defined below */
+  background: radial-gradient(120% 180% at 50% 0%,
+              var(--grad1) 0%, var(--grad2) 55%, var(--grad3) 100%);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,.12),
+    0 5px 0 var(--shadow-base),
+    0 12px 18px rgba(0,0,0,.20);
+  text-shadow: 0 1px 0 rgba(0,0,0,.15);
+}
+.cta:active{
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 -2px 0 rgba(0,0,0,.12),
+    0 4px 0 var(--shadow-base);
+}
+
+/* Per-button color tokens (tweak to taste) */
+.cta--red{
+  --grad1:#ff8a7a; --grad2:#ea4235; --grad3:#b11c2d; --shadow-base:#8f1f2f;
+}
+.cta--green{
+  --grad1:#c7e97f; --grad2:#89c83b; --grad3:#5a8f1f; --shadow-base:#4d7e17;
+}
+.cta--teal{
+  --grad1:#77c9b5; --grad2:#2b7a64; --grad3:#0f5543; --shadow-base:#0e4434;
+}
+.cta--blue{
+  --grad1:#7ed4f2; --grad2:#41b5e6; --grad3:#1b6f97; --shadow-base:#1a5f82;
+}
+  /* Make sure short screens still fit (hero will shrink first) */
+  @media (max-height: 640px){
+    .cta{ min-height:50px; }
+    .band{ font-size:clamp(11px,2vw,18px); padding:.45em .9em; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="screen">
+    <!-- Row 1: HERO -->
+    <section class="hero" aria-label="Outreach360 Game Zone">
+      <img src="https://github.com/Outreach360-Inc/games/blob/main/game-zone-hero9.png?raw=true"
+           alt="Outreach360 Game Zone banner with students and emojis">
+    </section>
+
+    <!-- Row 2: PURPLE SELECT BAND -->
+    <div class="band">Select Your Program</div>
+
+    <!-- Row 3: CTAs (on white) -->
+    <section class="ctas" aria-label="Programs">
+      <nav class="cta-row">
+        <a class="cta cta--red"   href="https://outreach360-inc.github.io/games/game-zone-hh1-4.html">Hand in Hand 1–4</a>
+        <a class="cta cta--green" href="https://outreach360-inc.github.io/games/game-zone-hh5-6.html">Hand in Hand 5–6</a>
+        <a class="cta cta--teal"  href="https://outreach360-inc.github.io/games/game-zone-discover.html">Oxford Discover<br>or English Link</a>
+        <a class="cta cta--blue"  href="https://outreach360-inc.github.io/games/game-zone-futures.html">Oxford Discover<br>Futures (Teens)</a>
+      </nav>
+    </section>
+  </div>
+
+</body>
+</html>
