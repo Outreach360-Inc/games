@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🎲 Hand in Hand 1-4 | Game Zone</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+
+<style>
+  :root{
+    --purple:#6a3bd1;
+    --purple-dark:#4d26a8;
+    --card:#ffffff;
+    --ink:#1f2430;
+    --ink-soft:#3c4456;
+    --accent:#ff7a1a;
+    --accent-2:#ff531a;
+    --accent-dark:#c34411;
+    --border:#c7e8ff;
+
+    /* Page background gradient (left -> right) */
+    --bg-1:#1ea2ff;
+    --bg-2:#8fd2ff;
+    --bg-3:#c6f3ff;
+
+    /* Image area size (same for all cards) */
+    --art-width: 200px;
+    --art-ratio: 4 / 3;  /* icons are typically square; change to 4 / 3 if needed */
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:"Nunito", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    line-height:1.4;
+    font-size:15px;
+    background:linear-gradient(90deg, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
+    background-attachment:fixed;
+  }
+
+  /* Top bar (your current height) */
+  .topbar{
+    background:linear-gradient(0deg, var(--purple) 0%, var(--purple-dark) 100%);
+    padding-block:10px;             /* tweak this number for slightly taller/shorter */
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 12px 24px;}
+  .topbar .wrap{padding:0 12px;}   /* keep the bar tight (no extra bottom padding) */
+
+  /* Row: home button | pill title | spacer */
+  .bar{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* HOME button with press effect */
+  .home-badge,.spacer{width:32px;height:32px}
+  .home-badge{
+    -webkit-appearance:none;appearance:none;border:0;outline:0;
+    display:grid;place-items:center;
+    background:#69d46a;border-radius:10px;box-shadow:0 2px 0 #2e9f38;
+    cursor:pointer;user-select:none;transition:transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .home-badge:hover{filter:brightness(1.05)}
+  .home-badge:active{transform:translateY(2px);box-shadow:0 0 0 #2e9f38}
+  .home-badge:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .home-badge svg{width:18px;height:18px}
+
+  .title-pill{
+    justify-self:center;
+    padding:6px 12px;
+    border-radius:36px;
+    font-family:"Baloo 2", system-ui, sans-serif;
+    font-weight:800;letter-spacing:.4px;font-size:17px;color:#fff;
+    text-shadow:0 1px 0 rgba(0,0,0,.25);
+    background:radial-gradient(120% 180% at 50% 0%, #ff8a7a 0%, #ea4235 55%, #b11c2d 100%);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.12), 0 4px 0 #8f1f2f, 0 8px 12px rgba(0,0,0,.14);
+    white-space:nowrap;
+  }
+
+  .stage{background:transparent;border:0;padding:0;margin-top:6px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card);
+    border-radius:10px;
+    padding:14px;
+    position:relative;
+    box-shadow:0 2px 0 #bcd7ee, 0 8px 14px rgba(84,118,164,.18);
+  }
+  .card h3{margin:0 0 6px;font-size:17px;font-weight:900}
+  .card p{margin:0;color:var(--ink-soft);font-size:14px}
+
+  .body{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:12px;align-items:center;
+  }
+  @media (max-width:720px){.body{grid-template-columns:1fr}}
+
+  .art-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+
+  /* Image frame + image behavior */
+  .art-frame{
+    width:var(--art-width);max-width:100%;
+    aspect-ratio:var(--art-ratio);
+    border-radius:8px;border:0;
+    background:#f7fbff;overflow:hidden;display:grid;place-items:center;
+  }
+  .art-frame img{
+    width:100%;height:100%;
+    object-fit:contain;   /* show the full icon without cropping */
+    display:block;
+  }
+
+  .play-btn{
+    border:0;cursor:pointer;font-weight:1000;letter-spacing:.7px;color:#fff;
+    padding:9px 20px;font-size:16px;border-radius:16px;
+    background:linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+    box-shadow:0 5px 0 var(--accent-dark), 0 12px 18px rgba(255,94,0,.24);
+    text-transform:uppercase;
+    transition:transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  }
+  .play-btn:hover{filter:brightness(1.02)}
+  .play-btn:active{transform:translateY(1px);box-shadow:0 4px 0 var(--accent-dark)}
+
+
+/* Top-align image + button across all cards */
+.body { align-items: start; }              /* or: flex-start */
+.body > .text, .body > .art-col { align-self: start; }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap">
+      <div class="bar">
+        <a href="https://outreach360-inc.github.io/games/game-zone.html"><button class="home-badge" aria-label="Home" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.5 9.5V20h13V9.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 20v-6h4v6" fill="#fff"/>
+          </svg>
+        </button></a>
+        <div class="title-pill">HAND IN HAND 1–4</div>
+        <div class="spacer" aria-hidden="true"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stage">
+      <div class="grid">
+
+        
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Hand in Hand Flashcards &amp; Games</h3>
+              <p>These games are designed to go along with the Hand in Hand curriculum! Choose from Flashcards, Memory Match, Connect 4, Word Scramble, Word Search, Bingo review, and Board Game review. Perfect for reinforcing the key language from each level.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/hh-1-4-icon.png?raw=true"
+                  alt="Hand in Hand 1–4 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/hhgames.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+       
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Teaching Manipulatives</h3>
+              <p>A flexible set of visual tools to support beginner English learners using Hand in Hand Levels 1–4. Reinforce routines, alphabet, numbers, colors, shapes, spelling, writing, grammar, and vocabulary. Activities are grab-and-go—just apply your unit’s language and teach on the fly!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/manipulatives-icon.png?raw=true"
+                  alt="Manipulatives icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://view.genially.com/62b8a13445c7a20018d39b43" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+       
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Picture Party 1</h3>
+              <p>Spin for a picture and use one of the suggested activities (located below the notes box) to practice vocabulary, grammar, speaking, writing, and creativity!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/pp1-icon.png?raw=true"
+                  alt="Picture Party 1 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/picture-party1.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Odd One Out 1</h3>
+              <p>Spin for set of words. Students must decide which one doesn’t belong—and explain why! While only one answer is indicated, multiple correct answers are acceptable as long as students can support their reasoning. Great for critical thinking, comparison skills, and vocabulary. <strong>Show pictures of each item to support lower levels.</strong></p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/odd-icon.png?raw=true"
+                  alt="Odd One Out icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/odd1.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+   
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Hidden Pictures</h3>
+              <p>Students search for small items hidden in a larger image to practice visual scanning and vocabulary. Repeat the words, describe them, or use them in a sentence.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/hidden-pictures-icon.png?raw=true"
+                  alt="Hidden Pictures icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.highlightskids.com/games" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>The Q&A Game</h3>
+              <p>Get students speaking or writing! Spin a question. Students practice forming complete sentences. Great for warm-ups, fluency practice, and building confidence. <strong>Best suited for Hand in Hand 3–4, but easily adaptable for lower levels.</strong></p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/qa-icon.png?raw=true"
+                  alt="The Q&A Game icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/qa.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Would You Rather? 1</h3>
+              <p>Use the spinner for a fun and flexible speaking or writing activity where students choose between two options and explain their reasoning. Great for practicing opinions, reasoning, and discussion skills. <strong>Best suited for Hand in Hand 3 or higher, but easily adaptable for lower levels with visual support.</strong></p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/rather1-icon.png?raw=true"
+                  alt="Would You Rather? 1 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/rather1.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Mystery Sound 1</h3>
+              <p>Play a sound and have students guess what it is! Use the sounds in the presentation or find sounds related to your unit. Great for listening, critical thinking, and introducing new vocabulary!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/mystery-sound1-icon.png?raw=true"
+                  alt="Mystery Sound 1 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.canva.com/design/DAGwNNh1UTc/5BuESYwFJVrleTLC32eA5A/view?utm_content=DAGwNNh1UTc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd3f1b70e07" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Games to Learn English</h3>
+              <p>An excellent site full of free, interactive games for vocabulary, grammar, listening, and sentence building—perfect for beginner to intermediate English learners. Great for extra time at the end of class!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/games-learn-english-icon.png?raw=true"
+                  alt="Games to Learn English icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.gamestolearnenglish.com/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>ESL Games+</h3>
+              <p>A large collection of interactive games for practicing grammar, vocabulary, phonics, and sentence structure—ideal for young English learners. Great for fun Fridays!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/esl-games-plus-icon.png?raw=true"
+                  alt="ESL Games+ icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.eslgamesplus.com/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Cambridge English: Pre-A1 to A1</h3>
+              <p>Each activity targets key skills young learners need—reading, writing, listening, and speaking—while reinforcing common vocabulary from beginner-level English. These games and tasks align with international exam formats, making them great for building confidence and academic readiness through fun, accessible practice!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/cambridge-games-icon.png?raw=true"
+                  alt="Cambridge English icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.cambridgeenglish.org/learning-english/parents-and-children/activities-for-children/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Games4ESL</h3>
+              <p>A go-to site for fun, low-prep classroom games to practice vocabulary, grammar, and speaking. Great for extra time at the end of class!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/games-esl-icon.png?raw=true"
+                  alt="Games4ESL icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://games4esl.com/esl-classroom-games/#google_vignette" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Kids ESL Games</h3>
+              <p>A collection of fun, interactive games designed specifically for young English learners. Covers essential skills likevocabulary, phonics, grammar, and listening through puzzles, spelling games, memory activities, and more. Games are simple, colorful, and easy to play—great for whole-class engagement.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/kids-esl-games-icon.png?raw=true"
+                  alt="Kids ESL Games icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://kidseslgames.com/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Character Creator</h3>
+              <p>Build your own characters to practice clothing and appearance vocabulary!<strong>Form complete sentences and ask and answer questions about the characters.</strong></p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/character-creator-icon.png?raw=true"
+                  alt="Character Creator icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://highlights.bitsbox.com/#games/character" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
