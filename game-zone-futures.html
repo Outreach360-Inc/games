@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🎲 Oxford Discover Futures (Teens) | Game Zone</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+
+<style>
+  :root{
+    --purple:#6a3bd1;
+    --purple-dark:#4d26a8;
+    --card:#ffffff;
+    --ink:#1f2430;
+    --ink-soft:#3c4456;
+    --accent:#ff7a1a;
+    --accent-2:#ff531a;
+    --accent-dark:#c34411;
+    --border:#c7e8ff;
+
+    /* Page background gradient (left -> right) */
+    --bg-1:#1ea2ff;
+    --bg-2:#8fd2ff;
+    --bg-3:#c6f3ff;
+
+    /* Image area size (same for all cards) */
+    --art-width: 200px;
+    --art-ratio: 4 / 3;  /* icons are typically square; change to 4 / 3 if needed */
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:"Nunito", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    line-height:1.4;
+    font-size:15px;
+    background:linear-gradient(90deg, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-3) 100%);
+    background-attachment:fixed;
+  }
+
+  /* Top bar (your current height) */
+  .topbar{
+    background:linear-gradient(0deg, var(--purple) 0%, var(--purple-dark) 100%);
+    padding-block:10px;             /* tweak this number for slightly taller/shorter */
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 12px 24px;}
+  .topbar .wrap{padding:0 12px;}   /* keep the bar tight (no extra bottom padding) */
+
+  /* Row: home button | pill title | spacer */
+  .bar{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* HOME button with press effect */
+  .home-badge,.spacer{width:32px;height:32px}
+  .home-badge{
+    -webkit-appearance:none;appearance:none;border:0;outline:0;
+    display:grid;place-items:center;
+    background:#69d46a;border-radius:10px;box-shadow:0 2px 0 #2e9f38;
+    cursor:pointer;user-select:none;transition:transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .home-badge:hover{filter:brightness(1.05)}
+  .home-badge:active{transform:translateY(2px);box-shadow:0 0 0 #2e9f38}
+  .home-badge:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .home-badge svg{width:18px;height:18px}
+
+  .title-pill{
+    justify-self:center;
+    padding:6px 12px;
+    border-radius:36px;
+    font-family:"Baloo 2", system-ui, sans-serif;
+    font-weight:800;letter-spacing:.4px;font-size:17px;color:#fff;
+    text-shadow:0 1px 0 rgba(0,0,0,.25);
+    background: radial-gradient(120% 180% at 50% 0%, #7ed4f2 0%, #41b5e6 55%, #1b6f97 100%);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.12), 0 4px 0 #1a5f82, 0 8px 12px rgba(0,0,0,.14);
+    white-space:nowrap;
+  }
+
+  .stage{background:transparent;border:0;padding:0;margin-top:6px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card);
+    border-radius:10px;
+    padding:14px;
+    position:relative;
+    box-shadow:0 2px 0 #bcd7ee, 0 8px 14px rgba(84,118,164,.18);
+  }
+  .card h3{margin:0 0 6px;font-size:17px;font-weight:900}
+  .card p{margin:0;color:var(--ink-soft);font-size:14px}
+
+  .body{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:12px;align-items:center;
+  }
+  @media (max-width:720px){.body{grid-template-columns:1fr}}
+
+  .art-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+
+  /* Image frame + image behavior */
+  .art-frame{
+    width:var(--art-width);max-width:100%;
+    aspect-ratio:var(--art-ratio);
+    border-radius:8px;border:0;
+    background:#f7fbff;overflow:hidden;display:grid;place-items:center;
+  }
+  .art-frame img{
+    width:100%;height:100%;
+    object-fit:contain;   /* show the full icon without cropping */
+    display:block;
+  }
+
+  .play-btn{
+    border:0;cursor:pointer;font-weight:1000;letter-spacing:.7px;color:#fff;
+    padding:9px 20px;font-size:16px;border-radius:16px;
+    background:linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+    box-shadow:0 5px 0 var(--accent-dark), 0 12px 18px rgba(255,94,0,.24);
+    text-transform:uppercase;
+    transition:transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  }
+  .play-btn:hover{filter:brightness(1.02)}
+  .play-btn:active{transform:translateY(1px);box-shadow:0 4px 0 var(--accent-dark)}
+
+
+/* Top-align image + button across all cards */
+.body { align-items: start; }              /* or: flex-start */
+.body > .text, .body > .art-col { align-self: start; }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap">
+      <div class="bar">
+        <a href="https://outreach360-inc.github.io/games/game-zone.html"><button class="home-badge" aria-label="Home" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.5 9.5V20h13V9.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 20v-6h4v6" fill="#fff"/>
+          </svg>
+        </button></a>
+        <div class="title-pill">OXFORD DISCOVER FUTURES (TEENS)</div>
+        <div class="spacer" aria-hidden="true"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stage">
+      <div class="grid">
+
+          <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Photo of the Day</h3>
+              <p>Spark high-level speaking and writing practice! Students use a choice board of challenges to earn the most points before reading the photo caption. After revealing the caption, students delve deeper into the photo. Great for critical thinking, grammar, creativity, and more! Includes variations for shorter activities.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/photo-day-icon.png?raw=true"
+                  alt="Photo of the Day icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/photo-of-the-day.pdf" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Picture Party 2</h3>
+              <p>Spin for a picture with a built-in prompt. Students use the image as inspiration for speaking or writing practice. Great for building vocabulary, descriptive language, grammar structures, and creativity.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/picture-party2-icon.png?raw=true"
+                  alt="Picture Party 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/picture-party2.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Apples to Apples</h3>
+              <p>Spin for a set of cards. Each student picks a red card they think fits best with the green card. One judge chooses the funniest or most fitting! Use the shared set of cards or give students the link to the game to spin their own set of red cards (and ignore the green one). For a twist, assign red cards and have students defend them—even if they don’t fit! Great for vocabulary and persuasive language!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/apples-icon.png?raw=true"
+                  alt="Apples to Apples icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="http://outreach360-inc.github.io/games/apples.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>The Essay Arena</h3>
+              <p>Spin twice: once for an essay topic and once for a challenge. Each challenge focuses on a key part of the writing process—like thesis statements, hooks, outlines, evidence, or full paragraphs. Students compete for the best response, then vote, discuss, or revise together.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/essay-arena-icon.png?raw=true"
+                  alt="The Essay Arena icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="http://outreach360-inc.github.io/games/essay-arena.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Boost It!</h3>
+              <p>Spin to get a short, vague statement. The challenge is to clarify and expand the idea using more precise language, examples, and academic vocabulary —while correcting errors if needed. Teachers and students can also create their own statements based on unit themes. Great for: developing fluency, coherence, and idea elaboration.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/boost-icon.png?raw=true"
+                  alt="Boost It! icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/boost-it.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Paraphrase Duel</h3>
+              <p>Two students take turns paraphrasing the same sentence in different ways. The class (or teacher) decides whose version is clearer, more accurate, or more advanced. Use sentences from news articles, encyclopedia entries, essays, or TOEFL-style texts. Great for vocabulary grammar, and mastering paraphrasing!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/paraphrase-icon.png?raw=true"
+                  alt="Paraphrase icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <p style="color: #ff6729;" align="center"><strong>YOU WILL NEED TO CREATE YOUR OWN MATERIALS</strong></p>
+            </div>
+          </div>
+        </article>
+
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Summary Relay</h3>
+              <p>Start with a short text. The first student summarizes it in their own words. The next student then summarizes that summary—and so on! The goal is to gradually reduce the content while keeping the main idea intact. Great for practicing paraphrasing, main idea extraction, listening, and fluency!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/summary-icon.png?raw=true"
+                  alt="Summary Relay icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <p style="color: #ff6729;" align="center"><strong>YOU WILL NEED TO CREATE YOUR OWN MATERIALS</strong></p>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Combo Challenge</h3>
+              <p>Spin for a base word and race (or take turns) to build strong word combos—collocations and phrasal verbs like “make a decision” or “run into trouble”—boosting vocabulary, fluency, and natural speaking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/combo-icon.png?raw=true"
+                  alt="Combo Challenge icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/combo-challenge.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Free Rice: English</h3>
+              <p>This multiple-choice game builds English skills and supports the UN World Food Programme—each correct answer donates the equivalent of 10 grains of rice. <strong>Choose any English category, trying the easiest level first—then working your way up until you find the perfect challenge.</strong> Great for test prep with a purpose!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/free-rice-english-icon.png?raw=true"
+                  alt="Free Rice: English icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://play.freerice.com/categories/english-vocabulary?level=1" target="_blank"><button class="play-btn">PLAY</button></a>
+              <p style="color: #ff6729;" align="center"><strong>USE THE TOP-LEFT BUTTON (3 HORIZONTAL LINES) TO CHANGE CATEGORY AND DIFFICULTY</strong></p>           
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Free Rice: Other</h3>
+              <p>This multiple-choice game builds English skills and supports the UN World Food Programme—each correct answer donates the equivalent of 10 grains of rice. <strong>Choose any category, trying the easiest level first—then working your way up until you find the perfect challenge.</strong> Great for brushing up on facts and doing good!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/free-rice-any-icon.png?raw=true"
+                  alt="Free Rice: Other icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://play.freerice.com/categories" target="_blank"><button class="play-btn">PLAY</button></a>
+              <p style="color: #ff6729;" align="center"><strong>USE THE TOP-LEFT BUTTON (3 HORIZONTAL LINES) TO CHANGE CATEGORY AND DIFFICULTY</strong></p>                   
+            </div>
+          </div>
+        </article>
+
+
+
+<article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Story Cubes 2</h3>
+              <p>Roll the virtual dice to reveal words, then create a story using all of them! Students can tell the story solo or as a group, adding on one sentence at a time. A fun way to spark imagination, storytelling, and vocabulary use!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/story-cubes2-icon.png?raw=true"
+                  alt="Story Cubes 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/story-cubes2.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+      
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Talk for a Minute / One-Minute Story</h3>
+              <p>Spin for a topic or use one from your unit. Students take turns speaking for one full minute. You can use the same topic for the whole group or spin a new one for each student. Great for speaking fluency, confidence, and organizing ideas under pressure!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/minute-icon.png?raw=true"
+                  alt="Talk for a Minute / One-Minute Story icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/talk-minute.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>In a Pickle</h3>
+              <p>Can a giraffe fit in a phone booth? Does a sofa fit in a shopping cart? It all depends on how you size it up in this game of creative thinking and outrageous scenarios. Fit smaller things into bigger ones to win. Great for vocabulary, speaking, and practicing comparatives and superlatives.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/pickle-icon.png?raw=true"
+                  alt="In a Pickle icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.canva.com/design/DAGnQQbP1HE/zOa7C6rHGrKiiV943Cs5wg/view?utm_content=DAGnQQbP1HE&utm_campaign=designshare&utm_medium=link&utm_source=viewer" target="_blank"><button class="play-btn">LEARN MORE</button></a>
+              <p style="color: #ff6729;" align="center"><strong>🔍 THERE IS A ZOOM BUTTON IN THE BOTTOM RIGHT CORNER OF THE INSTRUCTIONS</strong></p>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Kids Create Absurdity</h3>
+              <p>Spin a silly prompt and have students compete to come up with the funniest, most creative response—answers can be longer than one word, depending on the prompt. A judge picks the winner, and the group can build a story around the winning idea. Perfect for laughter, language, and imagination!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/absurdity-icon.png?raw=true"
+                  alt="Kids Create Absurdity icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/absurdity.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Would You Rather? 3</h3>
+              <p>Use the spinner for a fun and flexible speaking or writing activity where students choose between two options and <strong>explain their reasoning.</strong> Great for practicing opinions, reasoning, and discussion skills.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/rather3-icon.png?raw=true"
+                  alt="Would You Rather 3? icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/rather3.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>What Would You Do?</h3>
+              <p>A thoughtful speaking or writing activity where students respond to situations. Spin for a prompt. Students explain what they would do <strong>and why</strong>—building fluency, critical thinking, and conditional language skills.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/what-do-icon.png?raw=true"
+                  alt="What Would You Do? icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/what-do.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Whacky Role Plays</h3>
+              <p>Spin all the category wheels for silly scene ideas—use as many as you like! Students act out short, fun role plays based on the prompts. Encourage creativity, exaggeration, and improv. Great for speaking fluency, teamwork, and lots of laughs!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/whacky-role-plays-icon.png?raw=true"
+                  alt="Whacky Role Plays icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/whacky-role-plays.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Commercial Break</h3>
+              <p>Spin for an item and a tone. Students pretend they’re in a commercial and must sell the item using that tone. Encourage over-the-top expressions, gestures, and creativity. A fun way to build confidence and speaking skills!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/commercial-break-icon.png?raw=true"
+                  alt="Commercial Break icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/commercial-break.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Gibberish Translator</h3>
+              <p>One student speaks in expressive gibberish inspired by the prompt—using gestures, tone, sound effects, and facial expressions. Another student “translates” based on those cues. You can use the spinner for ideas or go freestyle. Great for creativity, speaking, and nonverbal communication!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/gibberish-translator-icon.png?raw=true"
+                  alt="Gibberish Translator icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/gibberish-translator.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Talk Show Time</h3>
+              <p>Students take turns as hosts and guests. Spin the Guest Wheel to choose a fun character, then spin the Question Wheel throughout the interview to guide the host. Encourage big personalities, curiosity, and creativity. A great way to practice conversation skills and improvisation!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/talk-time-icon.png?raw=true"
+                  alt="Talk Show Time icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/talk-show.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Twenty Questions 2</h3>
+              <p>A classic guessing game that builds critical thinking, questioning skills, and vocabulary! Use a word from the generator and send it privately to one student. The others ask them yes/no questions to figure out what is—within 20 questions. <strong>Adjust the level of the words as appropriate.</strong> Great for practicing questions and more!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/20-questions2-icon.png?raw=true"
+                  alt="Twenty Questions 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://randomwordgenerator.com/charades.php" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Description Detective 2</h3>
+              <p>Students guess mystery words using clues! Great for building vocabulary and critical thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/description-detective2-icon.png?raw=true"
+                  alt="Description Detective 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/description-detective2.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Taboo</h3>
+              <p>Use the card generator to get a mystery word with “taboo” words you can’t say. Send the card privately to one student via chat. They describe the word without using the forbidden words while others try to guess it. Great for speaking, vocabulary, and quick thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/taboo-icon.png?raw=true"
+                  alt="Taboo icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://playtaboo.com/playpage/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Mad Gab</h3>
+              <p>Read the words on the flashcard out loud—what familiar phrase do they sound like? (Hint: say it fast!) Students work individually or in teams to decode the hidden phrase. Great for listening, pronunciation, and phonemic awareness!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/mad-gab-icon.png?raw=true"
+                  alt="Mad Gab icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/madgab.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Charades 2</h3>
+              <p>Act it out—no speaking allowed! Use a word from the generator and send it privately to one student. They act it out while others guess. <strong>After each round, have students make a sentence using the word. Adjust the level of the words as appropriate.</strong> Great for vocabulary practice, body language, and confident communication in a fun, active way!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/charades2-icon.png?raw=true"
+                  alt="Charades 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://randomwordgenerator.com/charades.php" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Pictionary 2</h3>
+              <p>Draw it—no words or letters allowed! Use a word from the generator and send it privately to one student. They draw it while others guess. <strong>After each round, have students make a sentence using the word. Adjust the level of the words as appropriate.</strong> Great for vocabulary practice, visual thinking, and confident communication in a fun, active way!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/pictionary2-icon.png?raw=true"
+                  alt="Pictionary 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://randomwordgenerator.com/pictionary.php" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>English Tennis</h3>
+              <p>Spin for a category or use your unit’s theme, grammar, word study topic, etc. The first student says a related word or sentence, then the second responds with another—like a rally! Keep going back and forth between the two students until someone gets stuck. Great for vocabulary, reinforcing language patterns, and quick thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/tennis-icon.png?raw=true"
+                  alt="English Tennis icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/english-tennis.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Word Association</h3>
+              <p>One student says any word, and the next quickly says a word that’s related. Keep going through all the students without repeating or hesitating. Great for vocabulary building, quick thinking, and making language connections!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/word-association-icon.png?raw=true"
+                  alt="Word Association icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <p style="color: #ff6729;" align="center"><strong>THIS GAME DOES NOT REQUIRE ANY MATERIALS</strong></p>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Alphabet Challenge 3</h3>
+              <p>Pick a topic (spin for one, use your unit theme, or make one up). Students take turns naming words or phrases related to that topic in A–Z order. Great for vocabulary recall, quick thinking, and fun language practice!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/alphabet-challenge3-icon.png?raw=true"
+                  alt="Alphabet Challenge 3 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/alphabet-challenge3.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Category Race 2</h3>
+              <p>Spin for a topic and challenge students to list as many related words as they can in 30 seconds (or ditch the timer if you prefer)! Play individually, in teams, or as a whole class. Great for building fluency, vocabulary recall, and quick thinking.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/category-race2-icon.png?raw=true"
+                  alt="Category Race 2 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/category-race2.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Scattergories</h3>
+              <p>Students race to think of words that start with that letter and fit each category! Get 1 point for each correct word—2 points if no one else has the same answer! Great for quick thinking, vocabulary, and creativity!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/scattergories-icon.png?raw=true"
+                  alt="Scattergories icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://swellgarfo.com/scattergories/" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Say It!</h3>
+              <p>Spin the two wheels to get a topic and a twist—then race to call out as many answers as possible! Play solo, in pairs, or teams. Fast-paced fun that builds vocabulary and quick thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/say-it-icon.png?raw=true"
+                  alt="Say It! icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="http://outreach360-inc.github.io/games/sayit.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Odd One Out 3</h3>
+              <p>Spin for set of words. Students must decide which one doesn’t belong—and <strong>explain why!</strong> While only one answer is indicated, multiple correct answers are acceptable as long as students can support their reasoning. Great for critical thinking, comparison skills, and vocabulary.</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/odd3-icon.png?raw=true"
+                  alt="Odd One Out 3 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/odd3.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Scrabble</h3>
+              <p>Play Scrabble online together as a team! Collaborate to build words, score points, and use vocabulary strategically. A great way to practice spelling, word formation, and teamwork—all in one fun game!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/scrabble-icon.png?raw=true"
+                  alt="Scrabble icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://www.scrabblegames.info/play/scrabble-online" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Bananagrams</h3>
+              <p>Students build a grid of interconnected words using letter tiles—like Scrabble without the board. Play together in single-player mode as a group, or switch to multiplayer mode for a fast-paced race by sending students a link to your private room. Great for vocabulary, spelling, and quick-thinking word play!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/bananagrams-icon.png?raw=true"
+                  alt="Bananagrams icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://plantaingrams.app" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Boggle</h3>
+              <p>Find as many words as you can by connecting letters in the grid—up, down, sideways, or diagonally! Students can play together or compete individually. Use with or without the timer. Great for spelling, vocabulary, and quick thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/boggle-icon.png?raw=true"
+                  alt="Boggle icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://wordshake.com/boggle" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Word Ladder</h3>
+              <p>Start with a simple word (like cat) and try to reach a target word (like dog) by changing one letter at a time. Each step must form a real word (e.g., cat → cot → dot → dog). Play together on the board. You can adjust the difficulty by changing word length or limiting the number of steps. Great for spelling, vocabulary, and logical thinking!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/word-ladder-icon.png?raw=true"
+                  alt="Word Ladder icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <p style="color: #ff6729;" align="center"><strong>THIS GAME DOES NOT REQUIRE ANY MATERIALS</strong></p>
+            </div>
+          </div>
+        </article>
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>Two Truths and a Lie 3</h3>
+              <p>Share 3 statements—2 true, 1 false—and have students guess the lie. </p>
+              <ul>
+              <li>Read two real <strong>news article intros</strong> and one AI-generated fake</li> 
+              <li>Create <strong>sets based on your unit</strong></li>
+              <li>Or play the <strong>classic get-to-know-you version with personal facts.</strong></li>
+              </ul> 
+              <p>Great for critical thinking, review, and connection!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/truth-lie3-icon.png?raw=true"
+                  alt="Two Truths and a Lie 3 icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <p style="color: #ff6729;" align="center"><strong>THIS GAME DOES NOT REQUIRE ANY MATERIALS</strong></p>
+            </div>
+          </div>
+        </article>
+
+
+
+      <article class="card">
+          <div class="body">
+            <div class="text">
+              <h3>The Adventure Game</h3>
+              <p>Spin the randomizer for a fun prompt (e.g., “I’m packing my bag”). The first student starts: “I’m packing my bag. I put in a blue pencil.” Each student repeats the full list and adds one item—encourage short, vivid descriptions! Keep going around the group—more than once if it’s small. Great for memory and vocabulary practice!</p>
+            </div>
+            <div class="art-col">
+              <div class="art-frame">
+                <img
+                  src="https://github.com/Outreach360-Inc/games/blob/main/adventure-game-icon.png?raw=true"
+                  alt="The Adventure Game icon"
+                  loading="lazy" decoding="async">
+              </div>
+              <a href="https://outreach360-inc.github.io/games/adventure-game.html" target="_blank"><button class="play-btn">PLAY</button></a>
+            </div>
+          </div>
+        </article>
+
+
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
+
