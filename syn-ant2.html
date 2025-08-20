@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Synonym/Antonym Challenge 2</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/syn-ant2.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+    }
+
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.92);
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 1em;
+      background-color: #673ab7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #512da8;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <h1>Synonym/Antonym Challenge 2</h1>
+      <button onclick="spin()">Spin Word</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    const words = [
+      "Abandon","Accomplish","Accurate","Adequate","Adversity","Analyze","Anticipate","Apparent","Apprehend","Assert",
+      "Authentic","Benevolent","Cautious","Chronic","Clumsy","Concise","Confront","Crucial","Decline","Deceptive",
+      "Deficient","Deliberate","Deteriorate","Diligent","Diminish","Discern","Disclose","Disrupt","Distort","Diverse",
+      "Domestic","Eccentric","Elaborate","Elevate","Embrace","Eminent","Empathize","Endorse","Endure","Enormous",
+      "Equitable","Establish","Exaggerate","Facilitate","Fascinate","Fierce","Fluctuate","Formidable","Frustrate",
+      "Generate","Gratify","Hazardous","Hypothesis","Identify","Illustrate","Imminent","Impair","Impulsive",
+      "Inadequate","Incentive","Incoherent","Inconsistent","Indispensable","Influence","Initiate","Innovative",
+      "Insist","Integrity","Intense","Intrude","Jealous","Justify","Lagging","Lethargic","Mandatory","Melancholy",
+      "Merit","Meticulous","Mitigate","Modest","Negotiate","Negligent","Objective","Obsolete","Obstinate","Ominous",
+      "Opportunistic","Paradigm","Parallel","Persist","Plausible","Precaution","Prejudice","Prevalent","Prioritize",
+      "Prohibit","Prominent","Provoke","Quarrel","Rational","Recede","Reconcile","Redundant","Reluctant","Repel",
+      "Resilient","Reveal","Scrutinize","Skeptical","Spontaneous","Substantial","Subtle","Superficial","Sustainable",
+      "Tenuous","Tentative","Trivial","Unanimous","Unpredictable","Validate","Vast","Venerate","Vulnerable","Warrant",
+      "Abundant","Accept","Adhere","Admire","Affection","Agitate","Allocate","Ambitious","Apologize","Approve",
+      "Arrogant","Assist","Attract","Available","Awkward","Bargain","Beneficial","Blame","Calm","Careless",
+      "Challenge","Charm","Clarify","Coexist","Comfort","Compete","Comply","Comprehend","Confine","Connect",
+      "Conquer","Consent","Considerate","Consistent","Contradict","Contribute","Cooperate","Courageous","Courteous",
+      "Creative","Criticize","Curious","Deceive","Deem","Defend","Demand","Demonstrate","Deny","Dependable","Depress",
+      "Despair","Destructive","Detest","Devastate","Dismiss","Displeasure","Dispute","Distinct","Distress","Dominate",
+      "Doubtful","Efficient","Eliminate","Eloquent","Emphasize","Encourage","Exceed","Exclude","Expand","Expected",
+      "Familiar","Flexible","Flourish","Foresee","Forgetful","Fortunate","Fulfill","Genuine","Generous","Glorify",
+      "Grateful","Guilty","Hesitate","Honorable","Humiliate","Ideal","Ignore","Immense","Impartial","Impress",
+      "Inaccurate","Incapable","Indifferent","Inferior","Insult","Intelligent","Involve","Irritate","Jovial","Joyful",
+      "Keen","Lavish","Lazy","Logical","Lonesome","Loyal","Majestic","Mature","Meaningful","Mercy","Mislead",
+      "Miserable","Mysterious","Neglect","Nervous","Nourish","Obligation","Opponent","Oppose","Overcome","Passionate",
+      "Patient","Perceive","Permit","Pessimistic","Polite","Positive","Predict","Preserve","Prevent","Productive",
+      "Prosper","Protect","Provide","Punctual","Purposeful","Realistic","Reasonable","Reflect","Regret","Reject",
+      "Release","Reliable","Remarkable","Remember","Remote","Repay","Request","Resemble","Respect","Restore","Retreat",
+      "Revere","Satisfy","Scatter","Secure","Seldom","Sense","Separate","Severe","Shallow","Shrink","Sincere",
+      "Slander","Somber","Strict","Stubborn","Suffice","Support","Surpass","Suspicious","Symbol","Sympathy","Tolerate"
+    ];
+
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      document.getElementById('result').textContent = words[randomIndex];
+    }
+  </script>
+</body>
+</html>
