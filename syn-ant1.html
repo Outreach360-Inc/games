@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Synonym/Antonym Challenge 1</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/syn-ant1.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+    }
+
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.92);
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 1em;
+      background-color: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e68900;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <h1>Synonym/Antonym Challenge 1</h1>
+      <button onclick="spin()">Spin Word</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    const words = [
+      "Happy","Sad","Big","Small","Hot","Cold","Fast","Slow","Good","Bad","Clean","Dirty","Old","New","Easy","Hard",
+      "Loud","Quiet","Strong","Weak","Rich","Poor","Brave","Afraid","Bright","Dark","Wet","Dry","Empty","Full","Soft",
+      "Tall","Short","Thin","Thick","Early","Late","Deep","Shallow","Young","Sick","Healthy","Tired","Excited","Bored",
+      "Beautiful","Ugly","Angry","Calm","Funny","Serious","Kind","Mean","Polite","Rude","Safe","Dangerous","Wide",
+      "Narrow","Clever","Silly","Busy","Free","Sweet","Sour","Warm","Cool","High","Low","Correct","Wrong","Start",
+      "End","Go","Come","Look","Hear","Speak","Listen","Give","Take","Open","Close","Push","Pull","Sit","Stand",
+      "Buy","Sell","Love","Hate","Cry","Laugh","Remember","Forget","Build","Destroy","Win","Lose","Show","Hide",
+      "Arrive","Leave","Answer","Ask","Walk","Run","Find","Catch","Throw","Wait","Hurry","Allow","Forbid","Enter",
+      "Exit","Help","Hinder","Accept","Refuse","Wake","Sleep","Live","Die","Create","Borrow","Lend","Repair","Break",
+      "Friend","Enemy","Noise","Silence","Day","Night","Top","Bottom","Gift","Problem","Solution","Question","Joy",
+      "Sorrow","Light","Darkness","Victory","Defeat","Truth","Lie","Beginning","Entrance","Inside","Outside","Peace",
+      "War","Success","Failure","Mistake","Luck","Always","Never","Slowly","Up","Down","In","Out","Here","There",
+      "Before","After","Near","Far","Well","Poorly"
+    ];
+
+    function spin() {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      document.getElementById('result').textContent = words[randomIndex];
+    }
+  </script>
+</body>
+</html>
