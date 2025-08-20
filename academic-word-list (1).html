@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Word List</title>
+<style>
+  body { 
+    background: url('https://github.com/Outreach360-Inc/games/blob/main/academic-word-list.png?raw=true') no-repeat center center fixed; 
+    background-size: cover;
+    color:#e5e7eb; 
+    font-family:sans-serif; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+    height:100vh; 
+    margin:0; 
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+  }
+  h1 { font-size:28px; margin-bottom:20px; background:rgba(0,0,0,0.5); padding:8px 16px; border-radius:8px; }
+  #spinner { 
+    width:320px; height:320px; border-radius:50%; 
+    border:10px solid #38bdf8; 
+    display:flex; align-items:center; justify-content:center; 
+    font-size:24px; font-weight:bold; text-align:center; 
+    padding:20px; box-sizing:border-box; 
+    background:rgba(0,0,0,0.6); 
+  }
+  button { margin-top:20px; padding:12px 24px; border:none; border-radius:8px; background:#38bdf8; color:#0f172a; font-size:18px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
+  button:hover { background:#22c55e; color:white; }
+</style>
+</head>
+<body>
+  <h1>Academic Word List</h1>
+  <div id="spinner">Click Spin!</div>
+  <button onclick="spin()">Spin</button>
+
+<script>
+const WORDS = ["analysis", "approach", "area", "assessment", "assume", "authority", "available", "benefit", "concept", "consistent", "constitutional", "context", "contract", "create", "data", "definition", "derived", "distribution", "economic", "environment", "established", "estimate", "evidence", "export", "factors", "financial", "formula", "function", "identified", "income", "indicate", "individual", "interpretation", "involved", "issues", "labour", "legal", "legislation", "major", "method", "occur", "percent", "period", "policy", "principle", "procedure", "process", "required", "research", "response", "role", "section", "sector", "significant", "similar", "source", "specific", "structure", "theory", "variables", "achieve", "acquisition", "administration", "affect", "appropriate", "aspects", "assistance", "categories", "chapter", "commission", "community", "complex", "computer", "conclusion", "conduct", "consequences", "construction", "consumer", "credit", "cultural", "design", "distinction", "elements", "equation", "evaluation", "features", "final", "focus", "impact", "injury", "institute", "investment", "items", "journal", "maintenance", "normal", "obtained", "participation", "perceived", "positive", "potential", "previous", "primary", "purchase", "range", "region", "regulations", "relevant", "resident", "resources", "restricted", "security", "sought", "select", "site", "strategies", "survey", "text", "traditional", "transfer", "alternative", "circumstances", "comments", "compensation", "components", "consent", "considerable", "constant", "constraints", "contribution", "convention", "coordination", "core", "corporate", "corresponding", "criteria", "deduction", "demonstrate", "document", "dominant", "emphasis", "ensure", "excluded", "framework", "funds", "illustrated", "immigration", "implies", "initial", "instance", "interaction", "justification", "layer", "link", "location", "maximum", "minorities", "negative", "outcomes", "partnership", "philosophy", "physical", "proportion", "published", "reaction", "registered", "reliance", "removed", "scheme", "sequence", "sex", "shift", "specified", "sufficient", "task", "technical", "techniques", "technology", "validity", "volume", "access", "adequate", "annual", "apparent", "approximated", "attitudes", "attributed", "civil", "code", "commitment", "communication", "concentration", "conference", "contrast", "cycle", "debate", "despite", "dimensions", "domestic", "emerged", "error", "ethnic", "goals", "granted", "hence", "hypothesis", "implementation", "implications", "imposed", "integration", "internal", "investigation", "job", "label", "mechanism", "obvious", "occupational", "option", "output", "overall", "parallel", "parameters", "phase", "predicted", "principal", "prior", "professional", "project", "promote", "regime", "resolution", "retained", "series", "statistics", "status", "stress", "subsequent", "sum", "summary", "undertaken", "academic", "adjustment", "alter", "amendment", "aware", "capacity", "challenge", "clause", "compounds", "conflict", "consultation", "contact", "decline", "discretion", "draft", "enable", "energy", "enforcement", "entities", "equivalent", "evolution", "expansion", "exposure", "external", "facilitate", "fundamental", "generated", "generation", "image", "liberal", "licence", "logic", "marginal", "medical", "mental", "modified", "monitoring", "network", "notion", "objective", "orientation", "perspective", "precise", "prime", "psychology", "pursue", "ratio", "rejected", "revenue", "stability", "styles", "substitution", "sustainable", "symbolic", "target", "transition", "trend", "version", "welfare", "whereas", "abstract", "accurate", "acknowledged", "aggregate", "allocation", "assigned", "attached", "author", "bond", "brief", "capable", "cited", "cooperative", "discrimination", "display", "diversity", "domain", "edition", "enhanced", "estate", "exceed", "expert", "explicit", "federal", "fees", "flexibility", "furthermore", "gender", "ignored", "incentive", "incidence", "incorporated", "index", "inhibition", "initiatives", "input", "instructions", "intelligence", "interval", "lecture", "migration", "minimum", "ministry", "motivation", "neutral", "nevertheless", "overseas", "preceding", "presumption", "rational", "recovery", "revealed", "scope", "subsidiary", "tapes", "trace", "transformation", "transport", "underlying", "utility", "adaptation", "adults", "advocate", "aid", "channel", "chemical", "classical", "comprehensive", "comprise", "confirmed", "contrary", "converted", "couple", "decades", "definite", "deny", "differentiation", "disposal", "dynamic", "eliminate", "empirical", "equipment", "extract", "file", "finite", "foundation", "global", "grade", "guarantee", "hierarchical", "identical", "ideology", "inferred", "innovation", "insert", "intervention", "isolated", "media", "mode", "paradigm", "phenomenon", "priority", "prohibited", "publication", "quotation", "release", "reverse", "simulation", "solely", "somewhat", "submitted", "successive", "survive", "thesis", "topic", "transmission", "ultimately", "unique", "visible", "voluntary", "abandon", "accompanied", "accumulation", "ambiguous", "appendix", "appreciation", "arbitrary", "automatically", "bias", "chart", "clarity", "conformity", "commodity", "complement", "contemporary", "contradiction", "crucial", "currency", "denote", "detected", "deviation", "displacement", "dramatic", "eventually", "exhibit", "exploitation", "fluctuations", "guidelines", "highlighted", "implicit", "induced", "inevitably", "infrastructure", "inspection", "intensity", "manipulation", "minimised", "nuclear", "offset", "paragraph", "plus", "practitioners", "predominantly", "prospect", "radical", "random", "reinforced", "restore", "revision", "schedule", "tension", "termination", "theme", "thereby", "uniform", "vehicle", "via", "virtually", "widespread", "visual"];
+
+function spin(){
+  const spinner = document.getElementById('spinner');
+  spinner.textContent = "Spinning...";
+  let start = null;
+  let duration = 1000; // 1 second total spin
+
+  function animate(timestamp){
+    if(!start) start = timestamp;
+    const progress = timestamp - start;
+    spinner.textContent = WORDS[Math.floor(Math.random()*WORDS.length)];
+    if(progress < duration){
+      requestAnimationFrame(animate);
+    } else {
+      const result = WORDS[Math.floor(Math.random()*WORDS.length)];
+      spinner.textContent = result;
+    }
+  }
+  requestAnimationFrame(animate);
+}
+</script>
+</body>
+</html>
