@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Who Wants to Be a Millionaire? – Vocabulary Edition</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121937; --accent:#ffb703; --accent-2:#00c2ff; --text:#f6f7fb; --muted:#9aa3b2; --danger:#ff5c7a; --success:#34d399; --shadow:0 10px 30px rgba(0,0,0,.35); --round:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:radial-gradient(1200px 900px at 20% 10%, #17204b 0%, var(--bg) 60%);
+      color:var(--text);
+      padding:24px; /* allow natural page scroll when needed */
+      overflow:auto; /* IMPORTANT: no forced shrink/fit */
+    }
+    .app{width:100%; max-width:none; margin:0 auto; display:grid; grid-template-columns: 400px 400px 150px; gap:18px; align-items:stretch}   
+    @media (max-width: 980px){ .app{grid-template-columns:1fr;}}
+
+    .panel{background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12); border-radius:var(--round); box-shadow:var(--shadow)}
+    .header{grid-column:1/-1; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+    .title{font-size: clamp(18px, 1.6vw + 12px, 30px); font-weight:800; letter-spacing:.3px}
+    .subtitle{color:var(--muted); font-size:14px}
+
+    .left, .middle, .right{padding:14px; display:flex; flex-direction:column; gap:12px}   
+
+    .prompt-card{ width:100%; position:relative; overflow:hidden; min-height:180px; border-radius:var(--round); background:linear-gradient(145deg, #1a244f 0%, #0f1635 75%); border:1px solid rgba(255,255,255,.14); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:22px; isolation:isolate;}
+    .prompt-label{color:var(--accent); font-weight:700; letter-spacing:.4px; text-transform:uppercase; font-size:13px}
+    .prompt-text{font-size: clamp(18px, 1.2vw + 12px, 26px); font-weight:800; margin:8px 0 6px}
+    .helper{color:var(--muted); font-size:14px; max-width:65ch}
+
+    .controls{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:14px}
+    .btn{ appearance:none; border:none; cursor:pointer; padding:12px 16px; border-radius:12px; font-weight:700; letter-spacing:.2px; transition:.18s transform ease, .18s opacity ease; }
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{ background:linear-gradient(180deg, var(--accent), #e39a00); color:#1a1500 }
+    .btn-outline{ background:transparent; border:1px solid rgba(255,255,255,.18); color:var(--text); text-decoration:none; display:inline-block }
+    .btn-good{ background:linear-gradient(180deg, #38e4a7, #1faf7f); color:#00140d }
+    .btn-bad{ background:linear-gradient(180deg, #ff7d96, #d94a62); color:#2b0010 }
+
+    .ladder{list-style:none; margin:0; padding:0; display:grid; gap:4px}  
+    .step{display:flex; align-items:center; justify-content:space-between; background:linear-gradient(180deg,#1c264f,#12193a); border:1px solid rgba(255,255,255,.12); border-radius:10px; pad 
+    .step .val{font-weight:800; color:#e9f0ff; font-size:clamp(13px, 1.05vw, 17px)}
+    .step .num{color:var(--muted); font-size:11px} 
+    .step.active{outline:2px solid var(--accent); box-shadow:0 0 0 3px rgba(255,183,3,.2) inset}
+    .step.checkpoint{border-color:rgba(255,183,3,.45)}
+
+    .status{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px} 
+    .status .box{background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px}
+    .status .label{color:var(--muted); font-size:12px}
+    .status .value{font-weight:800}
+
+    .note{color:var(--muted); font-size:13px; text-align:center; margin-top:6px}
+
+    /* Spinner iframe styling */
+    .spinner-wrap{border:1px solid rgba(255,255,255,.14); border-radius:14px; overflow:hidden;}
+    .spinner-wrap iframe{width:100%; height:420px; border:0; display:block; background:transparent}  
+  .right-inner{width:100%; transform-origin: top center; margin:0 auto; display:flex; flex-direction:column; align-items:center;}  
+  .right-inner .ladder, .right-inner .status{width:100%;}
+.right-inner .controls{width:100%; display:flex; justify-content:center;}
+  </style>
+
+
+
+<style id="top-trim">
+  body { padding-top: 6px !important; }
+  h1 { margin-top: 0 !important; }
+  /* Optional: tighten the title card's internal padding if it uses .panel */
+  .panel:first-of-type { padding-top: 14px !important; }
+</style>
+
+
+
+
+
+<style id="fullwidth-noscale">
+  html, body { height: 100%; margin: 0; }
+  body { height: 100svh; overflow: hidden; padding: 0 0 0 0 !important; }
+  /* Main grid spans the viewport and uses percentage columns */
+  .app {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100svh !important;
+    margin: 0 !important;
+    padding: 0 8px;            /* a little side breathing room */
+    display: grid;
+    grid-template-columns: 48% 37% 15%;
+    grid-template-rows: auto 1fr; /* header then content row */
+    gap: 12px;
+    align-items: stretch !important;
+    box-sizing: border-box;
+  }
+  /* Ensure the header spans all columns on the first row */
+  .header { grid-column: 1 / -1; }
+  /* Make the three columns fill the available height and scroll inside if needed */
+  .app > .left, .app > .middle, .app > .right {
+    height: 100% !important;
+    min-height: 0;  /* allow inner overflow */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;         /* clip at panel edge */
+  }
+  .app > .left > *, .app > .middle > *, .app > .right > * {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;           /* internal scroll if needed */
+  }
+  /* Iframe should fill its container */
+  .app iframe { width: 100% !important; height: 100% !important; border: 0; display: block; }
+</style>
+
+<style id="header-tight">
+  /* Make header minimal height */
+  .app { grid-template-rows: min-content 1fr !important; gap: 8px !important; }
+  .panel.header { padding: 8px 16px !important; margin: 0 !important; }
+  .panel.header .title { 
+    font-size: clamp(20px, 2.6vw, 34px) !important; 
+    line-height: 1.1 !important; 
+    margin: 0 !important;
+  }
+  .panel.header .subtitle {
+    font-size: clamp(12px, 1.3vw, 16px) !important;
+    line-height: 1.2 !important;
+    margin: 2px 0 0 0 !important;
+    opacity: 0.9;
+  }
+  /* Trim extra top padding on the first row cards */
+  .app > .left, .app > .middle, .app > .right { min-height: 0 !important; }
+  .panel.left, .panel.middle, .panel.right { padding-top: 12px !important; }
+</style>
+
+<style id="fit-100-percent">
+  /* 1) Ultra-compact header to free vertical space */
+  .app { grid-template-rows: min-content 1fr !important; gap: 8px !important; }
+  .panel.header { padding: 6px 12px !important; }
+  .panel.header .title { font-size: clamp(18px, 2.2vw, 30px) !important; line-height: 1.05 !important; margin: 0 !important; }
+  .panel.header .subtitle { font-size: clamp(11px, 1.1vw, 14px) !important; line-height: 1.15 !important; margin: 2px 0 0 0 !important; opacity: .9; }
+  @media (min-width: 1024px) {
+    .panel.header .subtitle { display: none !important; }
+  }
+
+  /* 2) Right column: ladder fills; status/reset stay visible but can scroll if tight */
+  .app > .right { display: flex !important; flex-direction: column !important; overflow: hidden !important; }
+  .app > .right .ladder { 
+    flex: 1 1 auto !important; 
+    min-height: 0 !important; 
+    display: grid !important; 
+    grid-template-rows: repeat(15, minmax(0, 1fr)) !important; 
+    gap: 3px !important;
+  }
+  .app > .right .status, 
+  .app > .right .note, 
+  .app > .right .reset, 
+  .app > .right .actions { 
+    flex: 0 0 auto !important; 
+    overflow: auto !important;
+    margin-top: 6px !important;
+  }
+
+  /* 3) Make each step compact so 15 fit comfortably */
+  .step { padding: 6px 8px !important; }
+  .step .val { font-size: clamp(11px, 0.95vw, 15px) !important; }
+  .step .num { font-size: clamp(10px, 0.8vw, 12px) !important; }
+</style>
+
+<style id="ladder-smaller">
+  /* Slightly more compact ladder */
+  .app > .right .ladder { gap: 2px !important; }
+  .step { padding: 5px 7px !important; border-radius: 8px !important; }
+  .step .val { font-size: clamp(10px, 0.85vw, 14px) !important; line-height: 1.05 !important; }
+  .step .num { font-size: clamp(9px, 0.7vw, 11px) !important; line-height: 1.05 !important; }
+  /* Optional: thinner highlight so it doesn't feel bulky */
+  .step.active { outline-width: 2px !important; box-shadow: 0 0 0 2px rgba(255,183,3,.18) inset !important; }
+</style>
+
+<style id="status-smaller-and-colored">
+  /* Compact the status section */
+  .app > .right .status {
+    gap: 6px !important;
+    margin-top: 4px !important;
+  }
+  .app > .right .status .box {
+    padding: 6px 8px !important;
+    border-radius: 8px !important;
+  }
+  /* Make labels and values much smaller */
+  .app > .right .status .label {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    opacity: 0.8 !important;
+  }
+  .app > .right .status .value {
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+    color: var(--accent) !important; /* different color for the numbers */
+    font-weight: 800 !important;
+  }
+</style>
+
+<style id="title-reset-smaller">
+  /* Smaller title */
+  .panel.header { padding: 4px 10px !important; }
+  .panel.header .title {
+    font-size: clamp(15px, 1.6vw, 24px) !important;
+    line-height: 1.05 !important;
+    margin: 0 !important;
+  }
+
+  /* Smaller Reset Game button in the right column */
+  .app > .right .reset { margin-top: 6px !important; }
+  .app > .right .reset .btn,
+  .app > .right .reset button,
+  .app > .right .reset a,
+  .app > .right .actions .btn,
+  .app > .right .actions button,
+  .app > .right .actions a {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+    border-radius: 8px !important;
+  }
+</style>
+
+<style id="reset-one-line-tight">
+  /* Ultra-compact Reset Game on one line */
+  .app > .right .reset { 
+    margin-top: 4px !important; 
+    display: flex !important; 
+    align-items: center !important; 
+  }
+  .app > .right .reset .btn,
+  .app > .right .reset button,
+  .app > .right .reset a,
+  .app > .right .actions .btn,
+  .app > .right .actions button,
+  .app > .right .actions a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    padding: 4px 8px !important;
+    border-radius: 7px !important;
+    white-space: nowrap !important;
+    width: max-content !important;
+    letter-spacing: 0 !important;
+  }
+  /* If there's an icon inside, shrink it too */
+  .app > .right .reset svg,
+  .app > .right .reset i,
+  .app > .right .actions svg,
+  .app > .right .actions i {
+    width: 12px !important;
+    height: 12px !important;
+  }
+</style>
+
+<style id="resetbtn-tight">
+  #resetBtn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    padding: 4px 8px !important;
+    border-radius: 7px !important;
+    white-space: nowrap !important; /* force single line */
+    width: auto !important;
+    letter-spacing: 0 !important;
+  }
+</style>
+
+<style id="reset-in-header">
+  .panel.header .header-inner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .panel.header .header-text{ min-width:0; }
+  .panel.header .header-actions{ flex:0 0 auto; }
+  .panel.header #resetBtn{
+    font-size: clamp(12px, 1.15vw, 16px) !important;
+    padding: 8px 14px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    border-radius: 10px !important;
+  }
+</style>
+
+<style id="reset-header-gold-right">
+  .panel.header .header-inner { 
+    width: 100%; 
+    display:flex; 
+    align-items:center; 
+    justify-content: space-between; 
+    gap:12px;
+  }
+  .panel.header .header-actions { 
+    margin-left: auto !important; 
+    display:flex; 
+    align-items:center; 
+  }
+  /* Gold Reset button using --accent */
+  .panel.header #resetBtn {
+    background: var(--accent) !important;
+    color: #0b1020 !important;
+    border: 1px solid rgba(0,0,0,.25) !important;
+    box-shadow: 0 2px 8px rgba(255,183,3,.25) !important;
+    font-weight: 800 !important;
+  }
+  .panel.header #resetBtn:hover { filter: brightness(0.95); }
+  .panel.header #resetBtn:active { transform: translateY(1px); }
+</style>
+
+
+
+<style id="spinner-fit-container">
+  /* Left column becomes a flex column */
+  .panel.left { display: flex !important; flex-direction: column !important; min-height: 0 !important; }
+  /* Label on top, spinner fills the rest */
+  .panel.left .prompt-label { margin-bottom: 6px !important; flex: 0 0 auto !important; }
+  .panel.left .spinner-wrap { flex: 1 1 auto !important; min-height: 0 !important; overflow: hidden !important; }
+  .panel.left .spinner-wrap iframe { height: 100% !important; width: 100% !important; }
+</style>
+
+<style id="prompt-actions-css">
+  .panel.middle .prompt-actions{
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .panel.middle .prompt-actions .controls{ margin: 0; }
+  .panel.middle .prompt-note{
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+</style>
+
+<style id="prompt-actions-center">
+  .panel.middle .prompt-actions{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+  }
+  /* Flatten nested controls so buttons are treated as direct flex items */
+  .panel.middle .prompt-actions .controls{
+    display: contents !important;
+  }
+</style>
+
+<style id="prompt-actions-one-line">
+  .panel.middle .prompt-actions{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;   /* <-- keep all on one line */
+    overflow: hidden;               /* prevent vertical wrapping artifacts */
+  }
+  /* Flatten nested wrappers so buttons behave as siblings in the flex row */
+  .panel.middle .prompt-actions .controls{ display: contents !important; }
+  /* Ensure buttons themselves don't wrap */
+  .panel.middle .prompt-actions .btn,
+  .panel.middle .prompt-actions button,
+  .panel.middle .prompt-actions a{
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+</style>
+
+<style id="prompt-actions-bottom-and-bigger-card">
+  /* Make the middle panel a flex column so we can pin actions to the bottom */
+  .panel.middle {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+  /* Let the blue prompt card take the available height and be scroll-safe */
+  .panel.middle .prompt-card {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    padding: 18px 20px !important; /* slightly larger card */
+  }
+  /* Make the card content a bit larger */
+  .panel.middle .prompt-card .prompt-text {
+    font-size: clamp(16px, 1.4vw, 22px) !important;
+    line-height: 1.25 !important;
+  }
+  .panel.middle .prompt-card .helper {
+    font-size: clamp(12px, 1.1vw, 16px) !important;
+    line-height: 1.25 !important;
+  }
+  /* Keep actions on one line and pin to bottom */
+  .panel.middle .prompt-actions {
+    margin-top: auto !important;   /* push to bottom */
+    padding-top: 8px !important;
+    padding-bottom: 4px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;  /* single line */
+  }
+  /* Flatten nested wrappers so buttons are direct flex children */
+  .panel.middle .prompt-actions .controls { display: contents !important; }
+  /* Prevent button text from wrapping */
+  .panel.middle .prompt-actions .btn,
+  .panel.middle .prompt-actions button,
+  .panel.middle .prompt-actions a {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+</style>
+
+<style id="prompt-actions-bottom-fix">
+  /* Ensure the middle panel fills its track and pushes actions to the bottom */
+  .panel.middle {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important; /* first child at top, actions at bottom */
+    align-items: stretch !important;
+    min-height: 0 !important;
+  }
+  /* Make the card actually grow */
+  .panel.middle .prompt-card {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    padding: 22px 22px !important; /* a bit larger */
+  }
+  /* Actions row pinned bottom, single line, centered */
+  .panel.middle .prompt-actions {
+    margin-top: 0 !important;     /* space-between handles push */
+    padding-top: 10px !important;
+    padding-bottom: 6px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;  /* keep on one line */
+  }
+  .panel.middle .prompt-actions .controls { display: contents !important; }
+  .panel.middle .prompt-actions .btn,
+  .panel.middle .prompt-actions button,
+  .panel.middle .prompt-actions a {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+</style>
+
+<style id="prompt-actions-absolute-bottom">
+  /* Make the middle panel a positioned container */
+  .panel.middle {
+    position: relative !important;
+    display: block !important;   /* break away from previous flex/grid rules */
+    padding-bottom: 76px !important; /* reserve space for the actions row */
+    min-height: 0 !important;
+  }
+  /* Grow the card to fill everything above the reserved bottom space */
+  .panel.middle .prompt-card {
+    height: calc(100% - 76px) !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    padding: 22px 22px !important;
+  }
+  /* Absolutely pin the actions bar to the bottom, centered, one line */
+  .panel.middle .prompt-actions {
+    position: absolute !important;
+    left: 0; right: 0; bottom: 12px;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+    padding: 0 16px;
+  }
+  .panel.middle .prompt-actions .controls { display: contents !important; }
+  .panel.middle .prompt-actions .btn,
+  .panel.middle .prompt-actions button,
+  .panel.middle .prompt-actions a {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+</style>
+
+<style id="prompt-card-taller">
+  .panel.middle { padding-bottom: 56px !important; }
+  .panel.middle .prompt-card { height: calc(100% - 56px) !important; }
+  .panel.middle .prompt-actions { bottom: 6px !important; }
+</style>
+
+<style id="prompt-card-taller-plus">
+  /* Reduce bottom reserve so the gap is tighter */
+  .panel.middle { padding-bottom: 44px !important; }
+  .panel.middle .prompt-card { height: calc(100% - 44px) !important; }
+  .panel.middle .prompt-actions { bottom: 4px !important; }
+
+  /* Make card text larger to match the taller card */
+  .panel.middle .prompt-card .prompt-label {
+    font-size: clamp(18px, 1.8vw, 24px) !important;
+    line-height: 1.1 !important;
+  }
+  .panel.middle .prompt-card .prompt-text {
+    font-size: clamp(20px, 2.1vw, 28px) !important;
+    line-height: 1.25 !important;
+  }
+  .panel.middle .prompt-card .helper {
+    font-size: clamp(14px, 1.3vw, 18px) !important;
+    line-height: 1.3 !important;
+  }
+</style>
+
+<style id="prompt-card-tallest-and-text-xl">
+  /* Minimal bottom reserve so the card is taller */
+  .panel.middle { padding-bottom: 36px !important; }
+  .panel.middle .prompt-card { height: calc(100% - 36px) !important; }
+  .panel.middle .prompt-actions { bottom: 2px !important; }
+
+  /* Bigger typography inside the card */
+  .panel.middle .prompt-card .prompt-label {
+    font-size: clamp(20px, 2.0vw, 26px) !important;
+    line-height: 1.08 !important;
+  }
+  .panel.middle .prompt-card .prompt-text {
+    font-size: clamp(22px, 2.4vw, 32px) !important;
+    line-height: 1.22 !important;
+  }
+  .panel.middle .prompt-card .helper {
+    font-size: clamp(15px, 1.5vw, 20px) !important;
+    line-height: 1.28 !important;
+  }
+</style>
+
+<style id="prompt-card-tiny-more">
+  /* Even smaller bottom reserve for a taller card */
+  .panel.middle { padding-bottom: 32px !important; }
+  .panel.middle .prompt-card { height: calc(100% - 32px) !important; }
+  .panel.middle .prompt-actions { bottom: 1px !important; }
+
+  /* Slightly larger text inside the card */
+  .panel.middle .prompt-card .prompt-label {
+    font-size: clamp(21px, 2.2vw, 28px) !important;
+    line-height: 1.06 !important;
+  }
+  .panel.middle .prompt-card .prompt-text {
+    font-size: clamp(24px, 2.6vw, 34px) !important;
+    line-height: 1.2 !important;
+  }
+  .panel.middle .prompt-card .helper {
+    font-size: clamp(16px, 1.6vw, 21px) !important;
+    line-height: 1.26 !important;
+  }
+</style>
+
+<style id="prompt-card-white-theme">
+  .panel.middle .prompt-card{
+    background: #ffffff !important;
+    color: #0b1020 !important;
+    border: 1px solid rgba(0,0,0,.08) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.15) !important;
+  }
+  .panel.middle .prompt-card .prompt-text{ color: #0b1020 !important; }
+  .panel.middle .prompt-card .helper{ color: #374151 !important; }
+</style>
+
+<style id="helper-lighter">
+  .panel.middle .prompt-card .helper{
+    color: #6b7280 !important; /* slightly lighter gray */
+  }
+</style>
+
+
+
+<style id="ladder-highlight-flat">
+  /* Flat color bar for active step: no borders, no extra padding, no glow */
+  .ladder .step.active{
+    background: var(--accent) !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  /* Keep the amount text readable without changing height */
+  .ladder .step.active .val{
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;           /* remove the extra padding we added earlier */
+    color: #0b1020 !important;       /* dark text on gold */
+    font-weight: 900 !important;
+  }
+  /* Make the small number tag readable on the gold bar */
+  .ladder .step.active .num{
+    color: #0b1020 !important;
+    font-weight: 800 !important;
+  }
+</style>
+
+<!-- NEW: fixed header height + header toggles styling -->
+<style id="header-fixed-height">
+  :root { --headerH: 36px; } /* super compact header */
+  .app { grid-template-rows: var(--headerH) 1fr !important; gap: 4px !important; }
+
+  .panel.header {
+    height: var(--headerH) !important;
+    min-height: var(--headerH) !important;
+    max-height: var(--headerH) !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .panel.header .header-inner { height: 100% !important; }
+  .panel.header .header-text { min-width: 0 !important; display:flex; align-items:center; gap:8px; }
+
+  /* Single line, smaller title */
+  .panel.header .title {
+    font-size: clamp(14px, 1.2vw, 18px) !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .panel.header .subtitle { display:none !important; }
+
+  .panel.header .header-actions { display:flex; align-items:center; gap:6px !important; }
+
+  /* Buttons: shorter + tighter */
+  .panel.header .header-actions .btn,
+  .panel.header .header-actions button {
+    height: 24px !important;
+    padding: 3px 8px !important;
+    line-height: 1 !important;
+    border-radius: 7px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+  }
+
+  /* Segmented toggle group */
+  .toggle-group {
+    display:flex; align-items:center; gap:3px;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:8px;
+    padding:0.5px; /* minimal breathing room */
+    flex:0 0 auto;
+  }
+  .toggle-btn {
+    appearance:none; border:0; background:transparent; cursor:pointer;
+    font-weight:800; letter-spacing:.2px; color:var(--text);
+    padding:3px 7px;
+    border-radius:7px; line-height:1; white-space:nowrap;
+    font-size: 13px !important;
+  }
+  .toggle-btn[aria-pressed="true"] {
+    background: var(--accent); color:#0b1020; box-shadow: inset 0 1px 5px rgba(255,183,3,.25);
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="panel header">
+      <div class="header-inner">
+        <div class="header-text">
+          <div>
+            <div class="title">Who Wants to Be a Millionaire? – <span style="color:var(--accent)">Vocabulary Edition</span></div>
+            <div class="subtitle">Use the embedded Oxford 5000 spinner to get a word. Then draw a prompt card here.</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <!-- NEW: Oxford/AWL toggle controls -->
+          <div class="toggle-group" role="group" aria-label="Word list selector">
+            <button id="toggleOxford" class="toggle-btn" aria-pressed="true">Oxford 5000</button>
+            <button id="toggleAWL" class="toggle-btn" aria-pressed="false">Academic Word List</button>
+          </div>
+          <button id="resetBtn" class="btn btn-accent">🔄 Reset Game</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Column 1: Spinner -->
+    <section class="panel left">
+      <div class="spinner-wrap">
+        <iframe src="https://outreach360-inc.github.io/games/oxford5000.html" title="Oxford 5000 Spinner" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+      
+    </section>
+
+    <!-- Column 2: Prompt Card -->
+    <section class="panel middle">
+      <div class="prompt-card" id="promptCard" aria-live="polite">
+        <div class="prompt-text" id="promptText">Click “Draw Card” to get a random task.</div>
+        <div class="helper" id="helperText"></div>
+      </div>
+    
+      <div class="prompt-actions">
+        <div class="controls">
+          <button class="btn btn-primary" id="drawBtn">🃏 Draw Card</button>
+        </div>
+        <div class="controls">
+          <button class="btn btn-good" id="correctBtn">✅ Correct</button>
+          <button class="btn btn-bad" id="incorrectBtn">❌ Incorrect</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Column 3: Ladder -->
+    <aside class="panel right"><div class="right-inner">
+      <ul class="ladder" id="ladder"></ul>
+      <div class="status">
+        <div class="box">
+          <div class="label">Current Winnings</div>
+          <div class="value" id="winnings">0</div>
+        </div>
+        <div class="box">
+          <div class="label">Safe at (Checkpoint)</div>
+          <div class="value" id="safe">0</div>
+        </div>
+      </div>
+      
+    </div></aside>
+  </div>
+
+  <script>
+    // Millionaire Ladder
+    const ladderValues = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+    const checkpoints = new Set([1000,32000]);
+
+    // Prompt Deck
+    const BASE_PROMPTS = [
+      {text:"Define the word.", helper:"Explain its meaning clearly and simply."},
+      {text:"Use the word in a sentence.", helper:"Make it sound natural and grammatically correct."},
+      {text:"Provide a synonym or antonym.", helper:"Say which one you chose (synonym or antonym)."},
+      {text:"True or False: the teacher's definition is correct.", helper:"Listen to the definition; say 'true' if correct, 'false' if not."},
+      {text:"Make a sentence about your own life using the word.", helper:"Personalize it—use I / me / my and keep it natural."},
+      {text:"Determine if the sentence uses the word correctly.", helper:"Teacher says a sentence; you say 'correct' or 'incorrect'."},
+      {text:"Ask a question using the word.", helper:"Make a clear question that uses the word naturally."},
+      {text:"Give the part(s) of speech.", helper:"Some words have more than one; name all that apply."}
+    ];
+
+    let deck=[]; let discard=[]; let lastPromptText = null;
+    function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}return array;}
+    function resetDeck(){deck=shuffle([...BASE_PROMPTS]);discard=[];updatePromptUI("Click “Draw Card” to get a random task.", '');}
+    function drawCard(){
+      resetDeck();
+      let card = deck.pop();
+      if (lastPromptText && deck.length>0 && card && card.text === lastPromptText){
+        const alt = deck.pop();
+        if (alt){
+          deck.unshift(card); // put the duplicate back at the front
+          card = alt;
+        }
+      }
+      if (!card){ resetDeck(); card = deck.pop(); }
+      discard.push(card);
+      lastPromptText = card.text;
+      updatePromptUI(card.text, card.helper);
+    }
+    function updatePromptUI(text,helper){document.getElementById('promptText').textContent=text;document.getElementById('helperText').textContent=helper||'';}
+
+    // Ladder State
+    let stepIndex=-1; let safeValue=0;
+    function buildLadder(){const ul=document.getElementById('ladder');ul.innerHTML='';ladderValues.slice().reverse().forEach((val,i)=>{const li=document.createElement('li');li.className='step'+(checkpoints.has(val)?' checkpoint':'');li.dataset.value=val;li.innerHTML=`<span class="num">${ladderValues.length-i}</span><span class="val">${val.toLocaleString()}</span>`;ul.appendChild(li);});highlightCurrent();}
+    function highlightCurrent(){const steps=Array.from(document.querySelectorAll('.step'));steps.forEach(s=>s.classList.remove('active'));if(stepIndex>=0){const renderIndex=ladderValues.length-1-stepIndex;steps[renderIndex]?.classList.add('active');}document.getElementById('winnings').textContent=stepIndex>=0?ladderValues[stepIndex].toLocaleString():'0';document.getElementById('safe').textContent=safeValue.toLocaleString();}
+    function markCorrect(){if(stepIndex<ladderValues.length-1){stepIndex++;const val=ladderValues[stepIndex];if(checkpoints.has(val)) safeValue=val;highlightCurrent();}}
+    function markIncorrect(){if(safeValue===0){stepIndex=-1;}else{stepIndex=ladderValues.indexOf(safeValue);}highlightCurrent();}
+    function resetGame(){
+  // Reset internal state
+  stepIndex = -1;
+  safeValue = 0;
+  highlightCurrent();
+  resetDeck();
+
+  // Also refresh the spinner iframe to reset word list UI
+  try {
+    const frame = document.querySelector('.spinner-wrap iframe');
+    if (frame) {
+      // Force a hard refresh by reassigning the same src
+      const current = frame.getAttribute('src');
+      frame.setAttribute('src', current);
+    }
+  } catch(e) {
+    // Ignore cross-origin errors; reassigning src handles refresh safely.
+  }
+}
+
+    document.getElementById('drawBtn').addEventListener('click',drawCard);
+    document.getElementById('correctBtn').addEventListener('click',markCorrect);
+    document.getElementById('incorrectBtn').addEventListener('click',markIncorrect);
+    document.getElementById('resetBtn').addEventListener('click',resetGame);
+
+    buildLadder(); resetDeck();
+  </script>
+
+<script>
+  // Spinner targets
+  const OXF_URL = 'https://outreach360-inc.github.io/games/oxford5000.html';
+  const AWL_URL = 'https://outreach360-inc.github.io/games/academic-word-list1.html'; 
+
+  // Hook up once the DOM exists
+  document.addEventListener('DOMContentLoaded', () => {
+    const spinnerFrame = document.querySelector('.spinner-wrap iframe');
+    const oxfordToggle = document.getElementById('toggleOxford');
+    const awlToggle = document.getElementById('toggleAWL');
+
+    function setSpinnerList(which) {
+      const isOxford = (which === 'oxford');
+
+      // Always update the toggle UI so clicks feel responsive
+      if (oxfordToggle) oxfordToggle.setAttribute('aria-pressed', String(isOxford));
+      if (awlToggle) awlToggle.setAttribute('aria-pressed', String(!isOxford));
+
+      const nextSrc = isOxford ? OXF_URL : AWL_URL;
+
+      // Try to switch the iframe; browsers block file:/// from https pages
+      try {
+        spinnerFrame.src = nextSrc;
+        spinnerFrame.title = isOxford ? 'Oxford 5000 Spinner' : 'Academic Word List Spinner';
+      } catch (err) {
+        console.warn('Could not set iframe src:', err);
+        // Optional: show a friendly hint if blocked
+        alert('Looks like the browser blocked loading a local file inside this page. Open this page as a local file (file:///...) or use the file-picker fallback.');
+      }
+    }
+
+    // Button events
+    if (oxfordToggle) oxfordToggle.addEventListener('click', () => setSpinnerList('oxford'));
+    if (awlToggle) awlToggle.addEventListener('click', () => setSpinnerList('awl'));
+
+    // Initial state
+    setSpinnerList('oxford');
+  });
+</script>
+
+  <script>
+    // Scale the ladder panel to fit viewport height so all money tiers are visible
+    function fitLadder(){
+      const panel = document.querySelector('.right-inner');
+      if(!panel) return;
+      panel.style.transformOrigin = 'top center';
+      panel.style.transform = 'none';
+      // available vertical space = viewport height - body padding (approx 48px)
+      // scaling disabled for better centering
+      panel.style.transform = 'none';
+    }
+    window.addEventListener('load', fitLadder);
+    window.addEventListener('resize', fitLadder);
+  </script>
+
+  <script id="remove-open-in-new-tab-precise">
+  document.addEventListener('DOMContentLoaded', function(){
+    var nodes = Array.from(document.querySelectorAll('a, button'));
+    nodes.forEach(function(el){
+      var t = (el.innerText || el.textContent || '').trim().toLowerCase();
+      if (t === 'open in new tab' || t.indexOf('open in new tab') !== -1){
+        el.remove();
+      }
+    });
+  });
+  </script>
+
+  <script id="remove-open-in-new-tab-precise">
+  document.addEventListener('DOMContentLoaded', function(){
+    // Remove the "Open in New Tab" anchor/button if present
+    var nodes = Array.from(document.querySelectorAll('a, button'));
+    nodes.forEach(function(el){
+      var t = (el.innerText || el.textContent || '').trim().toLowerCase();
+      if (t === 'open in new tab' || t.indexOf('open in new tab') !== -1){
+        el.remove();
+      }
+    });
+  });
+  </script>
+</body>
+</html>
