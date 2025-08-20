@@ -11,6 +11,30 @@
       href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
 <link rel="icon" type="image/png" sizes="16x16"
       href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+
+  <!-- in <head> -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { overflow: hidden; }                 /* prevent inner scrollbars */
+  /* Whatever your main container is: #app, main, .wrapper, etc. */
+  #app, main, .wrapper { height: 100%; min-height: 0; }
+  /* Replace any 100vh / 100dvh here with 100% when embedded */
+</style>
+<script>
+  // If the page is inside an iframe, switch to an embedded mode
+  if (window.top !== window.self) {
+    document.documentElement.classList.add('embedded');
+  }
+</script>
+<style>
+  /* Optional: only when embedded */
+  .embedded body { overflow: hidden; }
+  .embedded .open-in-new-tab, .embedded footer { display: none; } /* if present */
+  /* If you currently have something like .shell { height: 100vh } */
+  .embedded .shell { height: 100% !important; }
+</style>
+
 <style>
   body {
     background: url('https://github.com/Outreach360-Inc/games/blob/main/academic-word-list.png?raw=true') no-repeat center center fixed;
