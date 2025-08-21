@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus Group: Kid Edition</title>
+     <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root {
+      --fg-cyan:   #00bcd4;  /* playful cyan */
+      --fg-sun:    #ffd54f;  /* sunshine amber */
+      --fg-pink:   #ff6ec7;  /* hot pink */
+      --card-bg:   #ffffff;
+      --text:      #0f172a;
+      --accent:    #00bcd4;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(140deg, var(--fg-cyan) 0%, var(--fg-sun) 56%, var(--fg-pink) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Floating chat bubbles background */
+    .bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -140px;
+      min-width: 120px;
+      height: 40px;
+      padding: 0 16px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 20px;
+      animation: rise linear infinite, sway ease-in-out infinite;
+      filter: blur(0.2px);
+    }
+    .bubble::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      bottom: -10px;
+      width: 18px;
+      height: 18px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 18px 4px 18px 18px;
+      transform: rotate(45deg);
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0) scale(1); opacity: .9; }
+      80%  { opacity: .7; }
+      100% { transform: translateY(-130vh) translateX(0) scale(1.05); opacity: 0; }
+    }
+    @keyframes sway {
+      0%,100% { transform: translateX(0); }
+      50%     { transform: translateX(12px); }
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: min(920px, 100%);
+      padding: 36px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.35);
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: .4px;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: #334155;
+      margin-top: -6px;
+    }
+    .prompt {
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.35;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 20px 22px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 780px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,188,212,0.35);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,188,212,0.25); }
+  </style>
+</head>
+<body>
+  <!-- animated chat bubbles backdrop -->
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <div class="container">
+    <div class="title">Focus Group: Kid Edition</div>
+    <div class="subtitle">Spin for a prompt!</div>
+
+    <div id="prompt" class="prompt" aria-live="polite"></div>
+
+    <button onclick="spin()">Spin!</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "Shoes that can change colors with an app",
+      "A lunchbox that folds flat when it’s empty",
+      "A water bottle that glows in the dark",
+      "A backpack with built-in speakers for music",
+      "A robot pet that never needs batteries",
+      "A bike helmet with flashing lights",
+      "A desk that can turn into a mini bed",
+      "A pair of sunglasses that let you see in the dark",
+      "A toy that changes shape every time you play with it",
+      "A pencil that writes in rainbow colors",
+      "A jacket that warms you up on cold days and cools you on hot days",
+      "A scooter that can also float on water",
+      "A blanket that tells bedtime stories out loud",
+      "A snack that changes flavor each time you take a bite",
+      "A robot that helps with homework",
+      "A toothbrush that plays music while you brush",
+      "A ball that always bounces back to you",
+      "A pair of gloves that stick to walls",
+      "A chair that spins like a carnival ride",
+      "A backpack that can float like a balloon so you never feel the weight",
+      "Shoes that light up and play sounds when you walk",
+      "A water bottle that makes the water taste like your favorite juice",
+      "A lunchbox that tells you jokes when you open it",
+      "A robot dog that can talk and play games with you",
+      "A bed that rocks you to sleep like a cradle",
+      "A scooter that changes colors as you ride it",
+      "A pencil that never runs out of lead or ink",
+      "A chair that gives you a hug when you sit down",
+      "A ball that glows and sings when you throw it",
+      "A hat that sprays water to keep you cool on hot days",
+      "A jacket that grows with you so it always fits",
+      "A toy car that drives up walls and ceilings",
+      "A blanket that makes you invisible when you hide under it",
+      "A backpack that has secret doors for hiding things",
+      "A pair of glasses that show cartoons while you wear them",
+      "A toothbrush that tells you when you’re done brushing",
+      "A desk that turns into a video game machine when homework is done",
+      "A bike that folds up small enough to carry into class",
+      "A pillow that lets you watch movies on it like a screen",
+      "A robot cat that can do magic tricks",
+      "Shoes that make you jump extra high like a kangaroo",
+      "A backpack that turns into a tiny tent for camping",
+      "A lunchbox that makes food appear when you’re hungry",
+      "A water bottle that sprays a rainbow when you open it",
+      "A hat that lets you talk to animals",
+      "A pencil that changes colors when you write",
+      "A bed that feels like a trampoline",
+      "A toy airplane that really flies around the room",
+      "A chair that spins you like a carnival ride",
+      "A jacket that lets you fly a few feet off the ground",
+      "A ball that never stops bouncing",
+      "A scooter that can drive on grass, sand, and snow",
+      "A pair of gloves that make everything you touch glow",
+      "A pillow that gives you a new dream every night",
+      "A blanket that makes you float a little above the ground",
+      "A toy house that can build itself",
+      "A pair of sunglasses that let you see through walls",
+      "A robot that makes your favorite snack after school",
+      "A watch that lets you pause playtime so it lasts longer",
+      "A skateboard that can float above the ground",
+      "Shoes that make you run as fast as a cheetah",
+      "A backpack that has a secret slide inside",
+      "A lunchbox that sings your favorite song when you open it",
+      "A water bottle that fills itself with any drink you want",
+      "A hat that makes ice cream appear on top",
+      "A pencil that writes your homework for you",
+      "A bed that can fly around your room at night",
+      "A toy robot that can shrink or grow in size",
+      "A chair that bounces like a pogo stick",
+      "A jacket that glows in the dark like a lantern",
+      "A ball that changes into different animals when you throw it",
+      "A scooter that leaves a rainbow trail behind it",
+      "A pair of gloves that shoot bubbles",
+      "A pillow that makes funny sounds when you squeeze it",
+      "A blanket that can turn into a superhero cape",
+      "A toy car that turns into a boat in the bathtub",
+      "A pair of sunglasses that let you see in the future",
+      "A robot that tells silly jokes all day long",
+      "A watch that makes everything around you go in slow motion",
+      "A backpack that can teleport your books home when you’re done",
+      "Shoes that can walk by themselves to school",
+      "A lunchbox that never runs out of pizza",
+      "A water bottle that sprays glitter when you open it",
+      "A hat that changes the weather around you",
+      "A pencil that tells you the answers on a test",
+      "A bed that tucks you in by itself",
+      "A toy dragon that breathes bubbles instead of fire",
+      "A chair that can dance when music plays",
+      "A jacket that lets you turn invisible for five minutes",
+      "A ball that turns into any sport you want (soccer, basketball, tennis)",
+      "A scooter that can climb up stairs",
+      "A pair of gloves that let you climb walls like Spider-Man",
+      "A pillow that can talk and give advice",
+      "A blanket that feels like different things (clouds, snow, sand)",
+      "A toy car that zooms to clean up messes",
+      "A pair of sunglasses that let you see at night like an owl",
+      "A robot that can copy your voice and make funny songs",
+      "A watch that lets you rewind time by five minutes",
+      "A snack bag that never runs out of candy",
+      "A water bottle that reminds you to drink more water",
+      "Shoes that grow bigger as your feet grow",
+      "A backpack with lights so you’re visible at night",
+      "A pencil that never breaks when you write",
+      "A jacket that keeps you warm but is still really light",
+      "A bike helmet that glows in the dark",
+      "A lunchbox that keeps hot food hot and cold food cold",
+      "A toothbrush that tells you when to stop brushing",
+      "A desk that helps you stay organized with books and supplies",
+      "A pair of glasses that help you see small text more clearly",
+      "A raincoat that dries quickly after getting wet",
+      "A school chair that is comfortable for long classes",
+      "A notebook you can erase and reuse instead of buying new ones",
+      "A lunchbox made from materials that don’t hurt the environment",
+      "A pair of gloves that keep your hands warm but let you use a tablet",
+      "A water faucet that shuts off by itself to save water",
+      "A ball that counts how many times you kick or throw it",
+      "A light that works without batteries or electricity",
+      "A bike lock that is easier and faster for kids to use",
+      "A backpack with extra padding so it doesn’t hurt your back",
+      "A lunchbox that never leaks, even with soup inside",
+      "Shoes that are waterproof for rainy days",
+      "A backpack with built-in pockets for water bottles and snacks",
+      "A jacket with hidden pockets for phones, keys, or money",
+      "A pencil sharpener that catches all the shavings so there’s no mess",
+      "A water bottle that shows how much you’ve already drunk",
+      "A bike light that automatically turns on when it’s dark",
+      "A desk lamp that uses less energy but still shines bright",
+      "A raincoat that folds into a small pouch you can carry",
+      "A notebook that keeps track of homework assignments",
+      "A toothbrush that plays music for two minutes while you brush",
+      "A pair of shoes that never slip on wet floors",
+      "A chair that adjusts to fit kids of different heights",
+      "A pencil case that organizes supplies into sections",
+      "A backpack made from recycled plastic bottles",
+      "A helmet that feels lighter but still protects your head",
+      "A lunchbox that folds flat when it’s empty",
+      "A jacket with a hood that stays up in windy weather",
+      "A desk that can change height for sitting or standing",
+      "A pair of gloves that keep hands warm but let you use your phone",
+      "A water bottle cap that filters dirty water into clean drinking water",
+      "A playground swing that adjusts so kids of all sizes can use it safely",
+      "A recycling bin that tells you if you put something in the wrong spot",
+      "A lamp that turns on when it gets dark and off when it’s light",
+      "A soccer goal that counts the number of goals automatically",
+      "A bus stop shelter that keeps kids dry when it rains",
+      "A pencil that can also highlight words in bright colors",
+      "A bike lock that opens with a code instead of a key",
+      "A classroom whiteboard that cleans itself",
+      "A library shelf that helps you find the book you’re looking for",
+      "A sports ball that tells you how far you kicked or threw it",
+      "A crossing sign that flashes when kids are walking across the street",
+      "A lunch table that folds up for easy cleaning",
+      "A ruler that also works as a calculator",
+      "A trash can that opens with a foot pedal so you don’t need to touch it",
+      "A playground slide that stays cool in the sun",
+      "A chair that reminds you to sit up straight",
+      "A water fountain that fills reusable bottles without spilling",
+      "A basketball hoop that lowers or raises to match your height",
+      "A light switch that turns off automatically when you leave the room",
+      "A playground seesaw that can be used by one person or two",
+      "A classroom clock that shows both digital and analog time together",
+      "A trash can that sorts recycling, compost, and garbage automatically",
+      "A park bench that charges phones using solar power",
+      "A soccer ball that lights up for night games",
+      "A water fountain that always keeps water cold",
+      "A swing that has extra safety straps for younger kids",
+      "A pencil sharpener that never jams",
+      "A traffic light that beeps louder when it’s safe to cross",
+      "A whiteboard that saves notes as photos you can send to your tablet",
+      "A basketball that shows how high you bounced it",
+      "A sandbox cover that keeps animals out at night",
+      "A classroom projector that can work without plugging in",
+      "A playground climbing wall that tracks how far you’ve climbed",
+      "A school bell that plays music instead of a loud ring",
+      "A trash bin that rewards you with a point when you recycle",
+      "A park light that only turns on when someone is nearby",
+      "A puzzle that lights up when you finish it",
+      "A classroom desk that folds up for extra space",
+      "A sports scoreboard that works by itself without a referee",
+      "A water filter that makes tap water taste better",
+      "A trash can that turns food waste into garden soil",
+      "A home light that turns off by itself when no one is in the room",
+      "A pet feeder that gives food at the right time every day",
+      "A reusable shopping bag that folds into a tiny pocket",
+      "A streetlight that gets energy from the sun instead of electricity",
+      "A fan that works without needing to be plugged in",
+      "A fridge drawer that keeps fruits and vegetables fresh for longer",
+      "A window that opens and closes by itself when it’s hot or cold",
+      "A recycling machine that crushes cans and bottles easily",
+      "A compost bin that doesn’t smell bad",
+      "A home alarm that warns you if smoke is in the house",
+      "A car seat that adjusts automatically as kids grow",
+      "A dog collar that lights up at night so pets can be seen",
+      "A solar panel that can charge small devices like phones",
+      "A medicine bottle that reminds you when it’s time to take your medicine",
+      "A traffic light that changes faster when no cars are waiting",
+      "A road surface that glows at night so it’s safer to drive",
+      "A community garden box that waters itself",
+      "A home speaker that tells stories or bedtime reminders",
+      "A stove that turns off by itself if you forget",
+      "A shower head that uses less water but still feels strong",
+      "A window shade that blocks heat in the summer and keeps warmth in during winter",
+      "A trash can that tells you when it’s full",
+      "A street sign that flashes when a car is going too fast",
+      "A pet water bowl that refills itself",
+      "A house roof that collects rainwater for gardens",
+      "A bike path light that glows at night without electricity",
+      "A smoke alarm that also speaks in a calm voice",
+      "A shopping cart that tells you how much you’ve spent",
+      "A solar lantern for when the power goes out",
+      "A park water fountain that works for both people and pets",
+      "A community mailbox that locks so packages are safe",
+      "A car seatbelt that reminds you if you forget to buckle",
+      "A refrigerator shelf that slides out so you can reach everything",
+      "A laundry basket that sorts clothes into colors and whites",
+      "A window screen that keeps out bugs but lets in fresh air",
+      "A home recycling bin that crushes cans automatically",
+      "A pet door that only opens for your pet’s collar",
+      "A road sign that shows how much pollution cars are making",
+      "A water bottle that shows when the water is clean or dirty",
+      "A home air filter that removes dust and smoke from the air",
+      "A road that charges electric cars while they drive",
+      "A trash bin that separates glass, paper, and plastic on its own",
+      "A house fan that runs only on solar power",
+      "A grocery bag that can carry heavy items but never tears",
+      "A smoke alarm that also calls for help automatically",
+      "A refrigerator drawer that tells you when food is about to expire",
+      "A dog leash that glows at night so cars can see you",
+      "A community vending machine that gives out fresh fruit instead of candy",
+      "A crosswalk that lights up when people are walking across",
+      "A bike lane barrier that pops up to keep cars away",
+      "A reusable water filter straw for camping or emergencies",
+      "A composting machine that makes plant soil in one day",
+      "A lamp that charges itself during the day with sunlight",
+      "A medicine container that locks so kids can’t open it",
+      "A streetlight that turns dimmer when no one is nearby",
+      "A recycling machine that makes old paper into new notebooks",
+      "A pet tracker that shows where your pet is on a phone app",
+      "A window that turns dark like sunglasses when it’s sunny",
+      "An app that reminds you to drink water during the day",
+      "A game that teaches you another language while you play",
+      "A music app that only plays songs picked by kids",
+      "A timer app that makes chores into a race or challenge",
+      "A drawing app that can turn your art into animations",
+      "A video app that lets you make movies with special effects",
+      "A map app that shows safe walking or biking routes for kids",
+      "A homework helper app that gives hints but not answers",
+      "A reading app that lets you read books with friends online",
+      "A pet care app that reminds you when to feed or walk your pet",
+      "A sleep app that tells bedtime stories and plays calming sounds",
+      "A recycling app that scans items and tells you which bin to use",
+      "A cooking app that gives kid-friendly recipes with step-by-step videos",
+      "A sports app that tracks how fast you run or how many goals you score",
+      "A kindness app that gives daily challenges like “say thank you to someone”",
+      "A gardening app that teaches you how to grow plants at home",
+      "A budget app that helps kids save allowance money for goals",
+      "A history app that takes you on “virtual field trips” to the past",
+      "A safety app that sends an alert if you’re lost and need help",
+      "A library app that lets you borrow and read e-books anytime",
+      "An app that turns exercise into a video game adventure",
+      "A language app that lets you talk with kids around the world safely",
+      "A music app that makes playlists based on your mood",
+      "A homework app that helps you organize assignments and due dates",
+      "A photo app that turns your pictures into comic strips",
+      "A reading app that rewards you with points for every chapter you finish",
+      "A sports app that lets you play trivia games about your favorite teams",
+      "A weather app that gives fun daily challenges like “wear sunglasses today”",
+      "A recycling app that shows how much trash you saved from the landfill",
+      "A kindness app where kids share good deeds they did that day",
+      "A food app that suggests healthy snacks based on what’s in your fridge",
+      "A history app that lets you “time travel” with VR tours",
+      "A drawing app that lets friends color each other’s sketches online",
+      "A pet app that lets you care for a virtual version of your real pet",
+      "A budgeting app that teaches kids how to save, spend, and share money",
+      "A puzzle app that changes into new games every day",
+      "A map app that shows fun local places for kids (parks, trails, activities)",
+      "A science app that teaches experiments step by step with videos",
+      "A safety app that gives alerts if you’re near dangerous weather",
+      "A gardening app that helps track when to water and harvest plants",
+      "A neighborhood service where kids can borrow and trade books",
+      "A weekend club that teaches kids how to cook fun meals",
+      "A pet-walking service run by kids for kids in the neighborhood",
+      "A recycling pickup service just for cans and bottles",
+      "A homework helper hotline kids can call after school",
+      "A weekend “sports bus” that takes kids to parks for free games",
+      "A community service where kids can swap board games or puzzles",
+      "A safety escort service where older kids help younger kids walk home",
+      "A local service that delivers fresh fruit and snacks to families",
+      "A music club where kids can borrow instruments to try out",
+      "A gardening service that teaches families to grow food at home",
+      "A babysitting service just for pets (watching pets while owners are away)",
+      "A reading buddy service where older kids read stories to younger kids",
+      "A bike repair service that fixes flat tires for free in neighborhoods",
+      "A weekend cleanup crew where kids earn points for picking up trash",
+      "A toy library where kids can check out toys instead of buying them",
+      "A birthday helper service that sets up decorations for parties",
+      "A carpool service where families share rides to save gas",
+      "A kindness club service that delivers cards or notes to people who need cheering up",
+      "A recycling art service where old materials are turned into art projects",
+      "A weekend “fix it” service where people help repair broken bikes and toys",
+      "A neighborhood service that trades outgrown clothes with other families",
+      "A service where older kids teach younger kids how to play sports",
+      "A weekend bus that takes families to free museums and parks",
+      "A pet-sitting service where neighbors take turns caring for each other’s animals",
+      "A community kitchen that delivers extra meals to families who need them",
+      "A service that helps kids learn how to ride bikes safely",
+      "A swap shop where families exchange books, games, or movies they no longer use",
+      "A local buddy system where kids pair up to walk to school together",
+      "A service that organizes weekend clean-up days in parks or beaches",
+      "A kindness delivery where kids write letters and drop them at nursing homes",
+      "A weekend tool library where families can borrow things like rakes or ladders",
+      "A service that organizes “screen-free play days” with group activities",
+      "A neighborhood craft service where kids make decorations for community events",
+      "A service where volunteers help plant flowers and trees around town",
+      "A weekend bike train where families ride together for safety",
+      "A toy repair service that fixes broken action figures and dolls",
+      "A community swap cart where people leave items they don’t need and take what they do",
+      "A service where kids can bring pets to visit elderly people for fun and comfort",
+      "A music share service where kids can swap playlists or instruments",
+      "A flying bus service that picks kids up from their houses for school",
+      "A robot delivery service that brings snacks and homework anywhere you are",
+      "A space travel service where families can visit the moon for a weekend",
+      "A drone mail service that delivers letters and packages right to your window",
+      "A time-travel tour service where kids can visit the dinosaurs safely",
+      "A dream-sharing service where kids can swap dreams like trading cards",
+      "A teleportation taxi service that takes you anywhere in seconds",
+      "A virtual zoo service where you can see real animals with VR goggles",
+      "A weather control service that lets you order a sunny day for your birthday",
+      "A hologram concert service that brings your favorite band into your living room",
+      "A robot tutor service that teaches you anything you want, any time of day",
+      "A space camp service where kids can spend the night on a space station",
+      "A personal drone service that carries your backpack and follows you around",
+      "A virtual playground service where kids from all over the world can play together online",
+      "A kindness robot service that delivers gifts and smiles to people feeling sad",
+      "A memory recording service where you can replay your best moments",
+      "A shape-shifting vehicle service that changes from car to boat to plane",
+      "A teleporting library service that drops any book into your hands instantly",
+      "A jetpack rental service where kids can try short safe flights",
+      "A hologram classroom service where friends can “beam in” from anywhere in the world",
+      "A teleport app that takes you anywhere in the world instantly",
+      "A dream-recording app that lets you watch your dreams in the morning",
+      "A robot chef service that cooks any meal you ask for",
+      "A hologram app that lets friends hang out even if they live far away",
+      "A space hotel service where families can spend the weekend in orbit",
+      "A backpack drone that carries your stuff and follows you around",
+      "A virtual reality app that lets you explore the ocean without getting wet",
+      "A time-travel tour service where you can safely visit the past or future",
+      "A robot pet service that takes care of real pets when owners are busy",
+      "A digital classroom app where teachers are friendly AI holograms",
+      "A personal weather app that lets you control the weather around you",
+      "A teleport delivery service that brings packages in seconds",
+      "A robot sports coach that practices with you anytime",
+      "A virtual zoo app where you can see endangered animals in 3D",
+      "A shape-shifting car that can turn into a boat or plane",
+      "A hologram theater service that brings movies into your living room",
+      "A translator app that lets you talk to animals",
+      "A space mail service that delivers messages to astronauts",
+      "A kindness app that sends surprise gifts or notes to cheer people up",
+      "A teleport pizza service that delivers food instantly to your table",
+      "A robot doctor app that checks your health at home with a scan",
+      "A hologram playground where you can change the games every day",
+      "A time-freeze button service that pauses the world for five minutes",
+      "A space travel app where you can “beam up” for a tour of the stars",
+      "A flying bike rental service where you can ride in the sky",
+      "A dream-sharing app that lets you send your dreams to friends",
+      "A robot cleaning crew service that sweeps whole streets at night",
+      "A personal bubble shield service that keeps you safe in bad weather",
+      "A virtual adventure app that takes you inside your favorite book or movie",
+      "A drone taxi service that carries kids safely across town",
+      "A shape-shifting pet product that can become a cat, dog, or dragon",
+      "A hologram sports app where you can play soccer against famous athletes",
+      "A robot teacher service that helps with homework any time of day",
+      "A universal translator app that lets you talk to anyone in any language",
+      "A space farm service that grows food on the moon for Earth",
+      "A time machine app that lets you replay a moment from your life",
+      "A flying delivery robot that drops snacks wherever you are",
+      "A virtual museum app where the exhibits move and talk to you",
+      "A kindness robot service that visits lonely people and cheers them up",
+      "A flying restaurant where you eat meals while floating in the sky",
+      "A robot café where robots cook and serve your food",
+      "An underwater restaurant with windows to see fish and dolphins swim by",
+      "A time-travel diner where each table serves food from a different time in history",
+      "A space burger shop that delivers meals by rocket drones",
+      "A hologram ice cream parlor where flavors change color and glow",
+      "A build-your-own pizza shop with toppings that float in the air",
+      "A kindness café where you pay with good deeds instead of money",
+      "A zero-gravity restaurant where you float while eating your meal",
+      "A 3D-printing restaurant that can print any food you imagine",
+      "A rainforest café that grows fresh fruit right at the table",
+      "A pet-friendly restaurant where pets have their own menu",
+      "A robot-run grocery store that collects your items for you",
+      "A dessert lab where ice cream and candy are made with science experiments",
+      "A teleport café that delivers your food instantly at home",
+      "A glow-in-the-dark restaurant where all the food lights up",
+      "A rotating sky tower restaurant with views of the stars",
+      "A mystery meal restaurant where you never know what you’ll get",
+      "A singing restaurant where the waiters perform songs while serving",
+      "A eco-friendly restaurant where leftovers turn into energy for the building",
+      "A board game café where families can eat snacks and play games together",
+      "A pet café where you can play with cats and dogs while having a drink",
+      "A smoothie shop that makes healthy shakes with fruit and veggies",
+      "A movie-themed diner where food is based on famous films",
+      "A toy repair shop that fixes broken action figures and dolls",
+      "A family ice cream shop where you invent your own flavors",
+      "A kids’ bookstore with a reading corner and storytime every day",
+      "A music shop where you can try instruments before buying",
+      "A pizza place where you design your own shape of pizza (star, heart, etc.)",
+      "A sports center where kids can try lots of games in one place",
+      "A bakery that only sells cupcakes with crazy toppings",
+      "A farmers’ market that delivers baskets of fresh food to your house",
+      "A craft store where you can also take art classes",
+      "A candy shop where you mix your own candy bag",
+      "A bike shop that also rents bikes for the day",
+      "A restaurant where kids get to be the chefs for one meal",
+      "A recycling shop that turns old clothes into new fashion",
+      "A community kitchen where everyone brings food to share",
+      "A toy store where you can test every toy before you buy it",
+      "A café that also has board games, puzzles, and LEGO tables",
+      "A pancake café where you can add unlimited toppings",
+      "A pet grooming shop that also has a play area for animals",
+      "A smoothie truck that drives to neighborhoods after school",
+      "A bookstore that has a comfy lounge for reading and hot chocolate",
+      "A pizza restaurant where you can watch the chefs toss the dough",
+      "A farmers’ market stand that sells only kid-grown gardens and veggies",
+      "A board game rental shop where you can borrow games like library books",
+      "A bakery that only sells giant cookies in different flavors",
+      "A music café where kids can perform open-mic nights",
+      "A sports shop that customizes jerseys and sneakers with your name",
+      "A sandwich shop that lets you pick from funny bread shapes",
+      "A toy store that also runs weekend building competitions",
+      "A frozen yogurt shop with unlimited toppings and flavors",
+      "A movie café where you can eat while watching cartoons or films",
+      "A flower shop that teaches kids how to make their own bouquets",
+      "A pet hotel where kids can help care for animals on weekends",
+      "A donut shop that sells new mystery flavors every day",
+      "A skate shop that also has ramps where you can try the gear",
+      "A salad bar that makes healthy food fun with colorful ingredients",
+      "A bakery where every item is decorated like an animal",
+      "A toy rental shop where you can borrow toys instead of buying them",
+      "A pet bakery that makes treats just for cats and dogs",
+      "A family arcade that has both video games and board games",
+      "A smoothie bar that only uses local fruit",
+      "A repair shop that fixes bikes, scooters, and skateboards",
+      "A candy factory tour where kids can watch candy being made",
+      "A book café that has storytime events every weekend",
+      "A music studio where kids can record their own songs",
+      "A shoe shop that lets you design your own sneakers",
+      "A breakfast café that only serves cereal with hundreds of toppings",
+      "A farmers’ co-op where kids sell what they grow in gardens",
+      "A comic book store that also runs drawing classes",
+      "A roller rink café where you can skate and eat at the same time",
+      "A thrift shop that sells only kids’ clothes and toys",
+      "A frozen fruit bar shop with popsicles made from fresh fruit",
+      "A hobby shop that sells crafts and runs weekend workshops",
+      "A sports café that shows kids’ games on big screens",
+      "A puppet theater café that serves snacks during shows",
+      "A plant shop that helps kids adopt and grow their own plants",
+      "A movie snack shop that only sells popcorn in different flavors"
+    ];
+
+    const promptEl = document.getElementById('prompt');
+
+    function spin() {
+      const idx = Math.floor(Math.random() * prompts.length);
+      promptEl.textContent = prompts[idx];
+    }
+
+    // Generate floating chat bubbles with varied sizes, speeds, and positions
+    (function makeBubbles() {
+      const wrap = document.getElementById('bubbles');
+      const count = 18;
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const width = 90 + Math.random() * 140;
+        b.style.width = width + 'px';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.animationDuration = (12 + Math.random() * 18) + 's';
+        b.style.animationDelay = (Math.random() * 8) + 's';
+        b.style.opacity = (0.20 + Math.random() * 0.35).toFixed(2);
+        wrap.appendChild(b);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus Group: Teen Edition</title>
+     <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root {
+      --fg-charcoal: #0f1020;  /* deep charcoal */
+      --fg-purple:   #6c2bd9;  /* electric purple */
+      --fg-cyan:     #06b6d4;  /* neon cyan */
+      --card-bg:     #ffffff;
+      --text:        #0f172a;
+      --accent:      #6c2bd9;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow: hidden; /* keeps floating shapes tidy */
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--fg-charcoal) 0%, var(--fg-purple) 56%, var(--fg-cyan) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Floating chat rectangles (teen-styled) */
+    .bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -160px;
+      min-width: 120px;
+      height: 42px;
+      padding: 0 16px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      animation: rise linear infinite, sway ease-in-out infinite;
+      backdrop-filter: blur(1px);
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0) scale(1); opacity: .9; }
+      80%  { opacity: .7; }
+      100% { transform: translateY(-130vh) translateX(0) scale(1.05); opacity: 0; }
+    }
+    @keyframes sway {
+      0%,100% { transform: translateX(0); }
+      50%     { transform: translateX(16px); }
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: min(920px, 100%);
+      padding: 36px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.35);
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: .4px;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: #334155;
+      margin-top: -6px;
+    }
+    .prompt {
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.35;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 20px 22px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 780px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(108,43,217,0.35);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(108,43,217,0.25); }
+  </style>
+</head>
+<body>
+  <!-- animated chat rectangles backdrop -->
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <div class="container">
+    <div class="title">Focus Group: Teen Edition</div>
+    <div class="subtitle">Spin for a prompt!</div>
+
+    <div id="prompt" class="prompt" aria-live="polite"></div>
+
+    <button onclick="spin()">Spin!</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "A homework planner app that sends reminders and breaks tasks into steps",
+      "A thrift shop business where teens can resell clothes they no longer wear",
+      "A subscription box service that delivers self-care items for teens every month",
+      "A group ride-sharing service just for teens going to school or activities",
+      "A mental health app that teaches calming techniques for stress",
+      "A pop-up café run entirely by teens with music and art nights",
+      "A tutoring service where older teens help younger kids for community credit",
+      "A fashion design app that lets you create and sell custom clothes online",
+      "A sustainable clothing business that makes outfits from recycled fabrics",
+      "A time management app that blocks distractions while studying",
+      "A fitness service that offers fun group classes for teens (dance, boxing, yoga)",
+      "A food truck business that sells healthy snacks near schools",
+      "A volunteering app that matches teens with local opportunities",
+      "A social app that helps teens find study partners for shared classes",
+      "A music studio business where teens can record and share songs",
+      "A sustainable delivery service that uses bikes and scooters in the community",
+      "A career exploration app that connects teens with short mentorship calls",
+      "A teen-run café that doubles as a study hangout space",
+      "A marketplace app where teens can trade or sell handmade items",
+      "A study café where teens get discounts for doing homework there",
+      "A fitness app that tracks workouts and gives custom teen-friendly plans",
+      "A teen-run clothing resale business focused on vintage fashion",
+      "A mental health service that offers anonymous chat with trained mentors",
+      "A rideshare app that pairs teens going to the same school events",
+      "A food delivery service with healthy, budget-friendly meals for teens",
+      "A business that organizes weekend concerts for local teen bands",
+      "A social app that connects teens by hobbies like art, sports, or coding",
+      "A skincare subscription box with natural products for teens",
+      "A tutoring business where teens earn money helping with math, science, or languages",
+      "A side hustle app that lists small paid jobs teens can do in the community",
+      "A coffee shop with open-mic nights just for teen performers",
+      "A study app that gamifies schoolwork with rewards and streaks",
+      "A sustainable jewelry business made from recycled materials",
+      "A carpool service for sports practices and after-school activities",
+      "A streaming app made for short films and music videos by teens",
+      "A local business that offers phone and tech repair by teens",
+      "A volunteering café where hours worked equal community service credits",
+      "A marketplace app for buying and selling secondhand school supplies",
+      "A wellness app that teaches healthy habits like sleep, food, and exercise",
+      "A late-night study snack delivery service just for teens",
+      "A gaming café where you can play with friends while eating",
+      "A clothing rental app for school dances and special events",
+      "A local pop-up shop where teens sell their own artwork and crafts",
+      "A music streaming app that highlights local teen artists",
+      "A weekend ride service to concerts, malls, and sports events",
+      "A business that hosts monthly “teen-only” movie nights",
+      "A social app that helps plan group hangouts safely",
+      "A smoothie bar designed as a study space with Wi-Fi",
+      "A teen-run YouTube editing service for other creators",
+      "A thrift store that rewards teens with discounts for donating clothes",
+      "A sports training app that connects teens with local coaches",
+      "A photography business where teens take senior photos for classmates",
+      "A delivery app that only offers teen-favorite foods like bubble tea, fries, and pizza",
+      "A local “pop-up arcade” business run by teens",
+      "A wellness service with teen-led yoga and meditation classes",
+      "A business that organizes eco-friendly fashion shows for teens",
+      "A study app that matches teens by subject for group study calls",
+      "A local repair business where teens fix bikes, scooters, and skateboards",
+      "A café that doubles as a board game lounge for teen hangouts",
+      "A backpack with built-in phone charging",
+      "Headphones that block out background noise while studying",
+      "A water bottle that tracks how much you drink during the day",
+      "Sneakers that change colors with an app",
+      "A smart notebook that saves notes to your phone",
+      "A phone case that doubles as a mini projector",
+      "A hoodie with hidden headphone wires inside",
+      "A bike helmet with built-in speakers for music",
+      "A reusable coffee cup that keeps drinks hot for hours",
+      "A smart alarm clock that wakes you up with light and music",
+      "Sunglasses that also work as wireless headphones",
+      "A portable blender for making smoothies on the go",
+      "A ring that tracks your fitness and sleep",
+      "A desk lamp that charges your phone wirelessly",
+      "A reusable straw kit with a carrying case",
+      "A hoodie with built-in pockets for snacks",
+      "A water filter straw for camping and outdoor trips",
+      "A portable phone printer for instant photos",
+      "A self-cleaning reusable water bottle",
+      "A skateboard with built-in lights for night rides",
+      "A phone case that charges itself with solar power",
+      "Earbuds that translate languages in real time",
+      "A hoodie that heats up in cold weather",
+      "A water bottle with a hidden snack compartment",
+      "A smartwatch that tracks mood and stress levels",
+      "A backpack with anti-theft locks and hidden zippers",
+      "A desk that folds up into a small portable case",
+      "Sneakers with GPS so you can never lose them",
+      "A pillow with built-in Bluetooth speakers for music at night",
+      "A portable projector that fits in your pocket",
+      "A reusable notebook that erases with heat",
+      "A hairbrush that also works as a straightener",
+      "A bike lock that only opens with your fingerprint",
+      "A hoodie with reversible colors and styles",
+      "A smart ring that vibrates when you get a message",
+      "A travel mug that stirs your drink automatically",
+      "A power bank that also works as a flashlight",
+      "Shoes with removable wheels for skating",
+      "A desk fan that also diffuses calming scents",
+      "A wallet that beeps if you forget it at home",
+      "A phone charger that sticks to any surface and charges wirelessly",
+      "Sneakers made entirely from recycled plastic bottles",
+      "A hoodie with built-in LED lights for night walks",
+      "A backpack that unfolds into a foldable chair",
+      "A reusable notebook that can send pages to Google Drive",
+      "A portable water purifier bottle for hiking or travel",
+      "Headphones that only let in voices you choose to hear",
+      "A wallet that scans and stores your school ID and bus card",
+      "A solar-powered charger that fits on a keychain",
+      "A mirror that gives skincare tips based on your face",
+      "A desk organizer that also charges your devices",
+      "A hoodie with built-in gloves for cold weather",
+      "A reusable cup that changes colors when your drink is hot or cold",
+      "A self-defense keychain with an alarm and flashlight",
+      "A bike helmet with built-in turn signals",
+      "A pocket-sized drone that takes selfies from above",
+      "A bracelet that tracks your daily steps and hydration",
+      "A portable fan that clips onto your phone",
+      "A backpack with a hidden rain cover built in",
+      "A pen that records audio while you take notes",
+      "A smartwatch that projects a hologram screen",
+      "A backpack with built-in solar panels for charging devices",
+      "Sneakers that tighten automatically with a button",
+      "A hoodie that cools you down in hot weather",
+      "A reusable straw that folds into a pocket case",
+      "A water bottle with a built-in UV light to kill germs",
+      "A desk lamp that changes color to match your mood",
+      "Earbuds that never get tangled and stick together magnetically",
+      "A phone case that can also store cash and cards",
+      "A fitness band that reminds you to stretch every hour",
+      "A portable speaker that floats in water",
+      "A wallet that locks and only opens with your fingerprint",
+      "A jacket with hidden wireless headphones in the hood",
+      "A pillow that cools itself on hot nights",
+      "A portable mini-fridge that plugs into a backpack",
+      "A bracelet that glows when friends nearby are also wearing one",
+      "A bike lock that sends an alert to your phone if someone touches it",
+      "A keychain that finds your lost items with GPS",
+      "A water filter pitcher that tells you when it needs to be changed",
+      "A phone holder that attaches to your bed for hands-free use",
+      "A phone charger built into your backpack strap",
+      "Sneakers made from algae that clean the air when you walk",
+      "A reusable notebook that uploads notes directly to your phone",
+      "A smartwatch that checks your stress level and gives calming exercises",
+      "A water bottle with a hidden Bluetooth speaker in the lid",
+      "A jacket with built-in heating for winter",
+      "A bike helmet that shows directions on a visor screen",
+      "A desk fan that also works as a wireless phone charger",
+      "A pocket-sized printer for printing school notes instantly",
+      "A keychain that glows when you forget your phone at home",
+      "A hoverboard that can float over grass and gravel",
+      "A hologram phone that projects 3D video calls",
+      "Shoes with boosters that make you run twice as fast",
+      "A smart mirror that suggests outfits from your closet",
+      "A teleport locker that delivers books and clothes instantly",
+      "A bracelet that lets you send hologram messages to friends",
+      "Glasses that translate languages instantly in real time",
+      "A drone backpack that carries your stuff and follows behind you",
+      "A floating bed that hovers slightly above the ground",
+      "A voice-activated robot pen that finishes your homework",
+      "A phone case that cleans itself and kills germs with light",
+      "A hoodie that changes color depending on your mood",
+      "A water bottle that tells you how much plastic you’ve saved by reusing it",
+      "Headphones that only play music at safe volume levels",
+      "A wallet that folds into a phone stand",
+      "A backpack with hidden anti-theft alarms",
+      "A pen that digitizes handwriting as you write",
+      "A portable blender for quick smoothies between classes",
+      "A ring that vibrates when you get a notification on your phone",
+      "A bike lock that texts you if someone tries to cut it",
+      "A skateboard that hovers an inch above the ground",
+      "A jacket with jet boosters for short flying jumps",
+      "A desk that charges all your devices wirelessly",
+      "Sneakers that auto-clean mud and dirt",
+      "A mirror that gives you a virtual makeover before trying clothes",
+      "A drone that delivers your school lunch in minutes",
+      "A bracelet that lets you play hologram video games anywhere",
+      "Glasses that let you see in night vision mode",
+      "A bed that sets its own alarm and gently shakes you awake",
+      "A teleport bracelet that moves you instantly to school or practice",
+      "A portable solar charger that fits in your pocket",
+      "A hoodie with hidden earphones in the drawstrings",
+      "A smart water bottle that glows when it’s time to drink",
+      "A skateboard that folds into the size of a backpack",
+      "A backpack with built-in GPS so you can never lose it",
+      "A desk lamp that also works as a wireless speaker",
+      "A pillow that helps you fall asleep with calming sounds",
+      "A wallet that alerts you if you forget it somewhere",
+      "A phone stand that doubles as a wireless charger",
+      "A watch that tracks sleep, hydration, and energy levels",
+      "A pair of sneakers that let you jump twice as high",
+      "A hologram screen that pops out of your phone",
+      "A bracelet that lets you text friends without a phone",
+      "A mirror that shows your outfit choices in 3D",
+      "A bike that can ride on both land and water",
+      "A pair of glasses that show live subtitles for any language",
+      "A drone that follows you and records videos automatically",
+      "A hoodie that makes you invisible for 30 seconds",
+      "A teleport capsule that delivers your backpack straight to school",
+      "A levitating chair that floats a few inches above the ground",
+      "A virtual study room where you and your friends can do homework together online",
+      "A VR concert app where you can watch your favorite artists from your room",
+      "A virtual fashion closet that lets you try on outfits before buying",
+      "A gaming app that lets you build your dream school or city in 3D",
+      "A VR travel service where you can explore famous places around the world",
+      "A virtual classroom that feels like you’re sitting with your friends, even if online",
+      "An AR app that shows workout moves in your room like a coach",
+      "A virtual art studio where you can paint or sculpt in 3D",
+      "A VR escape room game you can play with friends from anywhere",
+      "A virtual tutoring service where avatars teach lessons in fun settings",
+      "An AR app that turns your street into a racetrack for biking or skating",
+      "A VR sports arena where you can play basketball or soccer with friends online",
+      "A virtual pet app where your animal follows you around in AR",
+      "A VR career simulator where you can “test” jobs like doctor, pilot, or designer",
+      "A virtual café where teens hang out with avatars and chat safely",
+      "A VR memory book where you can step back into past moments",
+      "A virtual volunteering platform where you help in global causes through simulations",
+      "A VR sleep app that takes you on calming adventures before bed",
+      "A virtual language exchange where avatars chat in different languages",
+      "A VR movie theater where you and friends watch films together from home",
+      "A VR theme park where you can ride roller coasters from home",
+      "An AR mirror that shows different hairstyles and makeup before trying them",
+      "A virtual gym where you work out with friends in fun worlds",
+      "A VR cooking app where you practice recipes in a virtual kitchen",
+      "A virtual volunteer center where teens help design projects for communities",
+      "A VR skate park where you can try tricks without getting hurt",
+      "A virtual science lab for experiments too dangerous for school",
+      "An AR app that turns your room into a music studio",
+      "A VR museum where exhibits come alive and talk to you",
+      "A virtual mall where you shop with friends using avatars",
+      "A VR travel buddy app that pairs you with someone from another country to explore together",
+      "A virtual concert hall where you can “meet” your favorite artist’s avatar after shows",
+      "An AR app that overlays constellations and planets in the night sky",
+      "A virtual debate club where teens practice public speaking with avatars",
+      "A VR festival where you can try food, music, and art from around the world",
+      "A virtual classroom where lessons happen on spaceships, castles, or jungles",
+      "A VR sports league where avatars compete in global tournaments",
+      "An AR app that places historical events right in front of you on the street",
+      "A virtual escape game where teams of teens from different countries play together",
+      "A VR relaxation app that lets you float in outer space or underwater worlds",
+      "A VR backpacking trip across Europe where you explore cities and landmarks",
+      "An AR app that shows historical events in the place you’re standing",
+      "A virtual world tour that lets you “visit” every country in one app",
+      "A VR airline where you experience flying in first class, economy, or even the cockpit",
+      "A virtual exchange program where you live a week in another teen’s shoes abroad",
+      "An AR travel buddy that translates signs and menus instantly",
+      "A VR food market where you can try cooking dishes from around the world",
+      "A virtual time-travel trip that takes you to ancient Rome, Egypt, or China",
+      "A VR hiking adventure up mountains like Everest or Machu Picchu",
+      "An AR map that shows fun hidden facts and games when you point your phone",
+      "A virtual road trip across the U.S. with stops at national parks and cities",
+      "A VR underwater trip to explore coral reefs and shipwrecks",
+      "A virtual city guide that shows live festivals and events from around the globe",
+      "An AR scavenger hunt app that gives you challenges in real-world locations",
+      "A VR safari where you can see lions, elephants, and giraffes up close",
+      "A virtual culture fair where teens share music, dances, and traditions",
+      "A VR train ride through scenic places like the Alps or Japan’s countryside",
+      "An AR passport that unlocks mini-games and facts when you “visit” landmarks",
+      "A virtual backpacking challenge where you budget and plan your trip",
+      "A VR space travel adventure to the moon, Mars, and beyond",
+      "A backpack with hidden compartments for passports and money",
+      "A travel app that finds the cheapest student discounts on flights and hotels",
+      "A luggage rental service so you don’t have to buy your own suitcase",
+      "A teen travel club that organizes safe group trips abroad",
+      "A translation earbuds product that helps you understand other languages instantly",
+      "A service that matches teens with host families for cultural exchanges",
+      "A water bottle with a built-in purifier for safe drinking anywhere",
+      "A budgeting app that tracks spending while traveling",
+      "A portable charger that works with solar power for trips",
+      "A hostel chain designed just for teens with games and hangout spaces",
+      "A clothing rental service for travel so you pack lighter",
+      "A travel insurance app designed for teens and students",
+      "A travel business that organizes eco-volunteering trips",
+      "A phone case that also works as a passport holder",
+      "A service that delivers healthy travel snacks to airports",
+      "A luggage tracker that shows your bag’s location on your phone",
+      "A teen app that connects travelers with local guides their own age",
+      "A business that creates eco-friendly travel kits with reusable straws, bags, and utensils",
+      "A scooter or bike rental program just for teens in cities",
+      "A trip-planning app that builds itineraries based on your hobbies and interests",
+      "A budgeting app that helps college students track expenses and save money",
+      "A dorm room delivery service for snacks and essentials",
+      "A laundry pickup and drop-off business for students with busy schedules",
+      "A textbook rental app that connects students directly for cheap swaps",
+      "A meal plan app that finds the healthiest or cheapest dining hall options",
+      "A portable coffee maker for dorm rooms and study sessions",
+      "A tutoring service run by older students for first-year freshmen",
+      "A ride-sharing app designed for campus-only travel",
+      "A dorm decorating business that creates affordable room makeovers",
+      "A note-sharing platform where classmates upload and trade study notes",
+      "A storage service for students who go home during breaks",
+      "A water bottle that tracks hydration during long study sessions",
+      "A “late-night bites” delivery service for campus students",
+      "A mental health app with meditation, check-ins, and peer support",
+      "A local café that doubles as a student study lounge",
+      "A secondhand store on campus for clothes, dorm items, and supplies",
+      "A roommate-matching app that pairs people by interests and habits",
+      "A subscription box for college essentials like snacks, toiletries, and school supplies",
+      "A library app that reserves study rooms and equipment",
+      "A bike or scooter rental service for quick campus travel",
+      "A hologram professor that teaches classes in your dorm room",
+      "A dorm bed that tracks sleep and adjusts for comfort automatically",
+      "A robot laundry service that picks up clothes and delivers them folded",
+      "A self-driving campus shuttle that arrives when you call it from an app",
+      "A cafeteria that uses AI to cook your meals based on your health needs",
+      "A smart desk that takes notes during lectures for you",
+      "A drone library that delivers books straight to your dorm window",
+      "A virtual reality lecture hall where you can attend class from anywhere",
+      "A campus security robot that escorts students safely at night",
+      "A voice-activated textbook that explains chapters out loud",
+      "A smart water bottle that refills itself at hydration stations",
+      "An AI tutor that explains homework in your learning style",
+      "A cafeteria table that displays interactive menus and study tools",
+      "A teleport pod that moves you instantly across campus",
+      "A fitness room with hologram personal trainers",
+      "A dorm closet that suggests outfits using AR",
+      "A robot roommate that cleans and makes snacks",
+      "A smart ID card that pays for food, books, and travel automatically",
+      "A campus-wide AR app that shows directions, events, and hidden study spots",
+      "A drone café that delivers coffee to students in class",
+      "A street food tour business run by local teens in different countries",
+      "A cooking class app where you learn traditional recipes from real families",
+      "A café that serves dishes from a different country every week",
+      "A cultural subscription box with snacks, music, and crafts from around the world",
+      "A food truck that rotates global cuisines each month",
+      "A teen exchange program where you cook and eat with host families abroad",
+      "A restaurant that teaches you about the history of each dish you order",
+      "A mobile app that maps out the best local food spots recommended by teens",
+      "A marketplace that sells handmade goods and food from different cultures",
+      "A local festival business that celebrates one culture each weekend with food and music",
+      "A restaurant where you can learn simple phrases in the language of the country the food is from",
+      "A food delivery service for authentic home-cooked meals by local families",
+      "A podcast or YouTube channel run by teens exploring food and culture",
+      "A community café that pairs international food nights with live music",
+      "A travel app that includes cultural etiquette tips alongside restaurant reviews",
+      "A cooking competition for teens featuring global recipes",
+      "A dessert shop that features sweets from around the world",
+      "A local tour business where teens guide visitors through cultural neighborhoods",
+      "A pop-up restaurant that rotates chefs from different cultural backgrounds",
+      "A teen-run blog or app sharing “food stories” from families worldwide",
+      "A meal prep service that delivers affordable, healthy snacks for teens",
+      "A smoothie bar near schools that makes custom blends with fruit and protein",
+      "A fitness app that turns workouts into challenges with friends",
+      "A water-tracking app that rewards you for staying hydrated",
+      "A gym designed just for teens with beginner-friendly equipment",
+      "A subscription box with healthy snacks and nutrition tips for students",
+      "A school vending machine that sells only healthy options",
+      "A yoga class business just for teens with stress-relief sessions",
+      "A group run club for teens that organizes safe routes",
+      "A health app that tracks sleep, food, and exercise together",
+      "A cooking class for teens focused on quick and healthy recipes",
+      "A sports café with protein shakes, sandwiches, and hangout space",
+      "A peer-to-peer fitness mentoring service where athletes coach younger teens",
+      "A wearable band that tracks daily movement and motivates with rewards",
+      "A nutrition blog or app run by teens sharing affordable meal ideas",
+      "A mental wellness café offering tea, journals, and quiet spaces",
+      "A biking club that promotes fitness and eco-friendly transport",
+      "A mobile app that suggests workouts based on mood and energy levels",
+      "A local farmers’ market stand that partners with schools for teen jobs",
+      "A weekend outdoor fitness camp for teens with hiking, yoga, and cooking",
+      "A mental health app with daily mood check-ins and coping tips",
+      "A peer-support hotline run by trained teens for teens",
+      "A campus club that teaches stress management with yoga and breathing exercises",
+      "A wearable bracelet that tracks stress levels and reminds you to relax",
+      "A school wellness café with healthy drinks and quiet spaces for studying",
+      "A therapy subscription service that matches teens with affordable online counselors",
+      "A nutrition and mental health blog written by teens for teens",
+      "A meditation app with playlists designed for test anxiety or social stress",
+      "A mobile clinic service that brings doctors and nurses to schools",
+      "A journaling subscription box with prompts for reflection and positivity",
+      "A health tracker app that also explains what your data means in simple language",
+      "A “mental health buddy” program pairing older and younger students",
+      "A mindfulness business that sells calming kits with tea, candles, and journals",
+      "A medical info app written in easy teen language about common health issues",
+      "A school event series with guest speakers on sleep, nutrition, and resilience",
+      "A fitness and therapy service that combines workouts with counseling support",
+      "A stress-free zone at schools where students can decompress during exams",
+      "A telehealth service that lets teens talk to doctors without missing class",
+      "A mental health podcast hosted by teens sharing stories and advice",
+      "A “healthy habits challenge” business that rewards teens for exercise, water intake, and journaling",
+      "A school-based health clinic that offers checkups and basic care for free",
+      "A medical ID bracelet that stores important allergy or condition info",
+      "A telehealth service that connects teens with doctors in minutes",
+      "A pharmacy delivery service for prescriptions straight to campus or home",
+      "A first aid subscription box with supplies and easy guides for teens",
+      "A mobile dental van that visits schools for checkups and cleanings",
+      "A peer-education program teaching teens about common health issues",
+      "A local clinic that offers free vaccines and health screenings for students",
+      "A health app that explains medical terms in simple, easy-to-understand language",
+      "A wearable thermometer patch that alerts parents or doctors if you get a fever",
+      "A hotline where teens can ask anonymous health questions",
+      "A service that matches families with affordable health insurance options",
+      "A walk-in urgent care center designed for teens and young adults",
+      "A health education business that runs workshops on nutrition, exercise, and hygiene",
+      "A subscription service that mails period supplies and health products monthly",
+      "A mental health and medical resource center inside schools",
+      "A mobile eye care clinic offering free or low-cost glasses for teens",
+      "A blood donation club run by students with local hospitals",
+      "A safe medicine disposal program for households",
+      "A teen health podcast explaining topics like sleep, stress, and growth",
+      "An acne care kit with gentle products designed for teen skin",
+      "A braces-friendly snack box with foods that are safe to eat",
+      "A period tracking app with reminders and tips for managing cramps",
+      "A portable first aid kit made for sports injuries like sprains and cuts",
+      "A skincare subscription box designed for oily or sensitive skin",
+      "An allergy-friendly snack pack labeled clearly for school lunches",
+      "A reusable heat pack that fits in backpacks for cramps or sore muscles",
+      "A hydration tracker bottle that reminds teens to drink water during sports",
+      "A sunscreen stick designed for quick use between classes",
+      "A sleep mask with built-in calming sounds for better rest",
+      "A portable ice pack that can be reused for sports and gym injuries",
+      "A stress-relief kit with fidget tools, journals, and calming teas",
+      "A travel medicine kit with basics like bandages, allergy pills, and sanitizer",
+      "A discreet carrying case for period products that fits in a pocket",
+      "A portable inhaler holder for teens with asthma",
+      "A skin-safe patch that helps with mosquito bites or rashes",
+      "A mini dental kit for braces with floss picks, wax, and travel toothpaste",
+      "A reusable cold water bottle that doubles as a cooling compress",
+      "A nutrition bar designed for teens with vitamins they actually need",
+      "A fitness recovery kit with foam rollers, muscle rubs, and resistance bands",
+      "A smartwatch that scans your body and tells you if you’re getting sick",
+      "A VR therapy room where you talk to a counselor in calming virtual worlds",
+      "A self-healing bandage that closes cuts by itself",
+      "A mental health AI buddy that checks in when you’re stressed or sad",
+      "A pill bottle that reminds you to take medicine with a glowing light and sound",
+      "A contact lens that tracks blood sugar levels without needles",
+      "A brainwave headband that helps you focus while studying",
+      "A portable health scanner that gives you instant checkup results",
+      "A smart inhaler that sends data to your phone and alerts if you forget",
+      "A hologram doctor that appears in your room for quick visits",
+      "A sleep pod that adjusts light, sound, and temperature for perfect rest",
+      "A mood ring that changes colors based on your stress level",
+      "A drone pharmacy that delivers medicine to your door instantly",
+      "A headset that plays calming brainwaves to reduce anxiety",
+      "A toothbrush that checks your saliva for signs of illness",
+      "A patch that monitors your heart, hydration, and vitamins in real time",
+      "A robot nurse that delivers medicine and care in schools",
+      "A VR meditation app that places you on a beach, forest, or mountain",
+      "A smart mirror that gives health checkups while you brush your teeth",
+      "A nanobot medicine service where tiny robots fix problems inside your body",
+      "A social media app that only allows positive comments and reactions",
+      "A platform where teens can share short video tips for school, fitness, or hobbies",
+      "A study group social app that matches you with classmates to work together online",
+      "A photo-sharing app that deletes posts after 24 hours to reduce pressure",
+      "A social media platform where you earn points for kindness and helpful posts",
+      "A music-sharing app where friends build playlists together",
+      "A local teen events app that helps plan meetups, concerts, and activities",
+      "A privacy-focused platform where posts are only visible to close friends",
+      "A social app that helps connect teens by shared goals, like sports or volunteering",
+      "A video journal app where you can record private thoughts or share with friends",
+      "A teen-run news platform that reports on local schools and communities",
+      "A meme-only social app for sharing funny content safely",
+      "A mental health–friendly app that limits scrolling and reminds you to take breaks",
+      "A platform for creative teens to share art, photography, and writing",
+      "A debate-style social app where teens argue fun or serious topics",
+      "A social app that organizes charity challenges (like cleanup events or fundraisers)",
+      "A live-streaming platform where safety filters block harmful comments",
+      "A friendship app that matches people based on music or movie tastes",
+      "A “no likes, just stories” app where posts can’t be ranked",
+      "A social platform where every post must include something positive learned that day",
+      "A hologram social app where friends appear in your room to hang out",
+      "A VR world where you and friends can build cities, houses, and hangouts together",
+      "A platform where every post is a 3D hologram instead of a photo",
+      "An AI best friend that learns your personality and chats with you daily",
+      "A time-travel feed that shows what your friends might look like in 10 years",
+      "A VR concert app where your avatar dances alongside famous musicians",
+      "A social media platform where you can step inside posts like mini-worlds",
+      "An AR app that projects friends’ updates onto real places (like walls or streets)",
+      "A platform where you share emotions instead of photos (your mood changes your profile colors)",
+      "A dream-sharing app where friends can upload and explore their dreams together",
+      "A floating hologram feed that appears in the air with hand gestures to scroll",
+      "A global VR school where social media posts also teach history, art, and science",
+      "A translator social app where you instantly understand posts in any language",
+      "A platform where AI helps you create stories, songs, or art with your friends in real time",
+      "A VR café where your avatars hang out to chat, study, or game",
+      "A social app where you can teleport into a friend’s virtual space instantly",
+      "A hologram story app where posts replay as mini 3D movies in your room",
+      "A platform where your pet has its own avatar to “post” and interact with others",
+      "A VR challenge app where global teens compete in fun virtual contests",
+      "A future newsfeed that shows not only posts but possible futures of the world"
+    ];
+
+    const promptEl = document.getElementById('prompt');
+
+    function spin() {
+      const idx = Math.floor(Math.random() * prompts.length);
+      promptEl.textContent = prompts[idx];
+    }
+
+    // Generate floating shapes
+    (function makeBubbles() {
+      const wrap = document.getElementById('bubbles');
+      const count = 18;
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const width = 110 + Math.random() * 160;
+        b.style.width = width + 'px';
+        b.style.left = Math.random() * 100 + 'vw';
+        b.style.animationDuration = (12 + Math.random() * 18) + 's';
+        b.style.animationDelay = (Math.random() * 8) + 's';
+        b.style.opacity = (0.18 + Math.random() * 0.35).toFixed(2);
+        wrap.appendChild(b);
+      }
+    })();
+  </script>
+</body>
+</html>
