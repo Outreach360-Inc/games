@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oxford Phrase List Role Plays 2</title>
+  <title>Agree or Disagree? 1</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+background: url('https://github.com/Outreach360-Inc/games/blob/main/phrase-plays2.png?raw=true') no-repeat center center fixed;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background: black;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(20px, 3vw, 28px);
+color: white
+    }
+
+    button {
+      background-color: red;
+      color: white;
+      font-size: 18px;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: brown;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #phraseList {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* Always 3 per row */
+      gap: 20px;
+      width: 100%;
+      max-width: 720px; /* Restricts total width to fit 3 cards only */
+      margin: 0 auto;
+    }
+
+    li {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: clamp(18px, 2vw, 24px);
+      text-align: center;
+      list-style: none;
+      word-break: break-word;
+    }
+
+    @media (max-width: 768px) {
+      #phraseList {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 480px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #phraseList {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Oxford Phrase List Role Plays 2</h1>
+    <button onclick="spinPhrases()">Spin!</button>
+  </header>
+
+  <main>
+    <ul id="phraseList"></ul>
+  </main>
+
+  <script>
+    const phrases = [
+      "a bit of sth", "access to sth", "after all", "a great deal", "a great deal better",
+      "a little bit", "a long time ago", "a matter of fact", "a number of", "a pair of",
+      "a variety of", "according to", "across from", "act out", "add up", "ahead of time",
+      "all of a sudden", "all over", "all right", "along with", "anytime soon",
+      "apologize for", "as a matter of fact", "as a result of", "as far as", "as if",
+      "as long as", "as much as", "as soon as", "as though", "as well", "as well as",
+      "ask for", "at a time", "at all", "at first", "at last", "at least", "at once",
+      "at that time", "at the moment", "at the same time", "at the top of", "at times",
+      "away from", "back and forth", "back down", "back off", "be able to do sth",
+      "be about to do sth", "be afraid of sth", "be against sth", "be allowed to do sth",
+      "be anxious about", "be based on sth", "be bored with sth", "be busy with sth",
+      "be capable of", "be close to", "be crowded with", "be dependent on", "be different from",
+      "be disappointed with", "be excited about", "be famous for", "be familiar with",
+      "be filled with", "be fond of", "be free from", "be full of", "be good at",
+      "be happy about", "be impressed by", "be in charge of", "be in favor of", "be in trouble",
+      "be interested in", "be involved in", "be known for", "be late for", "be likely to",
+      "be made of", "be married to", "be nervous about", "be opposed to", "be patient with",
+      "be pleased with", "be proud of", "be ready to", "be responsible for", "be satisfied with",
+      "be similar to", "be supposed to", "be surprised at", "be tired of", "be used to",
+      "be worried about", "because of", "believe in", "belong to", "break down",
+      "break into", "break up", "bring about", "bring back", "bring out", "bring up",
+      "by accident", "by chance", "by far", "by hand", "by heart", "by mistake", "by the time",
+      "call back", "call off", "call on", "call up", "care about", "carry out", "catch a cold",
+      "catch up with", "check in", "check out", "cheer up", "come across", "come back",
+      "come by", "come from", "come in", "come on", "come out", "come over", "come to",
+      "come true", "come up with", "concentrate on", "consist of", "count on", "cut down on",
+      "cut off", "depend on", "do one's best", "do someone a favor", "do well in",
+      "dress up", "drop by", "drop off", "each other", "end up", "even though", "every now and then",
+      "fall asleep", "fall behind", "fall in love", "far from", "feel like", "fill in",
+      "fill out", "fill up", "find out", "focus on", "for a change", "for a while", "for example",
+      "for free", "for fun", "for instance", "for now", "for sale", "for sure", "for the first time",
+      "from now on", "from time to time", "get along with", "get back", "get in touch with",
+      "get into", "get on", "get off", "get out of", "get over", "get ready for", "get rid of",
+      "get together", "get used to", "give back", "give up", "go ahead", "go away",
+      "go back", "go by", "go for", "go on", "go out", "go over", "go through", "grow up",
+      "hand in", "hang out", "have a good time", "have to do with", "hear from",
+      "help yourself", "hold on", "hurry up", "in a hurry", "in a row", "in a while", "in addition to",
+      "in any case", "in charge of", "in fact", "in favor of", "in general", "in need of",
+      "in order to", "in place of", "in response to", "in spite of", "in terms of", "in the end",
+      "in the middle of", "in the meantime", "in time", "in touch with", "instead of",
+      "interested in", "keep in mind", "keep on", "laugh at", "lay off", "leave out",
+      "let go of", "listen to", "live on", "look after", "look at", "look for", "look forward to",
+      "look into", "look like", "look out", "look over", "look up", "make a decision",
+      "make a difference", "make a mistake", "make a reservation", "make ends meet",
+      "make fun of", "make money", "make sense", "make sure", "make up", "make up one’s mind",
+      "move on", "no longer", "no matter what", "of course", "on behalf of", "on purpose",
+      "on time", "once in a while", "out of control", "out of date", "out of order",
+      "out of the question", "pay attention to", "pick out", "pick up", "point out",
+      "put away", "put off", "put on", "put out", "put together", "put up with",
+      "reach out", "rely on", "remind of", "run away", "run into", "run out of", "set up",
+      "show up", "shut down", "slow down", "so far", "so that", "sooner or later", "sort of",
+      "speak up", "stand by", "stand for", "stand out", "stay up", "stick to", "take advantage of",
+      "take care of", "take off", "take part in", "take place", "take time", "take turns",
+      "talk about", "talk into", "tell the truth", "thanks to", "think of", "throw away",
+      "tired of", "to begin with", "to the point", "try on", "turn around", "turn down",
+      "turn in", "turn off", "turn on", "turn out", "turn over", "turn up", "used to",
+      "wait for", "wake up", "watch out", "wear out", "with respect to", "without a doubt",
+      "work on", "worry about"
+    ];
+
+    function spinPhrases() {
+      const shuffled = phrases.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 6);
+      const list = document.getElementById("phraseList");
+      list.innerHTML = "";
+      selected.forEach(phrase => {
+        const li = document.createElement("li");
+        li.textContent = phrase;
+        list.appendChild(li);
+      });
+    }
+
+    window.onload = spinPhrases;
+  </script>
+</body>
+</html>
