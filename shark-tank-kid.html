@@ -1,0 +1,756 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shark Tank: Kid Edition</title>
+   <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root {
+      --ocean-dark: #001f3f;
+      --ocean-mid:  #006994;
+      --ocean-light:#00a7d1;
+      --card-bg:    #ffffff;
+      --text:       #0b132b;
+      --accent:     #006994;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--ocean-dark) 0%, var(--ocean-mid) 55%, var(--ocean-light) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+      position: relative;
+    }
+    .bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -120px;
+      width: 14px; height: 14px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 50%;
+      animation: rise linear infinite;
+      filter: blur(0.2px);
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) scale(1); opacity: .9; }
+      80%  { opacity: .6; }
+      100% { transform: translateY(-120vh) scale(1.25); opacity: 0; }
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: min(920px, 100%);
+      padding: 36px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.35);
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: .4px;
+      color: #024e68;
+    }
+    .subtitle {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: #335b68;
+      margin-top: -6px;
+    }
+    .prompt {
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.35;
+      background: #f1fbff;
+      border: 1px solid #d4eef7;
+      padding: 20px 22px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 780px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,105,148,0.35);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,105,148,0.25); }
+  </style>
+</head>
+<body>
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <div class="container">
+    <div class="title">Shark Tank: Kid Edition</div>
+    <div class="subtitle">Spin for a prompt!</div>
+
+    <div id="prompt" class="prompt" aria-live="polite"></div>
+
+    <button onclick="spin()">Spin!</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "Invent a backpack that never gets heavy",
+      "Design a water bottle that never runs out",
+      "Create a toy that cleans up your room by itself",
+      "Pitch a lunchbox that keeps food hot on one side and cold on the other",
+      "Invent a pair of shoes that can jump really high",
+      "Design a pencil that never runs out of lead",
+      "Create a video game that also teaches something fun",
+      "Pitch a robot that helps with homework",
+      "Invent a bed that makes itself in the morning",
+      "Design a chair that turns into a slide",
+      "Create a hat that gives you shade and keeps you dry in the rain",
+      "Pitch a scooter that can also fly short distances",
+      "Invent a book that reads itself out loud",
+      "Design a toy that changes color when you touch it",
+      "Create a jacket that keeps you warm in winter and cool in summer",
+      "Pitch a bike that folds up small enough to fit in a backpack",
+      "Invent a pillow that plays your favorite music",
+      "Design a snack that never gets crumbs anywhere",
+      "Create a pet toy that keeps pets busy all day",
+      "Pitch a pair of glasses that let you see in the dark",
+      "Invent a ball that always bounces back to you",
+      "Design a blanket that glows like the night sky",
+      "Create a lunchbox that tells you when food is ready to eat",
+      "Pitch a robot that can make snacks after school",
+      "Invent a playground that changes every day",
+      "Design a toy car that can climb walls",
+      "Create a pen that can draw in the air",
+      "Pitch a backpack that has secret compartments",
+      "Invent a video game controller that also works as a toy",
+      "Design a pair of socks that never get dirty",
+      "Invent a backpack that can turn into a tent",
+      "Design a pencil that erases mistakes by itself",
+      "Create a toy robot that can dance with you",
+      "Pitch a pair of shoes that can change colors",
+      "Invent a water bottle that can turn into a snack holder",
+      "Design a hat that has a fan for hot days",
+      "Create a blanket that feels warm in winter and cool in summer",
+      "Pitch a chair that can also turn into a bed",
+      "Invent a ball that lights up when you kick it",
+      "Design a toy car that can drive on water",
+      "Create a watch that tells jokes every hour",
+      "Pitch a lunchbox that makes new food appear",
+      "Invent a scooter that can go on grass and sand",
+      "Design a toy that can shrink or grow in size",
+      "Create a backpack with built-in speakers",
+      "Pitch a pillow that tells bedtime stories",
+      "Invent a pair of gloves that can stick to walls",
+      "Design a pen that changes ink colors with your voice",
+      "Create a bike that can play music while you ride",
+      "Pitch a robot pet that can talk and play games",
+      "Invent a playground slide that never ends",
+      "Design a snack that changes flavors every bite",
+      "Create a toy airplane that really flies around the room",
+      "Pitch a desk that hides your homework until you need it",
+      "Invent a bed that feels like a trampoline",
+      "Design a lunchbox that keeps food fresh forever",
+      "Create a ball that bounces higher every time",
+      "Pitch a backpack that helps you fly short distances",
+      "Invent a pair of socks that glow in the dark",
+      "Design a toy house that can build itself",
+      "Invent a toy robot that can clean your room",
+      "Design a backpack that can disappear when you don’t need it",
+      "Create a pencil case that refills itself with markers and crayons",
+      "Pitch a bike that can float on water",
+      "Invent a lunchbox that makes food taste like your favorite meal",
+      "Design a pair of shoes that never wear out",
+      "Create a hat that lets you talk to animals",
+      "Pitch a bed that gently wakes you up with music",
+      "Invent a toy ball that can roll by itself and play tag with you",
+      "Design a watch that changes colors with your mood",
+      "Create a toy that can project movies on the wall",
+      "Pitch a pair of socks that make you run faster",
+      "Invent a backpack that has a built-in mini fridge",
+      "Design a chair that can spin like a carnival ride",
+      "Create a pet toy that translates what your pet is “saying”",
+      "Pitch a pillow that feels like a cloud",
+      "Invent a scooter that folds into your pocket",
+      "Design a toy car that shoots bubbles",
+      "Create a pen that can also erase like a marker",
+      "Pitch a snack that never melts, even in the sun",
+      "Invent a blanket that wraps around you by itself",
+      "Design a desk that can turn into a game table",
+      "Create a toy airplane that follows you like a pet",
+      "Pitch a robot that can do your chores and tell jokes",
+      "Invent a lunchbox that gives you a surprise snack each day",
+      "Design a ball that changes shape when you throw it",
+      "Create a pair of sunglasses that glow at night",
+      "Pitch a water bottle that sprays mist to cool you down",
+      "Invent a bed that rocks you to sleep like a cradle",
+      "Design a toy that can transform into different animals",
+      "Invent a backpack that can float like a balloon",
+      "Design a toy robot that can play hide-and-seek",
+      "Create a lunchbox that sings when it’s lunchtime",
+      "Pitch a pair of shoes that can light up in the dark",
+      "Invent a bed that gently bounces like a trampoline",
+      "Design a pencil that can draw in rainbow colors",
+      "Create a bike that can climb up walls",
+      "Pitch a snack that changes color when you eat it",
+      "Invent a toy car that runs on sunlight",
+      "Design a water bottle that can tell you jokes",
+      "Create a blanket that makes you invisible",
+      "Pitch a hat that grows bigger or smaller to fit anyone",
+      "Invent a ball that tells you how fast you threw it",
+      "Design a robot pet that never runs out of energy",
+      "Create a desk that turns into a video game console",
+      "Pitch a pair of gloves that make everything you touch glow",
+      "Invent a toy airplane that can land anywhere safely",
+      "Design a pillow that feels like your favorite stuffed animal",
+      "Create a toy that can teleport small objects across the room",
+      "Pitch a scooter that changes colors as you ride it",
+      "Invent a snack that grows back after you take a bite",
+      "Design a chair that can turn into a rocket (just small jumps!)",
+      "Create a toy that tells jokes when you press a button",
+      "Pitch a backpack that can roll around like a suitcase",
+      "Invent a pen that can draw pictures that move",
+      "Design a robot that can play board games with you",
+      "Create a ball that floats in the air instead of falling",
+      "Pitch a watch that can turn into a flashlight",
+      "Invent a pair of socks that make you slide like you’re on ice",
+      "Design a lunchbox that can shrink to fit in your pocket",
+      "Invent a toy robot that tells bedtime stories",
+      "Design a backpack that can turn into a skateboard",
+      "Create a pencil that writes in glitter ink forever",
+      "Pitch a chair that can walk to wherever you want to sit",
+      "Invent a lunchbox that can make food appear from anywhere",
+      "Design a pair of shoes that can bounce like a pogo stick",
+      "Create a ball that never gets lost, it always comes back",
+      "Pitch a blanket that makes you dream about adventures",
+      "Invent a bike that can also work as a roller coaster seat",
+      "Design a toy that changes into different shapes every time you play",
+      "Create a water bottle that can freeze water instantly",
+      "Pitch a hat that makes you fly a little bit off the ground",
+      "Invent a desk that hides secret compartments for treasures",
+      "Design a bed that feels like floating on water",
+      "Create a pillow that gives you a new dream every night",
+      "Pitch a toy airplane that can follow you to school",
+      "Invent a pair of socks that play music when you walk",
+      "Design a robot that makes your favorite sandwich",
+      "Create a snack that grows larger the more you eat",
+      "Pitch a watch that lets you pause playtime so it lasts longer",
+      "Invent a scooter that sprays bubbles behind you",
+      "Design a toy car that can climb stairs",
+      "Create a pen that draws things that pop up in 3D",
+      "Pitch a backpack that gives you an extra pair of robot arms",
+      "Invent a blanket that can glow like the stars",
+      "Design a chair that can spin and bounce at the same time",
+      "Create a toy pet that never runs out of energy",
+      "Pitch a ball that can change into a cube or pyramid",
+      "Invent a bed that tucks you in by itself",
+      "Design a water bottle that refills with rain automatically",
+      "Invent a backpack that turns into a parachute",
+      "Design a toy robot that can do magic tricks",
+      "Create a pencil that writes in invisible ink until you shine a light on it",
+      "Pitch a bed that plays lullabies when you lie down",
+      "Invent a lunchbox that makes your favorite food taste even better",
+      "Design a pair of shoes that can roll like skates when you push a button",
+      "Create a ball that changes color every time it bounces",
+      "Pitch a hat that rains confetti when you say “party”",
+      "Invent a bike that blows bubbles while you ride",
+      "Design a toy that tells riddles and puzzles",
+      "Create a water bottle that changes flavors with a button",
+      "Pitch a chair that hugs you when you sit down",
+      "Invent a robot pet that can sing songs",
+      "Design a pillow that feels different every night—cloud, sand, grass, or snow",
+      "Create a pen that writes in sparkles",
+      "Pitch a scooter that can also be a surfboard",
+      "Invent a blanket that can float like a magic carpet (just a little!)",
+      "Design a toy car that shoots confetti when it wins a race",
+      "Create a watch that can change the weather for 5 minutes",
+      "Pitch a snack that never runs out, no matter how much you eat",
+      "Invent a backpack that can shrink so small it fits in your pocket",
+      "Design a pair of socks that can make you jump super high",
+      "Create a toy airplane that leaves rainbow trails in the sky",
+      "Pitch a desk that can play games with you when you finish homework",
+      "Invent a bed that can take you to dream adventures",
+      "Design a water bottle that glows in the dark",
+      "Create a toy ball that can sing when you throw it",
+      "Pitch a chair that can turn into a rocket seat",
+      "Invent a robot that can clap and cheer for you",
+      "Design a blanket that can tell bedtime stories out loud",
+      "Invent a lunchbox that keeps food fresh all day without a fridge",
+      "Design a backpack that helps kids carry heavy books more easily",
+      "Create a water bottle that reminds you to drink more water",
+      "Pitch a pencil that never breaks when you press too hard",
+      "Invent a chair that helps you sit with good posture",
+      "Design a pair of shoes that grow as your feet grow",
+      "Create a desk that helps kids stay organized with books and supplies",
+      "Pitch a snack that is healthy but still tastes sweet",
+      "Invent a bike helmet that is comfortable and always fits right",
+      "Design a raincoat that dries quickly after getting wet",
+      "Create a backpack that has built-in safety lights for walking in the dark",
+      "Pitch a lunchbox that has different sections for hot and cold food",
+      "Invent a gadget that helps you remember homework assignments",
+      "Design a pencil case that can organize supplies by itself",
+      "Create a pair of glasses that make it easier to read small text",
+      "Pitch a ball that counts how many times you kick or throw it",
+      "Invent a toothbrush that tells you when you’ve brushed long enough",
+      "Design a lunchbox that is made from eco-friendly materials",
+      "Create a pair of shoes that are waterproof for rainy days",
+      "Pitch a desk lamp that uses less energy but gives bright light",
+      "Invent a backpack with extra padding to make it more comfortable",
+      "Design a notebook that never runs out of pages",
+      "Create a water bottle that shows you how much water you’ve drunk",
+      "Pitch a school chair that doesn’t make noise when kids move",
+      "Invent a lunchbox that folds flat when empty",
+      "Design a jacket that keeps you warm but is still lightweight",
+      "Create a backpack with secret safety compartments",
+      "Pitch a pair of gloves that keep your hands warm but let you use a tablet",
+      "Invent a desk that adjusts for sitting or standing",
+      "Design a pencil that comes with built-in erasers that refill automatically",
+      "Invent a backpack that makes it easier to walk up and down stairs",
+      "Design a lunchbox that stops food from spilling",
+      "Create a pencil that always stays sharp",
+      "Pitch a pair of shoes that are both strong and comfortable for running",
+      "Invent a jacket that keeps you warm but isn’t heavy",
+      "Design a water bottle that shows when the water is too warm or too cold",
+      "Create a bike that is safer to ride at night",
+      "Pitch a toothbrush that helps kids brush the right way",
+      "Invent a desk that gives kids more space to organize their supplies",
+      "Design a pencil case that keeps things from falling out",
+      "Create a school chair that is comfortable for long classes",
+      "Pitch a notebook that can be erased and used again",
+      "Invent a pair of gloves that keep your hands warm but not sweaty",
+      "Design a backpack that can balance heavy books so it doesn’t hurt your back",
+      "Create a lunchbox that keeps fruits and veggies crisp",
+      "Pitch a water bottle that filters tap water so it’s clean",
+      "Invent a pair of shoes that don’t slip on wet floors",
+      "Design a pencil that changes colors so kids can write neatly and check mistakes",
+      "Create a jacket that can be worn in both hot and cold weather",
+      "Pitch a ball that measures how far you kick or throw it",
+      "Invent a chair that adjusts to fit kids of different sizes",
+      "Design a lunchbox that can keep food hot without a microwave",
+      "Create a backpack that has a built-in umbrella for rainy days",
+      "Pitch a notebook that keeps track of your assignments for you",
+      "Invent a bike helmet that lights up when you ride",
+      "Design a pencil case that has separate spaces for markers, crayons, and pencils",
+      "Create a desk that has storage for books and electronics",
+      "Pitch a water bottle that can fold up when empty",
+      "Invent a pair of shoes that are easy to put on without laces",
+      "Design a lunchbox made from materials that don’t harm the planet",
+      "Invent a water bottle that cleans dirty water so people can drink it safely",
+      "Design a backpack made from recycled materials to help the planet",
+      "Create a toy that teaches kids how to save electricity",
+      "Pitch a lunchbox that makes less trash by reusing everything",
+      "Invent a machine that can plant trees faster than people",
+      "Design a pair of shoes that last a long time so families spend less money",
+      "Create a snack that is healthy but still tastes like candy",
+      "Pitch a robot that helps clean up trash from parks and beaches",
+      "Invent a light that works without batteries or electricity",
+      "Design a pencil that is made from old paper instead of wood",
+      "Create a bike that can charge your phone while you ride it",
+      "Pitch a toy that teaches kids how to recycle",
+      "Invent a backpack that carries both books and reusable shopping bags",
+      "Design a ball that gives energy back when you bounce it",
+      "Create a school chair that uses less plastic and more eco-friendly materials",
+      "Pitch a jacket that keeps you warm without needing lots of layers",
+      "Invent a toothbrush that saves water while you brush",
+      "Design a lunchbox that keeps food cold without ice packs",
+      "Create a toy that encourages kids to exercise while having fun",
+      "Pitch a pair of shoes that can grow with your feet to reduce waste",
+      "Invent a robot that waters plants to help gardens grow",
+      "Design a pen that can be refilled instead of thrown away",
+      "Create a way to collect rainwater at home for plants and cleaning",
+      "Pitch a backpack that has solar panels to charge small devices",
+      "Invent a vending machine that gives out healthy snacks instead of candy",
+      "Design a light bulb that lasts for years and uses very little energy",
+      "Create a game that teaches kids about protecting animals",
+      "Pitch a water filter that families can use anywhere",
+      "Invent a blanket made from recycled fabric to help reduce waste",
+      "Design a toy that makes learning about climate change fun",
+      "Create a street light that saves energy",
+      "Design an alternative way to power a house",
+      "Invent a trash can that sorts recycling from garbage automatically",
+      "Invent something that helps people use less water every day",
+      "Design something that gives light to families who don’t have electricity",
+      "Create something that makes it easier to clean up trash in parks, streets, or beaches",
+      "Pitch something that helps protect animals in danger of disappearing",
+      "Invent something that helps people stay safe during big storms or floods",
+      "Design something that makes it easier for everyone to breathe cleaner air",
+      "Create something that helps people grow food even in small spaces",
+      "Pitch something that makes sharing fairer in your community",
+      "Invent something that helps people stay healthy and avoid sickness",
+      "Design something that gives kids in every country a way to learn",
+      "Create something that makes it easier for people to recycle at home or school",
+      "Pitch something that helps families waste less food",
+      "Invent something that makes traveling safer for kids and families",
+      "Design something that helps people use energy without polluting the Earth",
+      "Create something that makes it easier to drink clean water anywhere",
+      "Pitch something that helps people feel less lonely and more connected",
+      "Invent something that makes it easier for kids with disabilities to play",
+      "Design something that helps families stay safe at night",
+      "Create something that helps people use less plastic",
+      "Pitch something that makes long walks or trips more comfortable",
+      "Invent something that helps keep animals safe in cities",
+      "Design something that makes learning new things fun for everyone",
+      "Create something that helps kids feel calmer when they are worried",
+      "Pitch something that helps families stay cool in hot weather without air conditioning",
+      "Invent something that makes it easier to share food with people who need it",
+      "Design something that helps people waste less paper",
+      "Create something that makes cities safer for biking and walking",
+      "Pitch something that helps people save money while helping the planet",
+      "Invent something that makes kids feel safer online",
+      "Design something that helps people work together to solve big problems",
+      "Invent something that helps people save energy at home",
+      "Design something that makes cleaning oceans and rivers easier",
+      "Create something that helps families stay safe during earthquakes",
+      "Pitch something that gives kids more safe places to play",
+      "Invent something that helps people use less plastic when shopping",
+      "Design something that makes walking to school safer",
+      "Create something that helps people get clean drinking water in any country",
+      "Pitch something that helps families keep food fresh longer",
+      "Invent something that makes it easier to help people during emergencies",
+      "Design something that helps people stay safe when crossing streets",
+      "Create something that helps people recycle more things than they can now",
+      "Pitch something that makes houses stronger against storms",
+      "Invent something that helps people share things instead of throwing them away",
+      "Design something that makes traveling safer and cleaner for everyone",
+      "Create something that helps people stay warm without using too much electricity",
+      "Pitch something that helps people with disabilities move around more easily",
+      "Invent something that makes it easier for kids to learn at home",
+      "Design something that helps people waste less water in the bathroom or kitchen",
+      "Create something that helps keep neighborhoods cleaner",
+      "Pitch something that makes it easier to grow trees in cities",
+      "Invent something that helps people keep their pets safe and healthy",
+      "Design something that makes public transportation more fun and safe",
+      "Create something that helps people avoid wasting electricity when using lights",
+      "Pitch something that helps families prepare for bad weather",
+      "Invent something that makes it easier to care for animals and nature",
+      "Design something that helps people send help quickly during disasters",
+      "Create something that makes it easier to share toys, books, or games with others",
+      "Pitch something that helps people stay healthy while traveling",
+      "Invent something that makes it easier to keep classrooms eco-friendly",
+      "Design something that helps families save money while protecting the Earth",
+      "Invent something that helps families when the power goes out",
+      "Design something that makes it easier to stop littering",
+      "Create something that helps people stay cool outside on hot days",
+      "Pitch something that makes it easier to keep animals safe in the wild",
+      "Invent something that helps families waste less food at meals",
+      "Design something that makes schools safer in emergencies",
+      "Create something that helps people get medicine quickly in faraway places",
+      "Pitch something that makes it easier for people to share rides",
+      "Invent something that helps kids feel safer online",
+      "Design something that makes carrying heavy things easier for everyone",
+      "Create something that helps people clean the air in their homes",
+      "Pitch something that makes it easier to learn about different cultures",
+      "Invent something that helps kids and families during floods",
+      "Design something that makes recycling faster in big cities",
+      "Create something that helps people find safe places during storms",
+      "Pitch something that makes it easier for families to use renewable energy",
+      "Invent something that helps protect forests and trees",
+      "Design something that makes streets safer for bikers and walkers",
+      "Create something that helps families keep track of their health",
+      "Pitch something that makes it easier to take care of elderly people",
+      "Invent something that helps kids with disabilities join more games and activities",
+      "Design something that makes it easier to share food with neighbors",
+      "Create something that helps people stay safe while traveling at night",
+      "Pitch something that makes it easier to keep playgrounds clean",
+      "Invent something that helps protect oceans from plastic",
+      "Design something that makes long trips safer and more fun",
+      "Create something that helps people waste less paper at school",
+      "Pitch something that makes it easier to warn people before disasters happen",
+      "Invent something that helps families use less water when cooking or cleaning",
+      "Design something that makes cities healthier places to live",
+      "Invent something that makes waiting in long lines more fun",
+      "Design something that helps kids have more safe places to play",
+      "Create something that makes riding in the car less boring",
+      "Pitch something that helps families enjoy picnics without bugs or mess",
+      "Invent something that makes rainy days more exciting",
+      "Design something that helps friends stay connected even when far apart",
+      "Create something that makes school field trips easier and more fun",
+      "Pitch something that helps kids feel calmer before a test or performance",
+      "Invent something that makes birthday parties more exciting",
+      "Design something that helps kids share games without fighting",
+      "Create something that makes playgrounds more creative and fun",
+      "Pitch something that helps families spend more time outside together",
+      "Invent something that makes group games fairer for everyone",
+      "Design something that helps people stay comfortable on long trips",
+      "Create something that makes it easier to explore new places safely",
+      "Pitch something that helps kids feel included in team activities",
+      "Invent something that makes camping safer and more enjoyable",
+      "Design something that helps families save memories in a fun way",
+      "Create something that makes it easier to play sports indoors",
+      "Pitch something that helps kids and pets play together safely",
+      "Invent something that makes waiting rooms fun for kids",
+      "Design something that helps families spend less time cleaning and more time playing",
+      "Create something that makes it easier to listen to music with friends",
+      "Pitch something that helps kids learn about different countries in a fun way",
+      "Invent something that makes outdoor games safer at night",
+      "Design something that helps kids relax after a busy day",
+      "Create something that makes eating fruits and veggies more fun",
+      "Pitch something that helps kids turn chores into a game",
+      "Invent something that makes traveling with family less stressful",
+      "Design something that helps kids and parents agree on fair rules",
+      "Invent something that makes family road trips more fun",
+      "Design something that helps kids waste less paper when drawing or writing",
+      "Create something that makes it easier to carry sports equipment",
+      "Pitch something that helps kids play games in the dark safely",
+      "Invent something that makes school mornings less stressful",
+      "Design something that helps kids eat healthier snacks without complaints",
+      "Create something that makes playground swings safer and cooler",
+      "Pitch something that helps kids enjoy long walks without getting tired",
+      "Invent something that makes cleaning your room faster",
+      "Design something that helps families stay safe during winter storms",
+      "Create something that makes playing board games more exciting",
+      "Pitch something that helps friends share toys fairly",
+      "Invent something that makes staying cool outside easier without ice or AC",
+      "Design something that helps kids feel more confident when speaking in class",
+      "Create something that makes water balloon fights less messy to clean up",
+      "Pitch something that helps kids have more fun during rainy days indoors",
+      "Invent something that makes long bike rides safer and easier",
+      "Design something that helps kids and families save electricity at home",
+      "Create something that makes waiting for buses or rides less boring",
+      "Pitch something that helps kids and pets play together without accidents",
+      "Invent something that makes birthday sleepovers more fun",
+      "Design something that helps kids feel calmer when they’re worried",
+      "Create something that makes traveling on airplanes more exciting for kids",
+      "Pitch something that helps kids enjoy chores by turning them into a game",
+      "Invent something that makes kids’ sports practices more fun for beginners",
+      "Design something that helps families spend less money while shopping",
+      "Create something that makes playing outside at night safer",
+      "Pitch something that helps kids take care of nature in their neighborhood",
+      "Invent something that makes school projects easier to work on with friends",
+      "Design something that helps kids stay active while playing video games",
+      "Invent something that makes snow days even more fun",
+      "Design something that helps kids keep track of their belongings at school",
+      "Create something that makes waiting in restaurants less boring for kids",
+      "Pitch something that helps kids enjoy eating vegetables more",
+      "Invent something that makes traveling on buses or trains more exciting",
+      "Design something that helps kids feel safer when walking home",
+      "Create something that makes sports games fairer for everyone",
+      "Pitch something that helps kids enjoy reading more often",
+      "Invent something that makes sharing chores with siblings easier",
+      "Design something that helps kids stay cool at recess on hot days",
+      "Create something that makes playground slides safer but still fun",
+      "Pitch something that helps kids have fun at family gatherings",
+      "Invent something that makes group projects less stressful for kids",
+      "Design something that helps kids learn about the world in fun ways",
+      "Create something that makes it easier for kids to carry musical instruments",
+      "Pitch something that helps kids spend less time waiting in car rides",
+      "Invent something that makes outdoor games more fun at night",
+      "Design something that helps kids keep their rooms tidy without reminders",
+      "Create something that makes birthday parties less stressful to plan",
+      "Pitch something that helps kids save money for things they want",
+      "Invent something that makes rainy days outside less messy",
+      "Design something that helps kids feel braver when trying new things",
+      "Create something that makes eating at school more fun",
+      "Pitch something that helps kids spend more time outside",
+      "Invent something that makes classrooms quieter when working in groups",
+      "Design something that helps kids enjoy long hikes with family",
+      "Create something that makes learning math more fun",
+      "Pitch something that helps kids and neighbors share sports gear",
+      "Invent something that makes camping trips more comfortable",
+      "Design something that helps kids enjoy helping the environment",
+      "Invent something that makes family vacations less stressful",
+      "Design something that helps kids feel safer during storms",
+      "Create something that makes playing sports more fun for kids of all levels",
+      "Pitch something that helps kids remember to drink enough water",
+      "Invent something that makes waiting in long car rides less boring",
+      "Design something that helps kids share snacks fairly",
+      "Create something that makes playing video games more active and healthy",
+      "Pitch something that helps kids feel less nervous on the first day of school",
+      "Invent something that makes cleaning up after arts and crafts easier",
+      "Design something that helps kids have fun without using screens",
+      "Create something that makes it easier for kids to ride bikes safely",
+      "Pitch something that helps kids sleep better at night",
+      "Invent something that makes eating lunch at school more fun",
+      "Design something that helps kids make new friends",
+      "Create something that makes birthday parties safer and more exciting",
+      "Pitch something that helps kids relax after a busy day",
+      "Invent something that makes recycling easier for families",
+      "Design something that helps kids do homework in a fun way",
+      "Create something that makes playground games fairer for everyone",
+      "Pitch something that helps kids stay warm when playing outside in winter",
+      "Invent something that makes learning new hobbies easier",
+      "Design something that helps kids share toys without arguing",
+      "Create something that makes trips to the grocery store more fun for kids",
+      "Pitch something that helps kids stay calm before a big test",
+      "Invent something that makes long hikes or walks easier for kids",
+      "Design something that helps kids spend more time outdoors",
+      "Create something that makes chores faster so kids have more playtime",
+      "Pitch something that helps kids stay safe online",
+      "Invent something that makes summer days cooler and safer",
+      "Design something that helps kids keep track of their school supplies",
+      "Invent something that makes brushing teeth more fun",
+      "Design something that helps kids stay safe while walking to school",
+      "Create something that makes family game night more exciting",
+      "Pitch something that helps kids eat more fruits and vegetables",
+      "Invent something that makes rainy recess more enjoyable indoors",
+      "Design something that helps kids feel calmer before bed",
+      "Create something that makes long plane rides less boring for kids",
+      "Pitch something that helps kids share games fairly with friends",
+      "Invent something that makes playground equipment safer but still fun",
+      "Design something that helps kids carry heavy books more easily",
+      "Create something that makes waiting at the doctor’s office fun",
+      "Pitch something that helps kids keep their rooms clean without reminders",
+      "Invent something that makes it easier for kids to learn new sports",
+      "Design something that helps kids enjoy helping with chores",
+      "Create something that makes birthday parties more creative and fun",
+      "Pitch something that helps kids spend less time on screens in a fun way",
+      "Invent something that makes kids feel safer during sleepovers",
+      "Design something that helps kids learn about different countries and cultures",
+      "Create something that makes carpool rides more entertaining",
+      "Pitch something that helps kids play safely with younger siblings",
+      "Invent something that makes summer heat less dangerous for kids",
+      "Design something that helps kids feel braver when trying new foods",
+      "Create something that makes school projects easier to finish on time",
+      "Pitch something that helps kids stay active while indoors",
+      "Invent something that makes sharing bedrooms with siblings easier",
+      "Design something that helps kids feel less nervous when speaking in class",
+      "Create something that makes field trips safer and more exciting",
+      "Pitch something that helps kids organize their toys and books",
+      "Invent something that makes winter days more fun outside",
+      "Design something that helps kids enjoy learning science and experiments",
+      "Invent something that makes waiting in traffic less boring for kids",
+      "Design something that helps kids feel safer when crossing the street",
+      "Create something that makes eating dinner with family more fun",
+      "Pitch something that helps kids waste less water when washing hands",
+      "Invent something that makes snow days more exciting and safe",
+      "Design something that helps kids enjoy reading books more often",
+      "Create something that makes walking long distances easier for kids",
+      "Pitch something that helps kids share things fairly without arguing",
+      "Invent something that makes trips to the zoo or museum more fun",
+      "Design something that helps kids stay cool on hot summer days",
+      "Create something that makes recycling easier in schools",
+      "Pitch something that helps kids remember important things for school",
+      "Invent something that makes playground games more creative",
+      "Design something that helps kids relax when they feel nervous",
+      "Create something that makes family movie night more enjoyable",
+      "Pitch something that helps kids stay active during rainy days indoors",
+      "Invent something that makes cleaning up after meals quicker",
+      "Design something that helps kids feel more confident when trying new skills",
+      "Create something that makes birthday parties easier to organize",
+      "Pitch something that helps kids feel less scared of the dark",
+      "Invent something that makes group games fairer for all ages",
+      "Design something that helps kids spend more time outside safely",
+      "Create something that makes long bus rides more entertaining",
+      "Pitch something that helps kids stay healthy during cold weather",
+      "Invent something that makes field trips more fun for everyone",
+      "Design something that helps kids keep track of their allowance",
+      "Create something that makes family chores a team challenge",
+      "Pitch something that helps kids feel happier when they miss a friend",
+      "Invent something that makes summer play safer in the sun",
+      "Design something that helps kids stay organized at school and home",
+      "Invent something that makes family road trips more comfortable",
+      "Design something that helps kids feel safer when playing outside at night",
+      "Create something that makes waiting in long lines at theme parks more fun",
+      "Pitch something that helps kids eat snacks without making a mess",
+      "Invent something that makes playgrounds more exciting on rainy days",
+      "Design something that helps kids feel less nervous at the dentist",
+      "Create something that makes sharing art supplies easier in class",
+      "Pitch something that helps kids enjoy exercise more",
+      "Invent something that makes camping easier for kids and families",
+      "Design something that helps kids stay safe when swimming",
+      "Create something that makes school mornings go faster and smoother",
+      "Pitch something that helps kids play more fairly in sports",
+      "Invent something that makes traveling on airplanes more fun for kids",
+      "Design something that helps kids waste less paper at school",
+      "Create something that makes group projects easier to finish together",
+      "Pitch something that helps kids enjoy healthy meals more",
+      "Invent something that makes sleepovers more fun and safe",
+      "Design something that helps kids take better care of pets",
+      "Create something that makes classrooms more exciting to learn in",
+      "Pitch something that helps kids relax before big tests",
+      "Invent something that makes birthdays more fun without spending too much money",
+      "Design something that helps kids enjoy long hikes with family",
+      "Create something that makes video games healthier for kids to play",
+      "Pitch something that helps kids keep track of their schoolwork",
+      "Invent something that makes hot summer days safer and cooler",
+      "Design something that helps kids share chores without arguing",
+      "Create something that makes museums more fun for kids to explore",
+      "Pitch something that helps kids feel braver when speaking in public",
+      "Invent something that makes rainy days outside less messy",
+      "Design something that helps kids save money in a fun way",
+      "Invent something that makes rainy recess more exciting",
+      "Design something that helps kids stay safe while riding bikes",
+      "Create something that makes family dinners more fun",
+      "Pitch something that helps kids enjoy reading before bed",
+      "Invent something that makes cleaning up toys faster",
+      "Design something that helps kids keep their shoes dry on rainy days",
+      "Create something that makes birthday parties easier to plan",
+      "Pitch something that helps kids feel calmer before a test",
+      "Invent something that makes long carpool rides less boring",
+      "Design something that helps kids share sports equipment fairly",
+      "Create something that makes waiting at the doctor’s office more fun",
+      "Pitch something that helps kids stay warm when playing outside in winter",
+      "Invent something that makes school projects easier to organize",
+      "Design something that helps kids enjoy trying new foods",
+      "Create something that makes playground games safer for younger kids",
+      "Pitch something that helps kids and parents agree on bedtime",
+      "Invent something that makes family shopping trips more fun",
+      "Design something that helps kids waste less water at home",
+      "Create something that makes kids feel braver when making new friends",
+      "Pitch something that helps kids stay active during long days indoors",
+      "Invent something that makes field trips more comfortable and exciting",
+      "Design something that helps kids keep track of their homework",
+      "Create something that makes waiting in line at school more fun",
+      "Pitch something that helps kids and siblings share a room happily",
+      "Invent something that makes summer play safer in hot sun",
+      "Design something that helps kids stay organized with school supplies",
+      "Create something that makes chores faster so kids can play more",
+      "Pitch something that helps kids feel safe when walking in the dark",
+      "Invent something that makes family vacations more fun for everyone",
+      "Design something that helps kids enjoy learning new subjects"
+    ];
+
+    const promptEl = document.getElementById('prompt');
+
+    function spin() {
+      const idx = Math.floor(Math.random() * prompts.length);
+      promptEl.textContent = prompts[idx];
+    }
+
+    (function makeBubbles() {
+      const wrap = document.getElementById('bubbles');
+      const count = 24;
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        b.style.left = Math.random() * 100 + 'vw';
+        const size = 8 + Math.random() * 18;
+        b.style.width = size + 'px';
+        b.style.height = size + 'px';
+        b.style.animationDuration = (10 + Math.random() * 18) + 's';
+        b.style.animationDelay = (Math.random() * 6) + 's';
+        b.style.opacity = (0.25 + Math.random() * 0.45).toFixed(2);
+        wrap.appendChild(b);
+      }
+    })();
+  </script>
+</body>
+</html>

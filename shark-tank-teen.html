@@ -1,0 +1,724 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shark Tank: Teen Edition</title>
+   <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root {
+      --ocean-dark: #001f3f;
+      --ocean-mid:  #006994;
+      --ocean-light:#00a7d1;
+      --card-bg:    #ffffff;
+      --text:       #0b132b;
+      --accent:     #006994;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--ocean-dark) 0%, var(--ocean-mid) 55%, var(--ocean-light) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+      position: relative;
+    }
+    .bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -120px;
+      width: 14px; height: 14px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 50%;
+      animation: rise linear infinite;
+      filter: blur(0.2px);
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) scale(1); opacity: .9; }
+      80%  { opacity: .6; }
+      100% { transform: translateY(-120vh) scale(1.25); opacity: 0; }
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: min(920px, 100%);
+      padding: 36px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.35);
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: .4px;
+      color: #024e68;
+    }
+    .subtitle {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: #335b68;
+      margin-top: -6px;
+    }
+    .prompt {
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.35;
+      background: #f1fbff;
+      border: 1px solid #d4eef7;
+      padding: 20px 22px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 780px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,105,148,0.35);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,105,148,0.25); }
+  </style>
+</head>
+<body>
+  <div class="bubbles" aria-hidden="true" id="bubbles"></div>
+
+  <div class="container">
+    <div class="title">Shark Tank: Teen Edition</div>
+    <div class="subtitle">Spin for a prompt!</div>
+
+    <div id="prompt" class="prompt" aria-live="polite"></div>
+
+    <button onclick="spin()">Spin!</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "Invent an app that helps students manage stress or mental health",
+      "Design a clothing line that’s affordable, trendy, and eco-friendly",
+      "Create a social media platform that’s positive and safe for teens",
+      "Pitch a product that makes studying easier or more fun",
+      "Invent a gadget that helps teens wake up on time",
+      "Design a new kind of fitness or sports app for young people",
+      "Create a snack brand that tastes amazing but is still healthy",
+      "Pitch a subscription box that teens would actually want",
+      "Invent a product that helps teens save or manage money",
+      "Design a phone accessory that solves a real problem",
+      "Create a new streaming service idea that teens would love",
+      "Pitch a device that makes long school days easier",
+      "Invent a new kind of transportation for teens without licenses",
+      "Design a study tool that uses AI or gamification",
+      "Create a fashion accessory that also works as useful tech",
+      "Pitch an app that connects teens to volunteer or job opportunities",
+      "Invent a beauty or skincare product designed for teens",
+      "Design a way for teens to safely shop online",
+      "Create a video game with a positive or meaningful message",
+      "Pitch a product that helps teens stay focused during online classes",
+      "Invent a new type of reusable water bottle that’s stylish",
+      "Design headphones or earbuds with a cool new feature",
+      "Create a brand of energy snacks or drinks designed for students",
+      "Pitch a tutoring app that pairs teens with peers instead of adults",
+      "Invent a new kind of backpack or bag with built-in tech",
+      "Design a teen-friendly travel service for affordable trips",
+      "Create a gadget that helps teens stay off their phones when they need to",
+      "Pitch a music platform where teens can discover or share their own songs",
+      "Invent a way to make group projects easier to organize",
+      "Design a product that helps teens balance school, hobbies, and social life",
+      "Invent an app that helps teens find part-time jobs or internships",
+      "Design a clothing brand that changes based on mood or temperature",
+      "Create a music-related product that helps teens discover new artists",
+      "Pitch a product that makes hanging out with friends easier and cheaper",
+      "Invent a gadget that helps teens focus while studying",
+      "Design a subscription service made just for teens (fashion, tech, food, or games)",
+      "Create an app that helps teens practice safe driving",
+      "Pitch a product that makes sports practices or training more effective",
+      "Invent a device that helps organize digital schoolwork",
+      "Design a skincare brand with natural ingredients for teens",
+      "Create an app that rewards healthy habits with points or prizes",
+      "Pitch a platform that makes it easier for teens to learn life skills",
+      "Invent a social media filter that blocks negativity or cyberbullying",
+      "Design a backpack that can charge devices while carrying books",
+      "Create a snack or drink brand designed for busy students",
+      "Pitch an app that helps teens plan group events easily",
+      "Invent a tool that helps teens manage their screen time",
+      "Design a fashion item that also doubles as safety gear",
+      "Create a teen-focused budgeting or investing app",
+      "Pitch a new type of e-sports league for high school students",
+      "Invent a gadget that makes commuting to school more fun",
+      "Design an app that matches teens with local volunteer opportunities",
+      "Create a safe rideshare service for teens who can’t drive yet",
+      "Pitch a device that keeps teens’ phones from running out of battery during the day",
+      "Invent an app that helps teens discover scholarships and college opportunities",
+      "Design headphones that let friends listen together wirelessly",
+      "Create a new energy drink or snack designed for focus, not just energy",
+      "Pitch a product that makes dorm or teen bedrooms more organized",
+      "Invent a gaming accessory that makes playing with friends more interactive",
+      "Design an app that connects teens to global pen pals safely",
+      "Invent a gadget that helps teens focus in noisy environments",
+      "Design an app that helps teens find safe study or hangout spots in their city",
+      "Create a food truck idea that would be popular with students",
+      "Pitch a new kind of water bottle that tracks hydration with an app",
+      "Invent a product that helps reduce stress during exams",
+      "Design a clothing line that upcycles old clothes into trendy outfits",
+      "Create an app that helps teens learn a new language in a fun way",
+      "Pitch a backpack that can transform into a chair or desk",
+      "Invent a device that makes it easier to organize group chats and school projects",
+      "Design a subscription box for teens interested in science or technology",
+      "Create an app that helps teens manage their sleep schedule",
+      "Pitch a social platform where teens can collaborate on art, music, or writing projects",
+      "Invent a gadget that makes charging phones wireless and portable anywhere",
+      "Design a snack that’s both affordable and energy-boosting for busy students",
+      "Create a safe online marketplace where teens can sell things they make",
+      "Pitch a fashion accessory that combines style with hidden storage or safety features",
+      "Invent an app that rewards eco-friendly actions like recycling or walking instead of driving",
+      "Design a product that makes sports or PE class more fun and inclusive",
+      "Create a new type of phone case that does more than just protect (adds tools, games, or features)",
+      "Pitch a digital planner designed specifically for high school and college students",
+      "Invent a device that makes it easier to carry heavy books or sports gear",
+      "Design an app that pairs teens with mentors in their dream careers",
+      "Create a new type of healthy fast-food restaurant just for students",
+      "Pitch an app that helps teens organize their goals and track progress",
+      "Invent a gadget that translates teen slang into adult language (and vice versa)",
+      "Design a product that makes long bus or train rides more fun",
+      "Create a platform where teens can safely debate or discuss big issues",
+      "Pitch an app that helps teens with creative hobbies like photography or music",
+      "Invent a subscription service for trendy but affordable teen fashion",
+      "Design a tool that makes it easier for teens to balance work, school, and social life",
+      "Invent a product that would make life easier for elderly people living alone",
+      "Design a new kind of transportation that could reduce traffic in big cities",
+      "Create a device that helps people use less water at home",
+      "Pitch a product that makes recycling easier for families",
+      "Invent a gadget that could improve safety during natural disasters",
+      "Design a home product that saves energy and lowers electricity bills",
+      "Create a food product that could help fight world hunger",
+      "Pitch a new invention that makes traveling faster and cheaper",
+      "Invent a product that helps people with disabilities in everyday life",
+      "Design a new way to clean up trash from oceans and rivers",
+      "Create a gadget that makes cooking at home easier and safer",
+      "Pitch a product that helps pets live happier, healthier lives",
+      "Invent a machine that could help communities grow food locally",
+      "Design a wearable device that improves health or fitness",
+      "Create a tool that helps people learn new skills quickly",
+      "Pitch a new kind of entertainment device that combines fun and education",
+      "Invent a product that could reduce air pollution in cities",
+      "Design a product that makes construction safer or easier",
+      "Create a tool that makes it easier for families to stay connected across distances",
+      "Pitch a new product that could help schools run better",
+      "Invent a medical device that could be used in poorer countries",
+      "Design a way to make renewable energy more accessible to families",
+      "Create a household gadget that saves time on chores",
+      "Pitch a new invention that would make public transportation more enjoyable",
+      "Invent a product that helps people in emergencies (floods, earthquakes, storms)",
+      "Design a tool that could make learning languages faster and more fun",
+      "Create a service that helps communities share resources fairly",
+      "Pitch a product that helps people relax and reduce stress",
+      "Invent a machine that could recycle old clothes into new ones",
+      "Design a way to make space exploration more affordable and safe",
+      "Invent a product that makes it easier for families to use renewable energy at home",
+      "Design a tool that helps farmers grow more food with fewer resources",
+      "Create a device that makes drinking water cleaner and safer in poor communities",
+      "Pitch a product that makes it easier to care for pets while their owners are at school or work",
+      "Invent a machine that turns trash into useful items",
+      "Design a new way to make public parks more fun and safe",
+      "Create a gadget that helps people save money every time they shop",
+      "Pitch a product that can deliver medicine quickly in emergencies",
+      "Invent a new kind of robot that helps people with disabilities",
+      "Design a tool that could help reduce food waste in restaurants",
+      "Create a product that makes traveling on airplanes more comfortable for everyone",
+      "Pitch a gadget that makes it easier for families to live in small spaces",
+      "Invent a way for people to grow vegetables inside their apartments",
+      "Design a product that could make sports safer for players",
+      "Create a new tool that makes studying or working in groups easier",
+      "Pitch a product that makes long-distance friendships feel closer",
+      "Invent a machine that helps clean the air in polluted cities",
+      "Design a product that makes waiting in long lines more fun",
+      "Create a new way to deliver packages that is fast and eco-friendly",
+      "Pitch a device that helps people find lost items instantly",
+      "Invent a product that makes it easier for people to recycle electronics",
+      "Design a tool that helps people cook healthy meals quickly",
+      "Create a way to make concerts and events more enjoyable for everyone",
+      "Pitch a gadget that helps people stay calm during stressful times",
+      "Invent a product that makes public transportation cleaner and safer",
+      "Design a product that helps people exercise without going to a gym",
+      "Create a way to make beaches and oceans free of plastic waste",
+      "Pitch a new tool that makes it easier to learn science or math",
+      "Invent a product that helps people sleep better at night",
+      "Design a gadget that makes it easier to communicate in different languages",
+      "Invent a product that helps people stay safe during extreme heat or cold",
+      "Design a tool that makes sharing resources in a community easier",
+      "Create a gadget that helps people find healthier food options quickly",
+      "Pitch a product that reduces stress for students during exam weeks",
+      "Invent a machine that can quickly build shelters after natural disasters",
+      "Design a device that makes commuting faster and less boring",
+      "Create a product that helps families waste less electricity at home",
+      "Pitch a tool that makes online learning more engaging and interactive",
+      "Invent a gadget that helps people find clean water when traveling or hiking",
+      "Design a product that makes recycling easier for kids and families",
+      "Create a new way for hospitals to help patients feel more comfortable",
+      "Pitch a product that keeps people safe when walking alone at night",
+      "Invent a device that helps people with vision or hearing challenges",
+      "Design a gadget that makes team sports more fun for beginners",
+      "Create a product that helps people share and swap clothes easily",
+      "Pitch a service that makes travel safer and more affordable",
+      "Invent a new way to store renewable energy at home",
+      "Design a product that makes road trips more fun for families",
+      "Create a tool that helps people manage their time better",
+      "Pitch a device that can keep food fresh without a refrigerator",
+      "Invent a way to make theme parks more eco-friendly",
+      "Design a gadget that helps students stay focused in class",
+      "Create a product that helps reduce noise in crowded cities",
+      "Pitch a tool that makes caring for elderly relatives easier",
+      "Invent a machine that can plant trees faster than humans",
+      "Design a product that helps families prepare for emergencies",
+      "Create a tool that makes playing musical instruments easier for beginners",
+      "Pitch a product that helps people with public speaking anxiety",
+      "Invent a way to make city streets safer for pedestrians",
+      "Design a product that helps communities clean up litter quickly",
+      "Invent a product that makes it easier to clean beaches and parks",
+      "Design a device that helps people keep track of their daily health",
+      "Create a gadget that makes learning history or geography more interactive",
+      "Pitch a product that helps people spend less time stuck in traffic",
+      "Invent a way to make theme parks more accessible for people with disabilities",
+      "Design a product that makes family chores more fun to do together",
+      "Create a tool that helps people manage stress during busy weeks",
+      "Pitch a device that makes public spaces safer at night",
+      "Invent a product that can turn wasted food into energy",
+      "Design a gadget that makes camping trips safer and more enjoyable",
+      "Create a service that delivers healthy snacks to schools",
+      "Pitch a product that helps keep pets calm during storms or fireworks",
+      "Invent a way to keep plastic bottles out of landfills",
+      "Design a product that makes sports more fun for kids who don’t like competition",
+      "Create a gadget that helps people stay connected when the internet goes down",
+      "Pitch a product that turns ordinary clothes into waterproof gear",
+      "Invent a machine that can safely recycle old phones and electronics",
+      "Design a tool that helps people sleep better when traveling",
+      "Create a product that makes museums and galleries more interactive",
+      "Pitch a gadget that makes it easier for people to grow plants indoors",
+      "Invent a device that provides safe light in areas without electricity",
+      "Design a product that helps teens organize and track their goals",
+      "Create a new way for families to save money on groceries",
+      "Pitch a product that makes waiting rooms in hospitals or offices more fun",
+      "Invent a way to clean polluted air inside homes and classrooms",
+      "Design a gadget that helps people exercise while sitting",
+      "Create a product that makes water play areas safer for kids",
+      "Pitch a product that turns homework into a game",
+      "Invent a device that helps people carry heavy items more easily",
+      "Design a product that makes taking care of pets less stressful",
+      "Invent a device that helps people stay cool without air conditioning",
+      "Design a gadget that makes recycling faster and more convenient at home",
+      "Create a product that makes sharing bikes or scooters easier in cities",
+      "Pitch a tool that helps people stay safe during floods or hurricanes",
+      "Invent a way to make playgrounds more fun for all ages",
+      "Design a product that keeps food warm or cold without electricity",
+      "Create a gadget that helps people focus when studying in noisy places",
+      "Pitch a product that turns household chores into competitions or games",
+      "Invent a device that can collect and store rainwater for daily use",
+      "Design a gadget that helps families waste less food",
+      "Create a product that makes traveling with pets easier",
+      "Pitch a tool that turns exercise into a fun challenge",
+      "Invent a machine that makes classrooms more interactive",
+      "Design a product that helps people carry groceries more easily",
+      "Create a gadget that helps people remember important tasks",
+      "Pitch a service that makes recycling electronics simple and safe",
+      "Invent a product that helps reduce light pollution in cities",
+      "Design a tool that makes learning math more exciting",
+      "Create a gadget that makes riding buses and trains more enjoyable",
+      "Pitch a product that helps people stay healthy while working long hours",
+      "Invent a machine that cleans the air in school classrooms",
+      "Design a gadget that makes waiting in lines more fun",
+      "Create a tool that helps people keep track of their spending",
+      "Pitch a product that makes water sports safer for beginners",
+      "Invent a device that can safely clean polluted lakes and rivers",
+      "Design a product that makes it easier for families to cook together",
+      "Create a gadget that helps people fall asleep faster",
+      "Pitch a service that helps people share unused food in their community",
+      "Invent a product that helps people stay warm outdoors in the winter",
+      "Design a gadget that makes music practice more fun and interactive",
+      "Invent a gadget that makes public restrooms cleaner and safer",
+      "Design a product that helps families prepare for power outages",
+      "Create a device that makes it easier for people to learn musical instruments",
+      "Pitch a tool that helps people find eco-friendly products in stores",
+      "Invent a product that makes picnics and outdoor meals easier",
+      "Design a gadget that helps people stay safe when biking at night",
+      "Create a service that makes donating old clothes simpler",
+      "Pitch a product that turns everyday exercise into a game",
+      "Invent a device that keeps drinks cold without ice",
+      "Design a gadget that helps people carry multiple bags at once",
+      "Create a product that makes libraries more exciting for kids and teens",
+      "Pitch a tool that helps families keep track of household chores",
+      "Invent a way to make elevators more fun to ride",
+      "Design a gadget that keeps people safe in extreme weather",
+      "Create a product that helps teachers make lessons more interactive",
+      "Pitch a product that reduces noise in busy neighborhoods",
+      "Invent a tool that helps people find lost pets quickly",
+      "Design a gadget that makes camping trips safer",
+      "Create a service that helps share leftover food with neighbors",
+      "Pitch a product that makes birthday parties more fun and unique",
+      "Invent a device that keeps sidewalks and playgrounds cooler in the summer",
+      "Design a product that makes teamwork easier in school projects",
+      "Create a gadget that helps people save water while showering",
+      "Pitch a product that makes grocery shopping faster",
+      "Invent a way to make amusement park lines shorter and more fun",
+      "Design a gadget that keeps classrooms organized",
+      "Create a tool that helps people stay calm before big presentations",
+      "Pitch a product that helps kids and teens read more books",
+      "Invent a machine that turns waste into clean energy",
+      "Design a product that helps make road trips more comfortable",
+      "Invent a product that helps people feel less lonely",
+      "Design a gadget that makes school lockers more useful",
+      "Create a device that helps protect animals in cities",
+      "Pitch a product that makes waiting at the doctor’s office less boring",
+      "Invent a way to make traveling on airplanes more fun for kids and teens",
+      "Design a tool that helps families waste less paper",
+      "Create a gadget that makes learning new sports easier",
+      "Pitch a product that turns playgrounds into safer spaces",
+      "Invent a device that helps people organize their digital files",
+      "Design a product that makes recycling clothes easier",
+      "Create a gadget that helps people stay awake during long classes",
+      "Pitch a service that helps neighbors share tools and equipment",
+      "Invent a tool that helps reduce food waste in school cafeterias",
+      "Design a gadget that makes rainy days more enjoyable",
+      "Create a product that helps people remember names and faces",
+      "Pitch a device that makes public transportation safer for kids and teens",
+      "Invent a way to make concerts more fun for people in the back rows",
+      "Design a gadget that helps people drink more water throughout the day",
+      "Create a tool that makes group decision-making faster and fairer",
+      "Pitch a product that makes carrying sports gear less of a hassle",
+      "Invent a product that helps families spend less time on cleaning",
+      "Design a device that makes studying for tests more fun",
+      "Create a gadget that keeps people safe during earthquakes",
+      "Pitch a service that makes it easier for people to volunteer locally",
+      "Invent a way to make city streets quieter and calmer",
+      "Design a product that makes family road trips less stressful",
+      "Create a gadget that helps people charge devices without electricity",
+      "Pitch a tool that makes sharing photos and memories safer online",
+      "Invent a device that helps reduce plastic waste at home",
+      "Design a product that makes outdoor festivals more enjoyable",
+      "Create a gadget that helps people stay positive during tough times",
+      "Invent a gadget that makes moving heavy furniture easier",
+      "Design a product that helps people feel safer when walking at night",
+      "Create a device that makes online shopping more secure",
+      "Pitch a product that makes sharing music with friends easier",
+      "Invent a way to make crowded public places more comfortable",
+      "Design a tool that helps families save money on electricity",
+      "Create a gadget that helps reduce stress before big tests or performances",
+      "Pitch a product that makes recycling plastic bottles fun",
+      "Invent a machine that helps clean up after big events or festivals",
+      "Design a product that makes carrying groceries easier for elderly people",
+      "Create a gadget that helps people stay cool during outdoor sports",
+      "Pitch a service that helps neighbors share rides to school or work",
+      "Invent a way to make elevators and escalators more eco-friendly",
+      "Design a tool that helps people organize their daily goals",
+      "Create a gadget that makes hiking and outdoor adventures safer",
+      "Pitch a product that helps families prepare emergency kits",
+      "Invent a device that keeps pets entertained while their owners are gone",
+      "Design a product that helps people make healthier food choices",
+      "Create a gadget that makes classroom lessons more exciting",
+      "Pitch a product that makes birthday parties more unique",
+      "Invent a way to make buses and trains more enjoyable for long rides",
+      "Design a gadget that helps people track how much exercise they get",
+      "Create a tool that helps reduce noise in apartments or shared spaces",
+      "Pitch a product that helps people stay focused during online meetings",
+      "Invent a device that makes camping more comfortable in bad weather",
+      "Design a product that helps people protect their personal information online",
+      "Create a gadget that makes cooking meals faster and easier",
+      "Pitch a service that helps people donate unused items quickly",
+      "Invent a way to make amusement parks more eco-friendly",
+      "Design a product that helps people relax and recharge during busy days",
+      "Invent a product that makes crossing busy streets safer",
+      "Design a gadget that helps people relax when they feel anxious",
+      "Create a device that makes classrooms quieter during work time",
+      "Pitch a product that makes family dinners more fun",
+      "Invent a way to make grocery shopping faster and less stressful",
+      "Design a tool that helps people sleep better without screens",
+      "Create a gadget that makes exercise more entertaining",
+      "Pitch a product that makes car rides less boring",
+      "Invent a device that helps people stay organized when traveling",
+      "Design a product that makes recycling paper easier at home and school",
+      "Create a gadget that makes it easier to play sports in small spaces",
+      "Pitch a service that helps people lend and borrow books safely",
+      "Invent a way to make playgrounds more inclusive for kids with disabilities",
+      "Design a tool that helps reduce food waste at school lunches",
+      "Create a product that makes birthday gifts more meaningful",
+      "Pitch a gadget that helps people protect themselves from germs",
+      "Invent a machine that makes cleaning windows fun and fast",
+      "Design a product that helps people avoid losing important items",
+      "Create a gadget that makes waiting for buses more comfortable",
+      "Pitch a service that connects people who want to swap clothes",
+      "Invent a tool that makes cooking for large families easier",
+      "Design a product that helps people stay safe during snowstorms",
+      "Create a gadget that makes sports practices more efficient",
+      "Pitch a product that makes group projects less stressful",
+      "Invent a way to make city parks more exciting",
+      "Design a tool that helps people keep their digital lives organized",
+      "Create a product that makes listening to music more social",
+      "Pitch a gadget that helps people stay warm during cold mornings",
+      "Invent a device that makes it easier to charge multiple gadgets at once",
+      "Design a product that helps people stay motivated to reach their goals",
+      "Invent a gadget that makes doing laundry faster and easier",
+      "Design a product that helps people stay safe during thunderstorms",
+      "Create a device that makes waiting at airports more enjoyable",
+      "Pitch a service that helps people share bikes and scooters in their neighborhood",
+      "Invent a way to make classrooms more comfortable in hot weather",
+      "Design a gadget that helps people recycle batteries safely",
+      "Create a product that makes family vacations less stressful",
+      "Pitch a tool that helps people remember their daily habits",
+      "Invent a device that makes elevators safer and more fun to ride",
+      "Design a product that helps people avoid wasting electricity at night",
+      "Create a gadget that makes online studying more interactive",
+      "Pitch a product that makes people want to spend more time outdoors",
+      "Invent a machine that can sort trash and recycling automatically",
+      "Design a tool that helps people share meals with others in need",
+      "Create a gadget that makes school assemblies more exciting",
+      "Pitch a product that helps people stay safe when walking in the dark",
+      "Invent a way to make music lessons easier for beginners",
+      "Design a gadget that helps people keep track of their belongings while traveling",
+      "Create a product that makes house cleaning fun for kids and teens",
+      "Pitch a service that connects people to help clean up their communities",
+      "Invent a device that makes showers use less water but still feel good",
+      "Design a product that helps people enjoy long hikes more",
+      "Create a gadget that makes online shopping faster and safer",
+      "Pitch a product that helps people feel calmer before bed",
+      "Invent a way to make swimming pools more eco-friendly",
+      "Design a gadget that helps families organize chores fairly",
+      "Create a product that makes rides on school buses more enjoyable",
+      "Pitch a tool that helps people stay safe when crossing streets at night",
+      "Invent a machine that helps recycle clothing into new fabric",
+      "Design a product that makes team sports more inclusive for everyone",
+      "Invent a gadget that makes brushing teeth more fun and effective",
+      "Design a product that helps people keep cool without using fans or AC",
+      "Create a device that makes school libraries more exciting for students",
+      "Pitch a tool that helps people keep their phones safe from breaking",
+      "Invent a way to make grocery stores use less plastic",
+      "Design a gadget that helps people remember birthdays and special events",
+      "Create a product that makes bus stops safer and more comfortable",
+      "Pitch a service that helps people borrow and share sports equipment",
+      "Invent a device that makes it easier to clean up after pets",
+      "Design a product that makes waiting at the dentist less stressful",
+      "Create a gadget that helps people stay focused while reading",
+      "Pitch a product that makes picnics easier and cleaner",
+      "Invent a machine that turns old plastic into useful objects",
+      "Design a product that makes it easier to water plants automatically",
+      "Create a gadget that helps people get more exercise during the day",
+      "Pitch a service that helps people donate old electronics safely",
+      "Invent a device that makes classrooms quieter without teachers asking",
+      "Design a product that makes long car rides more fun for passengers",
+      "Create a gadget that helps people find healthy food when eating out",
+      "Pitch a product that makes movie theaters more eco-friendly",
+      "Invent a way to make playgrounds safer without losing the fun",
+      "Design a gadget that helps people organize their closet or wardrobe",
+      "Create a product that makes school mornings less stressful",
+      "Pitch a service that connects neighbors to share tools and resources",
+      "Invent a device that helps people use less paper at home and school",
+      "Design a gadget that makes cleaning floors faster and easier",
+      "Create a product that helps families save money on groceries",
+      "Pitch a tool that makes exercising at home more enjoyable",
+      "Invent a way to make outdoor events safer during storms",
+      "Design a product that helps people keep their digital devices organized",
+      "Invent a gadget that makes cooking outdoors easier and safer",
+      "Design a product that helps people find lost keys, wallets, or phones",
+      "Create a device that makes waiting at bus or train stations more fun",
+      "Pitch a service that helps people recycle large household items",
+      "Invent a way to make playground equipment more creative and exciting",
+      "Design a gadget that helps people save money automatically",
+      "Create a product that makes school sports more enjoyable for everyone",
+      "Pitch a tool that helps people reduce screen time in a fun way",
+      "Invent a device that helps reduce litter in big cities",
+      "Design a product that makes caring for pets while on vacation easier",
+      "Create a gadget that helps people fall asleep without noise",
+      "Pitch a product that makes camping easier for beginners",
+      "Invent a machine that helps grow food in small city apartments",
+      "Design a gadget that helps families share and plan meals together",
+      "Create a product that makes waiting in long lines less boring",
+      "Pitch a service that delivers eco-friendly school supplies",
+      "Invent a tool that helps reduce stress during busy mornings",
+      "Design a gadget that makes concerts and events safer",
+      "Create a product that makes sharing rides with friends easier",
+      "Pitch a product that helps people avoid wasting leftover food",
+      "Invent a device that helps people stay warm outdoors without heavy coats",
+      "Design a product that makes studying languages more fun",
+      "Create a gadget that makes recycling at home automatic",
+      "Pitch a service that helps people share books with their community",
+      "Invent a machine that makes public spaces cleaner overnight",
+      "Design a gadget that helps people stay calm during tests or interviews",
+      "Create a product that makes family game nights more exciting",
+      "Pitch a tool that helps people track their goals in a creative way",
+      "Invent a device that helps people stay cool at the beach",
+      "Design a product that makes long-distance friendships easier to maintain",
+      "Invent a product that makes school hallways less crowded and safer",
+      "Design a gadget that helps people recycle water at home",
+      "Create a device that makes grocery shopping faster and less stressful",
+      "Pitch a service that helps people borrow and share board games",
+      "Invent a way to make sidewalks safer at night",
+      "Design a product that helps people prepare healthy meals quickly",
+      "Create a gadget that makes it easier to exercise indoors",
+      "Pitch a product that makes beaches cleaner and safer for families",
+      "Invent a machine that turns old clothes into new fabric",
+      "Design a gadget that helps families spend more time together without screens",
+      "Create a product that makes libraries more interactive and fun",
+      "Pitch a service that delivers affordable school lunches",
+      "Invent a tool that helps people manage stress in creative ways",
+      "Design a gadget that makes riding bikes safer in cities",
+      "Create a product that helps people enjoy outdoor festivals more",
+      "Pitch a product that makes homework faster and easier to manage",
+      "Invent a device that helps people grow plants anywhere, even indoors",
+      "Design a gadget that makes pets healthier and happier",
+      "Create a product that makes waiting at theme parks more fun",
+      "Pitch a service that helps neighbors share rides to school or work",
+      "Invent a machine that cleans polluted air in cities",
+      "Design a gadget that makes studying for exams more interactive",
+      "Create a product that helps people keep their homes organized",
+      "Pitch a product that makes commuting to school or work more fun",
+      "Invent a device that helps people stay safe during winter storms",
+      "Design a gadget that helps people remember important information",
+      "Create a product that makes recycling easier for kids and teens",
+      "Pitch a service that connects volunteers with local communities",
+      "Invent a machine that makes school cafeterias more eco-friendly",
+      "Design a gadget that makes public transportation more comfortable",
+      "Invent a device that makes carrying heavy school bags easier",
+      "Design a gadget that helps people stay safe while swimming",
+      "Create a product that makes grocery stores more eco-friendly",
+      "Pitch a service that helps people share musical instruments",
+      "Invent a tool that makes classrooms more energy-efficient",
+      "Design a gadget that helps people stay awake without caffeine",
+      "Create a product that makes recycling fun for families",
+      "Pitch a device that makes waiting for appointments less boring",
+      "Invent a machine that helps communities plant more trees",
+      "Design a gadget that helps people find clean water outdoors",
+      "Create a product that makes sports games safer for athletes",
+      "Pitch a service that delivers affordable fresh food to neighborhoods",
+      "Invent a device that makes studying science experiments easier",
+      "Design a gadget that helps people reduce plastic waste at home",
+      "Create a product that makes it easier to celebrate holidays sustainably",
+      "Pitch a product that makes commuting to school safer in bad weather",
+      "Invent a way to make playgrounds cleaner and safer",
+      "Design a gadget that helps people save more money each month",
+      "Create a product that makes public events more inclusive",
+      "Pitch a service that helps people donate unused items to shelters",
+      "Invent a machine that cleans city streets more efficiently",
+      "Design a gadget that helps people focus during homework or study time",
+      "Create a product that makes outdoor sports more enjoyable in hot weather",
+      "Pitch a device that helps people store food without plastic",
+      "Invent a tool that makes camping more comfortable for families",
+      "Design a gadget that helps people stay organized during travel",
+      "Create a product that makes classrooms quieter during group work",
+      "Pitch a product that helps people manage their time better",
+      "Invent a way to make school buses more fun and safe",
+      "Design a gadget that makes reading more interactive for kids and teens",
+      "Invent a gadget that helps people keep cool while walking outside in summer",
+      "Design a product that makes recycling easier in apartment buildings",
+      "Create a device that helps families cook together without making a mess",
+      "Pitch a service that delivers affordable sports gear to kids and teens",
+      "Invent a tool that makes school gyms safer and more fun",
+      "Design a gadget that helps people carry groceries without plastic bags",
+      "Create a product that makes traveling by train more enjoyable",
+      "Pitch a product that helps people stay healthy while sitting at a desk all day",
+      "Invent a machine that makes cleaning classrooms faster",
+      "Design a gadget that helps people share meals with neighbors",
+      "Create a product that makes public swimming pools safer and cleaner",
+      "Pitch a service that connects young people with small business opportunities",
+      "Invent a device that helps people stay connected during emergencies",
+      "Design a gadget that makes studying history more exciting",
+      "Create a product that makes community parks more fun for teens",
+      "Pitch a product that helps people save energy when charging devices",
+      "Invent a way to make elevators more fun with music or games",
+      "Design a gadget that helps people track their daily water intake",
+      "Create a product that makes camping safer in wild areas",
+      "Pitch a service that makes it easier to share bikes and scooters",
+      "Invent a tool that makes classrooms more eco-friendly",
+      "Design a gadget that helps people sleep better during travel",
+      "Create a product that makes movie theaters more fun for kids and teens",
+      "Pitch a device that helps people reduce food waste at home",
+      "Invent a machine that helps make sports practices safer",
+      "Design a gadget that helps people stay calm during stressful moments",
+      "Create a product that makes community cleanups more fun",
+      "Pitch a service that helps connect people to local events and activities",
+      "Invent a device that helps people keep track of their pets",
+      "Design a gadget that makes studying languages more fun for groups",
+      "Invent a gadget that helps people keep food fresh without a refrigerator",
+      "Design a product that makes sidewalks safer for kids and pets",
+      "Create a device that helps people stay productive when working from home",
+      "Pitch a service that delivers affordable healthy snacks to schools",
+      "Invent a machine that helps clean polluted rivers",
+      "Design a gadget that makes it easier to share chargers and batteries",
+      "Create a product that makes long car rides more fun for passengers",
+      "Pitch a product that helps people use less plastic every day",
+      "Invent a device that makes studying math less stressful",
+      "Design a gadget that helps people grow food on rooftops",
+      "Create a product that makes family movie nights more exciting",
+      "Pitch a service that helps people donate leftover meals to shelters",
+      "Invent a tool that makes crossing the street safer for kids and seniors",
+      "Design a gadget that helps people stay warm outdoors without heavy jackets",
+      "Create a product that makes waiting in traffic less boring",
+      "Pitch a device that helps people organize digital photos and files",
+      "Invent a machine that makes recycling faster in big cities",
+      "Design a gadget that helps people keep track of lost items",
+      "Create a product that makes community events more fun for teens",
+      "Pitch a service that connects students with volunteer projects",
+      "Invent a device that makes cleaning up after pets easier",
+      "Design a gadget that helps people prepare for natural disasters",
+      "Create a product that makes classrooms more interactive with technology",
+      "Pitch a product that helps people reduce food waste in restaurants",
+      "Invent a tool that makes family game nights more creative",
+      "Design a gadget that helps people keep their homes cooler without air conditioning",
+      "Create a product that makes music lessons more engaging",
+      "Pitch a service that connects neighbors to share tools and supplies",
+      "Invent a machine that helps remove trash from beaches",
+      "Design a gadget that makes walking or biking to school safer"
+    ];
+
+    const promptEl = document.getElementById('prompt');
+
+    function spin() {
+      const idx = Math.floor(Math.random() * prompts.length);
+      promptEl.textContent = prompts[idx];
+    }
+
+    (function makeBubbles() {
+      const wrap = document.getElementById('bubbles');
+      const count = 24;
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        b.style.left = Math.random() * 100 + 'vw';
+        const size = 8 + Math.random() * 18;
+        b.style.width = size + 'px';
+        b.style.height = size + 'px';
+        b.style.animationDuration = (10 + Math.random() * 18) + 's';
+        b.style.animationDelay = (Math.random() * 6) + 's';
+        b.style.opacity = (0.25 + Math.random() * 0.45).toFixed(2);
+        wrap.appendChild(b);
+      }
+    })();
+  </script>
+</body>
+</html>
