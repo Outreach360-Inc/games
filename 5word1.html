@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Five Word Story</title>
+  <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/5word1.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #007acc;
+      color: white;
+      font-size: 18px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-bottom: 30px;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    #story {
+      font-size: 36px;
+      background: #f4f7f9;
+      padding: 24px 32px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+      min-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Five Word Story</h1>
+    <button onclick="spinWord()">Spin!</button>
+    <div id="story"></div>
+  </div>
+
+  <script>
+    const phrases = [
+      "Pets", "Dogs", "Cats", "Birds", "Fish", "Farm animals", "Zoo animals", "Wild animals", "Insects",
+      "Food", "Fruits", "Vegetables", "Snacks", "Drinks", "Breakfast", "Lunch", "Dinner", "Fast food", "Desserts",
+      "School", "Classroom", "Teacher", "Homework", "Exams", "Friends", "Playground", "School trip", "Library", "Sports day",
+      "Uniform", "Clothes", "Shoes", "Jackets", "Colors", "Hats", "Jeans", "Dresses", "Accessories",
+      "Theme park", "Zoo trip", "Aquarium", "Movie night", "Boarding a plane", "Reading club", "Sports club",
+      "Dance class", "Art class", "Music lesson", "Peace", "War", "Love", "Hate", "Freedom", "Justice",
+      "Equality", "Future", "Past", "Present"
+    ];
+
+    function spinWord() {
+      const index = Math.floor(Math.random() * phrases.length);
+      document.getElementById("story").textContent = phrases[index];
+    }
+
+    window.onload = spinWord;
+  </script>
+</body>
+</html>

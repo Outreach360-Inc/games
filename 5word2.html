@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Five Word Story 2</title>
+  <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/5word2.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #007acc;
+      color: white;
+      font-size: 18px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-bottom: 30px;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    #story {
+      font-size: 32px;
+      background: #f4f7f9;
+      padding: 24px 32px;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+      text-align: center;
+      min-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Five Word Story 2</h1>
+    <button onclick="spinWord()">Spin!</button>
+    <div id="story"></div>
+  </div>
+
+  <script>
+    const phrases = [
+      "My dream job",
+      "The uncertain future",
+      "The unknown path",
+      "Big expectations",
+      "A first paycheck",
+      "The scholarship",
+      "My first car",
+      "Leaving home",
+      "A hidden talent",
+      "My final exam",
+      "The city lights",
+      "A cross-country move",
+      "A difficult choice",
+      "The final deadline",
+      "The interview",
+      "An empty page",
+      "The world is waiting",
+      "A bold decision",
+      "A long journey",
+      "My secret ambition",
+      "The impossible dream",
+      "My first apartment",
+      "A future self",
+      "The pressure to succeed",
+      "A tough conversation",
+      "A new city",
+      "The last graduation",
+      "Unfinished business",
+      "A major life change",
+      "A family secret",
+      "The dinner table",
+      "A loud argument",
+      "An annoying sibling",
+      "A brand new baby",
+      "My empty room",
+      "The family trip",
+      "The dog ran away",
+      "A new house rule",
+      "My grandparents are visiting",
+      "An unexpected guest",
+      "The empty refrigerator",
+      "My dad's new job",
+      "My mom's lecture",
+      "The family photo",
+      "A forgotten birthday",
+      "My new chore",
+      "The golden child",
+      "My room is my sanctuary",
+      "Family traditions",
+      "A family heirloom",
+      "My parent's divorce",
+      "A difficult conversation",
+      "The family car",
+      "A strange relative",
+      "The backyard",
+      "A sad goodbye",
+      "The empty chair",
+      "My childhood home",
+      "A quiet moment",
+      "A new sketchbook",
+      "My video game",
+      "The broken guitar",
+      "A blank canvas",
+      "My secret playlist",
+      "The final scene",
+      "My terrible singing",
+      "A dance rehearsal",
+      "The lost script",
+      "My sports team",
+      "A new book",
+      "My favorite anime",
+      "The comic book store",
+      "A difficult level",
+      "The concert tickets",
+      "The last chapter",
+      "My photography",
+      "The quiet library",
+      "My old collection",
+      "A new hobby",
+      "A text from my crush",
+      "The first kiss",
+      "A secret crush",
+      "Our first date",
+      "Holding hands",
+      "A new relationship",
+      "An awkward glance",
+      "The first breakup",
+      "The unrequited love",
+      "A love letter",
+      "An accidental brush",
+      "The dance invitation",
+      "A blind date",
+      "The coffee shop",
+      "A quiet confession",
+      "My best friend’s crush",
+      "A jealous look",
+      "The fake smile",
+      "A serious talk",
+      "My feelings",
+      "A strange map",
+      "The abandoned house",
+      "A midnight adventure",
+      "Lost in the woods",
+      "A hidden path",
+      "The train to nowhere",
+      "An old secret",
+      "The mysterious stranger",
+      "A long road trip",
+      "The dark cave",
+      "A forgotten memory",
+      "An old key",
+      "The world outside",
+      "The broken compass",
+      "The endless desert",
+      "A ghost story",
+      "The last treasure",
+      "A new city",
+      "The mysterious box",
+      "An unexpected journey",
+      "A talking shadow",
+      "The city in the sky",
+      "Time travel",
+      "A secret universe",
+      "An old prophecy",
+      "My dream world",
+      "The last book",
+      "A strange sound",
+      "The whispering trees",
+      "An ancient prophecy",
+      "A key to nowhere",
+      "The mirror's reflection",
+      "A forgotten language",
+      "The stars are crying",
+      "A different reality",
+      "The magic door",
+      "An alien message",
+      "My own mind",
+      "A secret garden",
+      "A strange creature",
+      "The stray cat",
+      "A rainy day",
+      "The bus stop",
+      "A forgotten birthday",
+      "The old shoebox",
+      "A strange smell",
+      "The last cookie",
+      "A lucky penny",
+      "The cracked window",
+      "A surprise package",
+      "The late night",
+      "A broken swing",
+      "The old treehouse",
+      "A strange note",
+      "The empty street",
+      "The last song",
+      "The morning sun",
+      "The lost key",
+      "An open window",
+      "A simple gift",
+      "The dark hallway",
+      "The last piece",
+      "The ringing phone",
+      "A sudden stop",
+      "A faded photograph",
+      "The spilled milk",
+      "A bad dream",
+      "The flickering light",
+      "The unexpected visit",
+      "The first snowflake",
+      "The old letter",
+      "A final moment",
+      "The burning candle",
+      "A single star",
+      "The abandoned car",
+      "A quiet park",
+      "The lost glove",
+      "The loud sigh",
+      "A perfect stranger",
+      "The end of summer"
+    ];
+
+    function spinWord() {
+      const index = Math.floor(Math.random() * phrases.length);
+      document.getElementById("story").textContent = phrases[index];
+    }
+
+    window.onload = spinWord;
+  </script>
+</body>
+</html>
