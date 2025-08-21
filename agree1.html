@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agree or Disagree? 1</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://github.com/Outreach360-Inc/games/blob/main/agree1.png?raw=true') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.92);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    #prompt {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 30px 0;
+      color: #222;
+    }
+
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 14px 28px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agree or Disagree? 1</h1>
+    <div id="prompt">Click below to get a statement!</div>
+    <button onclick="spin()">Spin</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "Kids should be allowed to eat candy every day.",
+      "Summer is the best season.",
+      "Homework is fun.",
+      "Animals should be treated like humans.",
+      "It's better to be tall than short.",
+      "We should have school on weekends.",
+      "Chocolate is better than vanilla.",
+      "Every child should have a pet.",
+      "Video games are a waste of time.",
+      "Everyone should wear a uniform to school.",
+      "We should be able to choose our own teachers.",
+      "Sports are more important than music.",
+      "Reading books is better than watching movies.",
+      "All schools should have swimming pools.",
+      "Robots will make life better.",
+      "We should have no rules in school.",
+      "Art class is more fun than math class.",
+      "We should have nap time in school.",
+      "It's better to give than to receive.",
+      "Friends are more important than good grades.",
+      "Recycling should be mandatory for everyone.",
+      "Dinosaurs would be fun pets.",
+      "School lunches should be chosen by students.",
+      "Flying would be the best superpower.",
+      "We should be allowed to bring toys to school."
+    ];
+
+    function spin() {
+      const random = Math.floor(Math.random() * prompts.length);
+      document.getElementById('prompt').innerText = prompts[random];
+    }
+  </script>
+</body>
+</html>
