@@ -297,6 +297,15 @@ button.incorrect-btn:hover {
     0 5px 5px rgba(0,0,0,0.5);
 }
 
+
+/* Normalize modal action buttons so they all use the same font */
+.modal .actions .action {
+  font-family: inherit !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
 </style>
 </head>
 <body>
@@ -325,7 +334,7 @@ button.incorrect-btn:hover {
       <h2>Value · <span class="idiom">Idiom</span></h2>
       <div class="prompt">Prompt goes here</div>
       <div class="actions">
-        <button class="action seemeaning" style="background:#2563EB;color:#fff;padding:8px 14px;border:none;border-radius:6px;">See Meaning</button>
+        <button class="action seemeaning" style="background:#2563EB;color:#fff;padding:8px 14px;border:none;border-radius:6px; font-family: inherit; font-weight: bold;">See Meaning</button>
         <button class="action reveal">Show / Hide Answer</button>
         <button class="action correct">Correct</button>
         <button class="action incorrect">Incorrect</button>
