@@ -495,7 +495,30 @@ function closeModal(){
 }
 function reveal(){
   const ans = document.querySelector('.answer');
-  if (!ans) return;
+  if (!ans || !CURRENT_CARD) return;
+
+  const { catKey, row } = CURRENT_CARD;
+  const data = (BOARD[catKey] && BOARD[catKey][row]) ? BOARD[catKey][row] : {};
+
+  if (catKey === 'sentence'){
+    // Always show the example for 'Make a Sentence' cards (even if meaning was shown first)
+    ans.innerHTML = data.example || 'No example .';
+    ans.style.display = 'block';
+    return;
+  }
+
+  if (catKey === 'meaning'){
+    // For 'Guess the Meaning' cards, toggle and ensure we show the interpretation when revealing
+    if (ans.style.display === 'none'){
+      ans.innerHTML = data.interpretation || 'No interpretation .';
+      ans.style.display = 'block';
+    } else {
+      ans.style.display = 'none';
+    }
+    return;
+  }
+
+  // Fallback toggle
   ans.style.display = (ans.style.display === 'none') ? 'block' : 'none';
 }
 
