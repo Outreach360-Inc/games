@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find It! 2</title>
+       <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <style>
+    :root {
+      --royal:   #5b21b6; /* royal purple */
+      --magenta: #db2777; /* hot magenta */
+      --sky:     #38bdf8; /* sky blue */
+      --card:    #ffffff;
+      --text:    #0f172a;
+      --accent:  #5b21b6;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Chevron / herringbone pattern layered over new gradient */
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.10) 0 16px, rgba(255,255,255,0.00) 16px 32px),
+        repeating-linear-gradient(-135deg, rgba(255,255,255,0.06) 0 16px, rgba(255,255,255,0.00) 16px 32px),
+        linear-gradient(135deg, var(--royal) 0%, var(--magenta) 55%, var(--sky) 100%);
+      background-attachment: fixed;
+      padding: 24px;
+      position: relative;
+    }
+
+    .container {
+      background: var(--card);
+      width: min(900px, 100%);
+      padding: 36px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.35);
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: .4px;
+      color: var(--accent);
+    }
+    .subtitle {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: #334155;
+      margin-top: -6px;
+    }
+    .prompt {
+      font-size: clamp(18px, 2.2vw, 26px);
+      line-height: 1.4;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 20px 22px;
+      border-radius: 12px;
+      min-height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 780px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      font-size: 16px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(91,33,182,0.35);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(91,33,182,0.25); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">Find It! 2</div>
+    <div class="subtitle">Spin for a prompt!</div>
+
+    <div id="prompt" class="prompt" aria-live="polite"></div>
+
+    <button onclick="spin()">Spin!</button>
+  </div>
+
+  <script>
+    const prompts = [
+      "Something blue",
+      "Something red",
+      "Something green",
+      "Something yellow",
+      "Something purple",
+      "Something orange",
+      "Something pink",
+      "Something black",
+      "Something white",
+      "Something brown",
+      "Something multicolored",
+      "Something transparent",
+      "Something in your favorite color",
+      "Something shaped like a circle",
+      "Something shaped like a square",
+      "Something shaped like a rectangle",
+      "Something shaped like a triangle",
+      "Something shaped like a star",
+      "Something shaped like a heart",
+      "Something soft",
+      "Something hard",
+      "Something smooth",
+      "Something rough",
+      "Something squishy",
+      "Something bumpy",
+      "Something fuzzy",
+      "Something stretchy",
+      "Something tiny",
+      "Something big",
+      "Something light",
+      "Something heavy (safe to lift)",
+      "Something long",
+      "Something short",
+      "Something thin",
+      "Something thick",
+      "Something made of plastic",
+      "Something made of metal",
+      "Something made of wood",
+      "Something made of paper",
+      "Something made of cardboard",
+      "Something made of fabric",
+      "Something made of rubber",
+      "Something you can eat",
+      "Something you can drink from",
+      "Something that smells good",
+      "Something that makes noise",
+      "Something that opens and closes",
+      "Something that lights up",
+      "Something with a zipper",
+      "Something with buttons",
+      "Something with a handle",
+      "Something with a lid",
+      "Something with wheels",
+      "Something with stripes",
+      "Something with polka dots",
+      "Something with numbers on it",
+      "Something with letters on it",
+      "Something that tells time",
+      "Something that measures (ruler, measuring cup)",
+      "Something used for writing",
+      "Something used for drawing",
+      "Something used for cleaning",
+      "Something used for cooking",
+      "Something you wear on your head",
+      "Something you wear on your feet",
+      "Something you wear on your hands",
+      "Something cozy or warm",
+      "Something that cools you down",
+      "Something you would bring on a trip",
+      "Something that belongs in a backpack",
+      "Something you could read",
+      "Something you could play with",
+      "Something you could build with",
+      "Something that rolls",
+      "Something that bounces",
+      "Something that sticks (tape, sticky note)",
+      "Something that clips (paper clip, clip)",
+      "Something battery-powered",
+      "Something that uses electricity",
+      "Something with a screen",
+      "Something with a cord or cable",
+      "Something with a remote",
+      "Something that’s reusable",
+      "Something recyclable",
+      "Something from nature (leaf, rock, pinecone)",
+      "Something that lives in water (toy or picture)",
+      "Something that flies (toy or picture)",
+      "Something that grows (plant or picture)",
+      "Something that starts with the letter A",
+      "Something that starts with the letter B",
+      "Something that starts with the letter C",
+      "Something that starts with the letter D",
+      "Something that starts with the letter E",
+      "Something that starts with the letter F",
+      "Something that starts with the letter G",
+      "Something that starts with the letter H",
+      "Something that starts with the letter I",
+      "Something that starts with the letter J",
+      "Something that starts with the letter K",
+      "Something that starts with the letter L",
+      "Something that starts with the letter M",
+      "Something that starts with the letter N",
+      "Something that starts with the letter O",
+      "Something that starts with the letter P",
+      "Something that starts with the letter Q",
+      "Something that starts with the letter R",
+      "Something that starts with the letter S",
+      "Something that starts with the letter T",
+      "Something that starts with the letter U",
+      "Something that starts with the letter V",
+      "Something that starts with the letter W",
+      "Something that starts with the letter X (brand name or picture is okay)",
+      "Something that starts with the letter Y",
+      "Something that starts with the letter Z",
+      "Something circular you can spin",
+      "Something rectangular you can stack",
+      "Something you can tie",
+      "Something you can fold",
+      "Something you can snap shut",
+      "Something you can twist open",
+      "Something you can shake to make sound",
+      "Something you can count",
+      "Something with a picture of an animal",
+      "Something with a picture of a fruit",
+      "Something with a map or globe on it",
+      "Something with a pattern you like",
+      "Something you would give as a gift",
+      "Something that makes you smile",
+      "Something you’re proud of",
+      "Something new to you",
+      "Something old or special",
+      "Something you use every day",
+      "Something that sparkles",
+      "Something magnetic",
+      "Something with elastic",
+      "Something with a string",
+      "Something with a pocket",
+      "Something with a barcode",
+      "Something made of glass",
+      "Something ceramic",
+      "Something made of foam",
+      "Something denim",
+      "Something with a hinge",
+      "Something with a spring",
+      "Something with an on/off switch",
+      "Something that spins",
+      "Something with three different colors",
+      "Something with a sticker on it",
+      "Something used in the morning routine",
+      "Something used at bedtime",
+      "Something for rainy weather",
+      "Something for sunny weather",
+      "Something you use in the kitchen",
+      "Something you use in the living room",
+      "Something that feels cool to the touch",
+      "Something that makes a rattling sound",
+      "Something that jingles",
+      "Something that squeaks",
+      "Something with a zipper",
+      "Something silver-colored",
+      "Something gold-colored",
+      "Something neon-colored",
+      "Something pastel-colored",
+      "Something gray",
+      "Something teal",
+      "Something navy",
+      "Something turquoise",
+      "Something lavender",
+      "Something lime green",
+      "Something maroon",
+      "Something beige or tan",
+      "Something camo patterned",
+      "Something plaid or checkered",
+      "Something floral patterned",
+      "Something animal print",
+      "Something geometric patterned",
+      "Something with a handle",
+      "Something with a suction cup",
+      "Something with a clip",
+      "Something with string, ribbon, or laces",
+      "Something that uses batteries",
+      "Something with exactly four corners",
+      "Something with no corners at all",
+      "Something with a hole you can see through",
+      "Something you wear on your wrist",
+      "Something you wear around your neck",
+      "Something silky",
+      "Something velvety",
+      "Something fluffy",
+      "Something scratchy",
+      "Something spiky",
+      "Something prickly",
+      "Something rubbery",
+      "Something leathery",
+      "Something absorbent",
+      "Something waterproof",
+      "Something reusable",
+      "Something recyclable",
+      "Something wearable",
+      "Something bendable",
+      "Something decorative",
+      "Something tiny",
+      "Something new",
+      "Something clean",
+      "Something repaired",
+      "Something wrinkled",
+      "Something stained",
+      "Something tie-dyed",
+      "Something noisy",
+      "Something musical",
+      "Something bright",
+      "Something dark",
+      "Something magenta",
+      "Something fuchsia",
+      "Something indigo",
+      "Something cream-colored",
+      "Something burgundy",
+      "Something ribbed",
+      "Something plush",
+      "Something retro",
+      "Something handmade",
+      "Something collectible"
+    ];
+
+    const promptEl = document.getElementById('prompt');
+
+    function spin() {
+      const idx = Math.floor(Math.random() * prompts.length);
+      promptEl.textContent = prompts[idx];
+    }
+  </script>
+</body>
+</html>
