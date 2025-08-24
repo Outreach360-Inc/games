@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Story Bingo 1</title>
+       <meta content="noindex, nofollow" name="robots"/>
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #fffbd8
+        }
+        body {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 { color: #2b2b3b; }
+        p {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+        .cell {
+            min-width: 140px;
+            min-height: 180px;
+            border: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 16px;
+            background-color: #ffffff;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .cell:hover { background-color: #eef; }
+        .cell.clicked {
+            background-color: #6a5acd;
+            color: #fff;
+        }
+        .cell textarea {
+            width: 100%;
+            margin-top: 5px;
+            font-size: 15px;
+            padding: 4px;
+            resize: none;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            height: 60px;
+            font-family: Arial, sans-serif;
+        }
+        .cell.free {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #6a5acd;
+            color: #fff;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>Story Bingo 1</h1>
+    <div class="bingo-board" id="bingo-board"></div>
+    <script>
+        const words = ["<strong>RETELL THE STORY</strong><br>Say what happened in your own words.<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE CHARACTERS</strong><br>Tell who the story is about and what they are like.<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE PROBLEM</strong><br>What went wrong or needed to be fixed?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE SOLUTION</strong><br>How was the problem solved?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SHARE YOUR FAVORITE PART</strong><br>What part did you like best, and why?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE SETTING</strong><br>Where and when did the story take place?<br><textarea placeholder='Type your response...'></textarea>", "<strong>MAKE A CONNECTION</strong><br>What does this story remind you of?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE HOW A CHARACTER FELT</strong><br>Pick a moment and explain their feelings.<br><textarea placeholder='Type your response...'></textarea>", "<strong>ASK AND ANSWER A QUESTION</strong><br>What did you wonder? What was the answer?<br><textarea placeholder='Type your response...'></textarea>", "<strong>FIGURE OUT A WORD</strong><br>Find a tricky word and explain what it means.<br><textarea placeholder='Type your response...'></textarea>", "<strong>GIVE YOUR OPINION</strong><br>What did you think about the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>EXPLAIN THE TITLE</strong><br>How does the title connect to the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE A CHARACTER CHANGE</strong><br>How did someone change from start to end?<br><textarea placeholder='Type your response...'></textarea>", "<strong>IMAGINE A DIFFERENT ENDING</strong><br>How could the story end another way?<br><textarea placeholder='Type your response...'></textarea>", "<strong>GIVE ADVICE TO A CHARACTER</strong><br>What would you tell someone in the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SAY WHY A CHARACTER DID SOMETHING</strong><br>What was their reason for acting that way?<br><textarea placeholder='Type your response...'></textarea>", "<strong>TELL THE AUTHOR’S MESSAGE</strong><br>What lesson or idea did the author want to share?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SAY WHAT SURPRISED YOU</strong><br>What didn’t you expect?<br><textarea placeholder='Type your response...'></textarea>", "<strong>USE A PICTURE CLUE</strong><br>Show how an illustration helped you understand.<br><textarea placeholder='Type your response...'></textarea>", "<strong>MAKE A PREDICTION</strong><br>Guess what might happen next.<br><textarea placeholder='Type your response...'></textarea>", "<strong>TELL WHAT YOU WOULD DO</strong><br>If you were in the story, what would you do?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE MAIN IDEA</strong><br>What is the story mostly about?<br><textarea placeholder='Type your response...'></textarea>", "<strong>EXPLAIN THE GENRE</strong><br>Is this fiction, nonfiction, fantasy, etc.?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE WHAT THE STORY MADE YOU FEEL</strong><br>Did it make you happy, sad, excited, etc.?<br><textarea placeholder='Type your response...'></textarea>"];
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function generateBoard() {
+            const board = document.getElementById("bingo-board");
+            shuffle(words);
+            let index = 0;
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                if (i === 12) {
+                    cell.innerHTML = "<strong>FREE</strong>";
+                    cell.classList.add("free");
+                } else {
+                    cell.innerHTML = words[index++];
+                    cell.addEventListener("click", function(e) {
+                        if (!e.target.matches('textarea')) {
+                            cell.classList.toggle("clicked");
+                        }
+                    });
+                }
+                board.appendChild(cell);
+            }
+        }
+        generateBoard();
+    </script>
+</body>
+</html>
