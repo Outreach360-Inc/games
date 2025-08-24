@@ -76,10 +76,30 @@
             color: #fff;
             cursor: default;
         }
-    </style>
+    
+#print-btn {
+    background-color: #6A5ACD;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0;
+}
+#print-btn:hover {
+    background-color: #5a4ac7;
+}
+
+</style>
 </head>
 <body>
     <h1>Story Bingo 1</h1>
+
+<button id="print-btn" onclick="generatePDF()">💾 Save Your Work</button>
+<p style="font-size: 14px; margin-top: 6px;"><em>Your bingo board will appear on page 1. Your complete answers will be listed on page 2 and beyond.</em></p>
+
     <div class="bingo-board" id="bingo-board"></div>
     <script>
         const words = ["<strong>RETELL THE STORY</strong><br>Say what happened in your own words.<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE CHARACTERS</strong><br>Tell who the story is about and what they are like.<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE PROBLEM</strong><br>What went wrong or needed to be fixed?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE SOLUTION</strong><br>How was the problem solved?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SHARE YOUR FAVORITE PART</strong><br>What part did you like best, and why?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE SETTING</strong><br>Where and when did the story take place?<br><textarea placeholder='Type your response...'></textarea>", "<strong>MAKE A CONNECTION</strong><br>What does this story remind you of?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE HOW A CHARACTER FELT</strong><br>Pick a moment and explain their feelings.<br><textarea placeholder='Type your response...'></textarea>", "<strong>ASK AND ANSWER A QUESTION</strong><br>What did you wonder? What was the answer?<br><textarea placeholder='Type your response...'></textarea>", "<strong>FIGURE OUT A WORD</strong><br>Find a tricky word and explain what it means.<br><textarea placeholder='Type your response...'></textarea>", "<strong>GIVE YOUR OPINION</strong><br>What did you think about the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>EXPLAIN THE TITLE</strong><br>How does the title connect to the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE A CHARACTER CHANGE</strong><br>How did someone change from start to end?<br><textarea placeholder='Type your response...'></textarea>", "<strong>IMAGINE A DIFFERENT ENDING</strong><br>How could the story end another way?<br><textarea placeholder='Type your response...'></textarea>", "<strong>GIVE ADVICE TO A CHARACTER</strong><br>What would you tell someone in the story?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SAY WHY A CHARACTER DID SOMETHING</strong><br>What was their reason for acting that way?<br><textarea placeholder='Type your response...'></textarea>", "<strong>TELL THE AUTHOR’S MESSAGE</strong><br>What lesson or idea did the author want to share?<br><textarea placeholder='Type your response...'></textarea>", "<strong>SAY WHAT SURPRISED YOU</strong><br>What didn’t you expect?<br><textarea placeholder='Type your response...'></textarea>", "<strong>USE A PICTURE CLUE</strong><br>Show how an illustration helped you understand.<br><textarea placeholder='Type your response...'></textarea>", "<strong>MAKE A PREDICTION</strong><br>Guess what might happen next.<br><textarea placeholder='Type your response...'></textarea>", "<strong>TELL WHAT YOU WOULD DO</strong><br>If you were in the story, what would you do?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE THE MAIN IDEA</strong><br>What is the story mostly about?<br><textarea placeholder='Type your response...'></textarea>", "<strong>EXPLAIN THE GENRE</strong><br>Is this fiction, nonfiction, fantasy, etc.?<br><textarea placeholder='Type your response...'></textarea>", "<strong>DESCRIBE WHAT THE STORY MADE YOU FEEL</strong><br>Did it make you happy, sad, excited, etc.?<br><textarea placeholder='Type your response...'></textarea>"];
@@ -112,5 +132,154 @@
         }
         generateBoard();
     </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const board = document.getElementById("bingo-board");
+
+        // Clone board and replace textareas with content
+        const boardClone = board.cloneNode(true);
+        const textareas = boardClone.querySelectorAll("textarea");
+        textareas.forEach((ta) => {
+            const text = ta.value.trim();
+            const p = document.createElement("p");
+            p.textContent = text ? text : "(empty)";
+            p.style.marginTop = "8px";
+            p.style.fontSize = "14px";
+            ta.replaceWith(p);
+        });
+
+        const container = document.createElement("div");
+        container.style.width = "1000px";
+        container.style.padding = "20px";
+        container.style.backgroundColor = "white";
+        container.appendChild(boardClone);
+        document.body.appendChild(container);
+
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+            pdf.addPage();
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(18);
+            pdf.text("Appendix: Student Responses", 40, 40);
+
+            const activeCells = document.querySelectorAll(".cell");
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(12);
+            let y = 60;
+
+            activeCells.forEach((cell, index) => {
+                const label = cell.querySelector("strong")?.innerText || "FREE";
+                const textarea = cell.querySelector("textarea");
+                const userInput = textarea ? textarea.value.trim() : "(empty)";
+                const entry = `${index + 1}. ${label}`;
+                const response = `Answer: ${userInput}`;
+                const linesEntry = pdf.splitTextToSize(entry, 500);
+                const linesResponse = pdf.splitTextToSize(response, 500);
+
+                if (y + (linesEntry.length + linesResponse.length) * 14 > pdf.internal.pageSize.height - 40) {
+                    pdf.addPage();
+                    y = 40;
+                }
+
+                pdf.setFont("helvetica", "bold");
+                pdf.text(linesEntry, 40, y);
+                y += linesEntry.length * 14;
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(linesResponse, 50, y);
+                y += linesResponse.length * 14 + 10;
+            });
+
+            document.body.removeChild(container);
+            pdf.save("story-bingo-board.pdf");
+        });
+    }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const { jsPDF } = window.jspdf;
+
+    document.getElementById("print-btn").addEventListener("click", function () {
+        const board = document.getElementById("bingo-board");
+        const boardClone = board.cloneNode(true);
+        const textareas = boardClone.querySelectorAll("textarea");
+
+        textareas.forEach((ta) => {
+            const text = ta.value.trim();
+            const p = document.createElement("p");
+            p.textContent = text ? text : "(empty)";
+            p.style.marginTop = "8px";
+            p.style.fontSize = "14px";
+            ta.replaceWith(p);
+        });
+
+        const container = document.createElement("div");
+        container.style.width = "1000px";
+        container.style.padding = "20px";
+        container.style.backgroundColor = "white";
+        container.appendChild(boardClone);
+        document.body.appendChild(container);
+
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "pt", "a4");
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight);
+            pdf.addPage();
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(18);
+            pdf.text("Appendix: Student Responses", 40, 40);
+
+            const originalCells = document.querySelectorAll(".cell");
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(12);
+
+            let y = 60;
+            originalCells.forEach((cell, index) => {
+                const label = cell.querySelector("strong")?.innerText || "FREE";
+                const textarea = cell.querySelector("textarea");
+                const userInput = textarea ? textarea.value.trim() : "(empty)";
+                const entry = `${index + 1}. ${label}`;
+                const response = `Answer: ${userInput}`;
+                const linesEntry = pdf.splitTextToSize(entry, 500);
+                const linesResponse = pdf.splitTextToSize(response, 500);
+
+                if (y + (linesEntry.length + linesResponse.length) * 14 > pdf.internal.pageSize.height - 40) {
+                    pdf.addPage();
+                    y = 40;
+                }
+
+                pdf.setFont("helvetica", "bold");
+                pdf.text(linesEntry, 40, y);
+                y += linesEntry.length * 14;
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(linesResponse, 50, y);
+                y += linesResponse.length * 14 + 10;
+            });
+
+            document.body.removeChild(container);
+            pdf.save("story-bingo-board.pdf");
+        });
+    });
+});
+</script>
+
 </body>
-</html>
