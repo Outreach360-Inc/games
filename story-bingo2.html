@@ -76,10 +76,28 @@
 align-items: center;
 justify-content: center;
         }
-    </style>
+    
+#print-btn {
+    background-color: #6A5ACD;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0;
+}
+#print-btn:hover {
+    background-color: #5a4ac7;
+}
+
+</style>
 </head>
 <body>
     <h1>Story Bingo 2</h1>
+<button id="print-btn" onclick="generatePDF()">💾 Save Your Work</button>
+<p style="font-size: 14px; margin-top: 6px;"><em>Your bingo board will appear on page 1. Your complete answers will be listed on page 2 and beyond.</em></p>
     <div class="bingo-board" id="bingo-board"></div>
 
     <script>
@@ -113,5 +131,160 @@ justify-content: center;
         }
         generateBoard();
     </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const board = document.getElementById("bingo-board");
+
+        // Clone and prepare board
+        const boardClone = board.cloneNode(true);
+        const textareas = boardClone.querySelectorAll("textarea");
+        textareas.forEach((ta) => {
+            const text = ta.value.trim();
+            const p = document.createElement("p");
+            p.textContent = text ? text : "(empty)";
+            p.style.marginTop = "8px";
+            p.style.fontSize = "14px";
+            ta.replaceWith(p);
+        });
+
+        // Create a container for rendering board as image
+        const container = document.createElement("div");
+        container.style.width = "1000px";
+        container.style.padding = "20px";
+        container.style.backgroundColor = "white";
+        container.appendChild(boardClone);
+        document.body.appendChild(container);
+
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+
+            // Create appendix on new page
+            pdf.addPage();
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(18);
+            pdf.text("Appendix: Student Responses", 40, 40);
+
+            const originalCells = document.querySelectorAll(".cell");
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(12);
+
+            let y = 60;
+            originalCells.forEach((cell, index) => {
+                const label = cell.querySelector("strong")?.innerText || "FREE";
+                const textarea = cell.querySelector("textarea");
+                const userInput = textarea ? textarea.value.trim() : "(empty)";
+                const entry = `${index + 1}. ${label}`;
+                const response = `Answer: ${userInput}`;
+                const linesEntry = pdf.splitTextToSize(entry, 500);
+                const linesResponse = pdf.splitTextToSize(response, 500);
+
+                if (y + (linesEntry.length + linesResponse.length) * 14 > pdf.internal.pageSize.height - 40) {
+                    pdf.addPage();
+                    y = 40;
+                }
+
+                pdf.setFont("helvetica", "bold");
+                pdf.text(linesEntry, 40, y);
+                y += linesEntry.length * 14;
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(linesResponse, 50, y);
+                y += linesResponse.length * 14 + 10;
+            });
+
+            document.body.removeChild(container);
+            pdf.save("story-bingo-board.pdf");
+        });
+    }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const board = document.getElementById("bingo-board");
+
+        // Clone and prepare board for rendering
+        const boardClone = board.cloneNode(true);
+        const textareas = boardClone.querySelectorAll("textarea");
+        textareas.forEach((ta) => {
+            const text = ta.value.trim();
+            const p = document.createElement("p");
+            p.textContent = text ? text : "(empty)";
+            p.style.marginTop = "8px";
+            p.style.fontSize = "14px";
+            ta.replaceWith(p);
+        });
+
+        // Create temporary container for rendering
+        const container = document.createElement("div");
+        container.style.width = "1000px";
+        container.style.padding = "20px";
+        container.style.backgroundColor = "white";
+        container.appendChild(boardClone);
+        document.body.appendChild(container);
+
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'pt', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            // Page 1: board layout
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+
+            // Page 2+: only responses for prompts in current board
+            pdf.addPage();
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(18);
+            pdf.text("Appendix: Student Responses", 40, 40);
+
+            const activeCells = document.querySelectorAll(".cell");
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(12);
+            let y = 60;
+
+            activeCells.forEach((cell, index) => {
+                const label = cell.querySelector("strong")?.innerText || "FREE";
+                const textarea = cell.querySelector("textarea");
+                const userInput = textarea ? textarea.value.trim() : "(empty)";
+                const entry = `${index + 1}. ${label}`;
+                const response = `Answer: ${userInput}`;
+                const linesEntry = pdf.splitTextToSize(entry, 500);
+                const linesResponse = pdf.splitTextToSize(response, 500);
+
+                if (y + (linesEntry.length + linesResponse.length) * 14 > pdf.internal.pageSize.height - 40) {
+                    pdf.addPage();
+                    y = 40;
+                }
+
+                pdf.setFont("helvetica", "bold");
+                pdf.text(linesEntry, 40, y);
+                y += linesEntry.length * 14;
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(linesResponse, 50, y);
+                y += linesResponse.length * 14 + 10;
+            });
+
+            document.body.removeChild(container);
+            pdf.save("story-bingo-board.pdf");
+        });
+    }
+</script>
+
 </body>
 </html>
