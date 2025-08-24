@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Story Bingo (Caps Titles)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f9faff;
+        }
+        body {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #1e1e2f;
+        }
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+        .cell {
+            min-width: 140px;
+            min-height: 180px;
+            border: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 16px;
+            background-color: #ffffff;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .cell:hover {
+            background-color: #eef;
+        }
+        .cell.clicked {
+            background-color: #6a5acd;
+            color: #fff;
+        }
+        .cell textarea {
+            width: 100%;
+            margin-top: 5px;
+            font-size: 15px;
+            padding: 4px;
+            resize: none;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            height: 60px;
+            font-family: Arial, sans-serif;
+        }
+        .cell.free {
+            background-color: #6a5acd;
+            color: #fff;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>Story Bingo (Caps Titles)</h1>
+    <div class="bingo-board" id="bingo-board"></div>
+
+    <script>
+        const words = ["<strong>PROTAGONIST INTRODUCTION</strong><br>The main character is introduced.<br><textarea placeholder='Type your example...'></textarea>", "<strong>ANTAGONIST ACTION</strong><br>The character or force causing conflict acts.<br><textarea placeholder='Type your example...'></textarea>", "<strong>CLEAR SETTING</strong><br>Where and when the story happens.<br><textarea placeholder='Type your example...'></textarea>", "<strong>TYPE OF CONFLICT</strong><br>The kind of struggle in the story.<br><textarea placeholder='Type your example...'></textarea>", "<strong>RISING ACTION EVENT</strong><br>Something that builds tension before the climax.<br><textarea placeholder='Type your example...'></textarea>", "<strong>TURNING POINT OR CLIMAX</strong><br>The most exciting or important moment.<br><textarea placeholder='Type your example...'></textarea>", "<strong>RESOLUTION OR ENDING</strong><br>How the story ends or problem is solved.<br><textarea placeholder='Type your example...'></textarea>", "<strong>CHARACTER CHANGE</strong><br>How a character changes during the story.<br><textarea placeholder='Type your example...'></textarea>", "<strong>CHARACTER MOTIVATION</strong><br>Why the character does something.<br><textarea placeholder='Type your example...'></textarea>", "<strong>THEME</strong><br>The message or lesson in the story.<br><textarea placeholder='Type your example...'></textarea>", "<strong>SIMILE</strong><br>Comparison using 'like' or 'as'.<br><textarea placeholder='Type your example...'></textarea>", "<strong>STRONG TONE WORD</strong><br>A powerful word showing emotion.<br><textarea placeholder='Type your example...'></textarea>", "<strong>MOOD SHIFT</strong><br>The feeling of the story changes.<br><textarea placeholder='Type your example...'></textarea>", "<strong>DIALOGUE THAT REVEALS CHARACTER</strong><br>Speech that shows personality.<br><textarea placeholder='Type your example...'></textarea>", "<strong>INDIRECT CHARACTERIZATION</strong><br>What a character does or says shows who they are.<br><textarea placeholder='Type your example...'></textarea>", "<strong>POINT OF VIEW</strong><br>Who is telling the story and what they know.<br><textarea placeholder='Type your example...'></textarea>", "<strong>UNRELIABLE NARRATOR CLUE</strong><br>Clue that the storyteller might not be trusted.<br><textarea placeholder='Type your example...'></textarea>", "<strong>MOTIF</strong><br>A repeated idea or image.<br><textarea placeholder='Type your example...'></textarea>", "<strong>PRECISE DICTION</strong><br>Strong word choice.<br><textarea placeholder='Type your example...'></textarea>", "<strong>COMPLEX SENTENCE OR SYNTAX</strong><br>A sentence that uses interesting structure.<br><textarea placeholder='Type your example...'></textarea>", "<strong>TEXT STRUCTURE PATTERN</strong><br>How the text is organized.<br><textarea placeholder='Type your example...'></textarea>", "<strong>METAPHOR</strong><br>A direct comparison without 'like' or 'as'.<br><textarea placeholder='Type your example...'></textarea>", "<strong>PERSONIFICATION</strong><br>Giving human traits to non-human things.<br><textarea placeholder='Type your example...'></textarea>", "<strong>HYPERBOLE</strong><br>Extreme exaggeration.<br><textarea placeholder='Type your example...'></textarea>", "<strong>ALLITERATION</strong><br>Words close together starting with the same sound.<br><textarea placeholder='Type your example...'></textarea>", "<strong>ONOMATOPOEIA</strong><br>A word that sounds like its meaning.<br><textarea placeholder='Type your example...'></textarea>", "<strong>IMAGERY</strong><br>Details that appeal to the senses.<br><textarea placeholder='Type your example...'></textarea>", "<strong>SYMBOLISM</strong><br>An object that stands for something else.<br><textarea placeholder='Type your example...'></textarea>", "<strong>FORESHADOWING</strong><br>A clue about what will happen later.<br><textarea placeholder='Type your example...'></textarea>", "<strong>FLASHBACK</strong><br>A scene from the past.<br><textarea placeholder='Type your example...'></textarea>", "<strong>IRONY</strong><br>When the opposite of what you expect happens.<br><textarea placeholder='Type your example...'></textarea>"];
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        function generateBoard() {
+            const board = document.getElementById("bingo-board");
+            shuffle(words);
+            let index = 0;
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                if (i === 12) {
+                    cell.innerHTML = "<strong>FREE</strong>";
+                    cell.classList.add("free");
+                } else {
+                    cell.innerHTML = words[index++];
+                    cell.addEventListener("click", function(e) {
+                        if (!e.target.matches('textarea')) {
+                            cell.classList.toggle("clicked");
+                        }
+                    });
+                }
+                board.appendChild(cell);
+            }
+        }
+        generateBoard();
+    </script>
+</body>
+</html>
