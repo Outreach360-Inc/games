@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Word Board Bingo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+background: #c2f5f0
+    }
+    h1 {
+      margin-bottom: 0;
+    }
+    #print-btn {
+      background-color: #6A5ACD;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 0;
+    }
+    .board-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cell {
+      border: 2px solid #6A5ACD;
+      width: 150px;
+      height: 150px;
+      margin: 5px;
+      padding: 8px;
+      box-sizing: border-box;
+      background-color: #f0f0ff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+    }
+    .cell textarea {
+      margin-top: 8px;
+      width: 100%;
+      height: 80px;
+      resize: none;
+      font-size: 14px;
+      pointer-events: auto;
+    }
+    .cell.marked {
+      background-color: #6A5ACD;
+      color: white;
+    }
+    .cell.free {
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: default;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </head>
+
+<body>
+  <h1>Word Board Bingo</h1>
+  <button id="print-btn">Save Your Work</button>
+  <p style="font-size: 14px; margin-top: 6px;"><em>Your bingo board will appear on page 1. Your answers will be listed on page 2 and beyond.</em></p>
+
+  <div class="board-container" id="bingo-board"></div>
+
+  <script>
+    const categories = ["A COLOR", "A FEELING", "SOMETHING YOU WEAR", "A PREPOSITION", "A WORD WITH 2 SYLLABLES", "A WORD THAT PLURALIZES IRREGULARLY", "A WORD YOU CAN RHYME", "A VEHICLE", "AN INSTRUMENT", "A TOY OR HOBBY WORD", "A WORD THAT HAS 2 MEANINGS", "AN AILMENT", "A TYPE OF TECHNOLOGY", "A FOOD", "A SCHOOL OBJECT", "A HOUSEHOLD OBJECT", "A WEATHER WORD", "A BODY PART", "A CHORE", "AN ANIMAL", "SINGULAR NOUN THAT REQUIRES “A”", "SINGULAR NOUN THAT PLURALIZES WITH –S", "SINGULAR NOUN THAT PLURALIZES WITH –ES", "SINGULAR NOUN THAT PLURALIZES WITH –IES", "SINGULAR NOUN THAT PLURALIZES WITH –VES", "A PLURAL NOUN", "A VERB", "AN ADJECTIVE", "A FEMALE PERSON", "A MALE PERSON", "A PLACE", "A THING", "SINGULAR NOUN THAT REQUIRES “AN”", "AN UNCOUNTABLE NOUN", "A WORD WITH A SILENT LETTER", "A WORD THAT ENDS IN A VOWEL"];
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createBoard() {
+      const container = document.getElementById("bingo-board");
+      const shuffled = shuffle([...categories]);
+      const selected = shuffled.slice(0, 12).concat("FREE SPACE").concat(shuffled.slice(12, 24));
+      selected.forEach(label => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        if (label === "FREE SPACE") {
+          cell.classList.add("free", "marked");
+          cell.innerHTML = `<strong>${label}</strong>`;
+        } else {
+          cell.innerHTML = `<strong>${label}</strong><br><textarea onmousedown="event.stopPropagation();"></textarea>`;
+          cell.onclick = () => cell.classList.toggle("marked");
+        }
+        container.appendChild(cell);
+      });
+    }
+
+    createBoard();
+  </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("print-btn").addEventListener("click", async () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Capture Page 1 - the full board
+        const boardNode = document.getElementById("bingo-board");
+        const clone = boardNode.cloneNode(true);
+        clone.querySelectorAll("textarea").forEach(el => {
+          const value = el.value;
+          const div = document.createElement("div");
+          div.innerText = value ? "\nAnswer: " + value : "";
+          el.parentNode.replaceChild(div, el);
+        });
+
+        const wrapper = document.createElement("div");
+        wrapper.style.width = "800px";
+        wrapper.style.padding = "20px";
+        wrapper.appendChild(clone);
+        document.body.appendChild(wrapper);
+
+        await html2canvas(wrapper, { scale: 2 }).then(canvas => {
+          const imgData = canvas.toDataURL("image/png");
+          doc.addImage(imgData, "PNG", 10, 10, 190, 0);
+        });
+
+        document.body.removeChild(wrapper);
+
+        // Page 2: Just answers
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.text("Your Answers", 10, 20);
+        const cells = document.querySelectorAll("#bingo-board .cell");
+        let y = 30;
+        cells.forEach(cell => {
+          const label = cell.querySelector("strong")?.innerText;
+          const answer = cell.querySelector("textarea")?.value;
+          if (label && label !== "FREE SPACE" && answer) {
+            
+  const wrappedText = doc.splitTextToSize(`• ${label}: ${answer}`, 180);
+  doc.text(wrappedText, 10, y);
+  y += wrappedText.length * 8;
+  
+            y += 10;
+            if (y > 270) {
+              doc.addPage();
+              y = 20;
+            }
+          }
+        });
+
+        doc.save("word-board-bingo.pdf");
+      });
+    });
+  </script>
+  </body>
+</html>
+
+</html>
