@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Minimal Pairs Tic-Tac-Toe — Modern & Colorful</title>
+<style>
+  :root {
+    --page-bg: radial-gradient(1200px 900px at 10% -10%, #0ea5e9 0%, #8b5cf6 40%, #0b1020 60%);
+    --text: #0b1020;
+    --muted: #334155;
+    --tile-bg: #ffffff;
+    --tile-text: #0b1020;
+    --tile-shadow: 0 10px 30px rgba(0,0,0,.18);
+    --x: #1d4ed8;
+    --o: #fb7185;
+    --win: #10b981;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; padding:0; min-height:100%;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    color: var(--text);
+    background: var(--page-bg), #0b1020;
+    background-attachment: fixed;
+  }
+  .wrap {
+    min-height: 100dvh;
+    padding: clamp(8px, 2.5vw, 18px);
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: clamp(8px, 2vw, 14px);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  header {
+    display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap: wrap;
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(8px);
+    padding: 8px 10px; border-radius: 14px;
+    border: 1px solid rgba(0,0,0,.08);
+  }
+  h1 { margin:0; font-weight: 900; letter-spacing: .2px; font-size: clamp(18px, 3.4vw, 28px); }
+  .controls { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+  button {
+    appearance: none; border: 0; cursor: pointer; font-weight: 900;
+    padding: 8px 12px; border-radius: 12px; color: white;
+    box-shadow: 0 6px 16px rgba(0,0,0,.22);
+    font-size: clamp(12px, 2.1vw, 15px);
+    transition: transform .06s ease, filter .2s ease;
+  }
+  .btn-primary { background: linear-gradient(135deg, #22d3ee, #2563eb); }
+  .btn-secondary { background: linear-gradient(135deg, #f97316, #ec4899); }
+  button:hover { filter: brightness(1.05); }
+  button:active { transform: translateY(1px); }
+  .status {
+    background: rgba(255,255,255,.75);
+    border: 1px solid rgba(0,0,0,.08);
+    padding: 6px 10px; border-radius: 10px; font-weight: 800;
+    min-width: 180px; text-align:center; color: var(--muted);
+    font-size: clamp(12px, 2vw, 14px);
+  }
+  .board-wrap { display:grid; place-items:center; }
+  .board {
+    width: min(96vw, 80dvh);
+    max-width: 950px;
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 1.4vmin, 12px);
+  }
+  .cell {
+    position: relative; display:flex; align-items:center; justify-content:center; text-align:center;
+    aspect-ratio: 1 / 1;
+    background: var(--tile-bg);
+    color: var(--tile-text);
+    border-radius: 20px;
+    padding: clamp(8px, 1.8vmin, 14px);
+    border: 0;
+    box-shadow: var(--tile-shadow);
+    user-select: none; cursor: pointer;
+    overflow: hidden;
+    transition: transform .06s ease, box-shadow .2s ease;
+  }
+  .cell:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(0,0,0,.22); }
+  .cell:active { transform: translateY(0); }
+  /* Gradient ring */
+  .cell::before {
+    content: ""; position: absolute; inset: -2px;
+    background: conic-gradient(from 0deg,
+      hsl(var(--h) 85% 55%),
+      hsl(calc(var(--h) + 60) 85% 55%),
+      hsl(calc(var(--h) + 120) 85% 55%),
+      hsl(calc(var(--h) + 180) 85% 55%),
+      hsl(calc(var(--h) + 240) 85% 55%),
+      hsl(calc(var(--h) + 300) 85% 55%),
+      hsl(var(--h) 85% 55%)
+    );
+    padding: 3px; border-radius: 22px;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+  }
+  .inner {
+    position: relative; z-index: 2;
+    background: transparent;
+    border-radius: 16px; width: 100%; height: 100%;
+    display:flex; align-items:center; justify-content:center; padding: clamp(6px, 1.2vmin, 10px);
+  }
+  .pair {
+    font-weight: 900; letter-spacing: .2px;
+    display:inline-flex; align-items:center; gap: clamp(6px, 1vmin, 10px); 
+    flex-wrap: wrap; justify-content:center;
+    font-size: clamp(20px, 4.8vmin, 40px);
+    line-height: 1.1;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .pair .slash { opacity: .6; }
+  /* Full-square vector marker under text */
+  .marker {
+    position:absolute; inset: 6%;
+    z-index: 1; pointer-events: none; opacity: .6;
+  }
+  .marker line, .marker circle {
+    stroke-width: 18; fill: none; stroke-linecap: round; 
+  }
+  .cell.x .marker * { stroke: var(--x); }
+  .cell.o .marker * { stroke: var(--o); }
+  .cell.win .inner { outline: 5px solid var(--win); box-shadow: 0 0 0 7px rgba(16,185,129,.25) inset; }
+  @media (prefers-reduced-motion: reduce) { .cell:hover, .cell:active { transform: none; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Minimal Pairs Tic-Tac-Toe</h1>
+      <div class="controls">
+        <span class="status" id="status">Loading…</span>
+        <button id="newGameBtn" class="btn-primary">New Game</button>
+        <button id="keepPairsBtn" class="btn-secondary" title="Reset marks but keep the current pairs">Reset Marks</button>
+      </div>
+    </header>
+
+    <div class="board-wrap">
+      <div class="board" id="board" aria-label="Tic Tac Toe board"></div>
+    </div>
+  </div>
+
+<script>
+const ALL_PAIRS = ["pat / bat", "cap / gap", "ten / den", "tip / dip", "coat / goat", "fan / van", "sip / zip", "seal / zeal", "thin / tin", "thin / sin", "then / den", "cheap / jeep", "chip / ship", "light / right", "glass / grass", "clue / crew", "fly / fry", "wine / vine", "witch / rich", "yell / well", "hat / at", "heat / eat", "cap / cab", "back / bag", "pick / pig", "leaf / leave", "safe / save", "rope / robe", "half / have", "race / raise", "sheep / ship", "beat / bit", "seat / sit", "leave / live", "pull / pool", "full / fool", "cot / cut", "cat / cot", "bed / bad", "sit / set", "luck / lock", "Luke / look", "put / putt", "bus / boss", "sale / seal", "fail / file", "boil / bowl", "bait / beat", "zoo / sue", "key / tea", "game / dame", "fine / pine", "nap / map", "rat / hat", "cat / cad", "mat / mad", "pen / pan", "ban / bang", "sum / sun", "which / witch", "pie / buy", "fine / vine", "sip / ship", "vest / best", "seat / seed", "bit / bet", "bet / bat", "pan / pen", "cot / coat", "pull / pill", "peel / pill", "arm / harm", "ill / hill", "ate / hate", "thin / shin", "they / day", "though / dough", "met / net", "ram / ran", "sing / sin", "rich / ridge", "match / mash", "chew / shoe", "heel / hill", "led / red", "lice / rice", "rock / lock", "loose / lose", "peace / peas", "face / phase", "sip / seep", "tip / tap", "cup / cop", "bug / bag", "dog / dug", "cot / cod", "fold / gold", "goal / goat", "feel / fell", "fill / feel", "mill / meal", "bean / bin", "pin / pen", "hut / hot", "late / let", "note / not", "fate / feet", "phone / bone", "park / bark", "bark / dark", "play / pray", "glue / clue", "bleed / breed", "glow / grow", "beer / deer", "pear / bear", "gear / dear", "code / coat", "sue / shoe", "peach / teach", "mood / mud", "book / buck", "cook / kook", "tool / tall", "leaf / loaf", "reef / roof", "full / foul", "cape / cave", "leak / lick", "leap / lip", "heap / hip", "late / laid", "bug / big", "bog / bag", "dog / dig", "rot / rod", "dab / dad", "bird / beard", "bad / pad", "ban / pan", "bar / par", "back / pack", "bag / tag", "beam / deem", "beat / peat", "beach / peach", "beak / peak", "bell / fell", "bet / pet", "big / pig", "bin / pin", "bit / pit", "bog / dog", "bomb / mom", "bone / tone", "boon / noon", "boot / root", "boss / moss", "bus / fuss", "buck / duck", "bug / mug", "bun / fun", "bunny / funny", "buy / guy", "coal / goal", "cane / gain", "cool / pool", "could / good", "cuff / guff", "cup / cub", "cut / gut", "curl / girl", "core / gore", "date / gate", "dale / gale", "din / tin", "dip / zip", "doom / zoom", "dock / rock", "done / ton", "duck / luck", "dawn / yawn", "dare / care", "dark / lark", "deer / peer", "dip / sip", "done / dawn", "fat / vat", "fear / veer", "fee / bee", "ferry / very", "fail / veil", "fig / pig", "fit / sit", "file / vile", "fire / tire", "fish / dish", "fog / dog", "gave / cave", "gel / yell", "get / jet", "gin / chin", "gill / kill", "goal / foal", "gum / gun", "hop / top", "hit / it", "hid / bid", "hind / kind", "hip / ship", "jam / yam", "jam / dam", "jeep / sheep", "jet / yet", "joke / yoke", "kin / pin", "kit / sit", "cod / pod", "lace / race", "lake / rake", "lamp / ramp", "land / rand", "lap / lab", "lead / led", "lip / lit", "lime / time", "ling / ring", "live / give", "load / road", "long / song", "look / book", "lot / not", "man / men", "mouth / mouse", "mass / mess", "mesh / mash", "met / mat", "merry / very", "mid / bid", "mike / bike", "mood / moon", "moose / loose", "nip / tip", "net / pet", "need / deed", "near / ear", "neat / seat", "nod / not", "pad / paid", "peat / pet", "peg / beg", "pest / best", "pit / fit", "posh / bosh", "pull / bull", "pug / bug", "pun / bun", "push / bush", "putt / butt", "rag / lag", "rip / lip", "rid / reed", "ring / sing", "roof / root", "rug / lug", "rum / run", "sad / sat", "sap / zap", "sand / hand", "sash / mash", "sick / tick", "sit / soot", "sock / shock", "tan / can", "tack / tag", "tap / map", "tar / car", "team / deem", "tear / dear", "tell / dell", "ten / tin", "ten / ton", "tip / sip", "tire / dire", "tuck / duck", "toil / foil", "top / cop", "toy / boy", "van / ban", "vat / bat", "veal / feel", "vee / bee", "vest / west", "vote / boat", "wall / ball", "weave / leave", "wick / wig", "woke / joke", "yap / gap", "yam / ram", "zen / den", "zoo / goo", "zoom / loom", "thin / fin", "thud / dud", "thank / tank", "thigh / die", "those / doze", "these / dees", "bear / burr", "bird / board", "pat / pet", "pack / peck", "pick / peck", "pin / pan", "pit / pat", "cat / cut", "bed / bid", "bed / bud", "bid / bud", "ban / ben", "big / bag", "big / bog", "bug / bog", "lag / leg", "leg / log", "lug / log", "lug / leg", "lip / lap", "lip / lop", "lip / loop", "crab / grab", "cram / gram", "clash / class", "clown / crown", "blue / clue", "brave / grave", "brain / grain", "zeal / real", "zip / ship", "zest / best", "zeal / veal", "fad / vat", "sank / thank", "thick / sick", "thumb / sum", "there / dare", "then / zen", "fee / see", "grave / grade", "laze / lace", "light / night", "mail / nail", "gear / jeer", "germ / term", "pat / fat", "toe / doe", "ton / son", "heat / heap", "heed / hid", "hat / hut", "ham / hum", "ham / him", "hill / hell", "hit / heat", "hip / hop", "rope / lope", "rust / lust", "rate / rake", "rim / ram", "bus / buzz", "rice / rise", "wing / win", "king / kin", "rang / rag", "long / log", "tongue / tug", "bath / bass", "gas / gash", "cold / gold", "coat / boat", "cape / gape", "call / gall", "car / gar", "pike / bike", "pile / bile", "pill / bill", "tan / dan", "tame / dame", "code / cote", "rode / rote", "need / neat", "rag / rack", "lag / lack", "flag / frag", "foil / foul", "coil / call", "book / boot", "foot / food", "plan / plane", "late / lot", "rate / rot", "mate / mat", "mate / met", "ban / bad", "pen / pet", "tan / tad", "can / cad", "man / mad", "pear / fear", "peak / pick", "bead / bed", "chip / cheap", "boot / boat", "goal / gull", "peel / pool", "fool / foal", "foul / foal", "sin / shin", "soot / shoot", "sell / shell", "gear / tear", "glow / blow", "glue / brew", "glue / grew", "pry / fry", "pray / bray", "price / prize", "ice / eyes", "dose / doze", "juice / Jews", "three / tree", "think / sink", "thought / sought", "thaw / saw", "thorn / torn", "breathe / breed", "bathe / bade", "vile / bile", "veil / bail", "veal / peal", "vow / bow", "vase / base", "veer / beer", "shop / chop", "shore / chore", "share / chair", "sheer / cheer", "shy / chai", "seek / sick", "peek / pick", "bit / beet", "wick / week", "still / steel", "slip / sleep", "itch / each", "rich / reach", "green / grin", "free / flee", "rake / lake", "ray / lay", "road / load", "rung / lung", "pry / ply", "cram / clam", "crash / clash", "had / add", "hair / air", "hall / all", "heal / eel", "hold / old", "ham / am", "span / pan", "speak / peak", "spill / pill", "spin / pin", "stick / tick", "steal / teal", "stone / tone", "still / till", "stool / tool", "ski / key", "scan / can", "scar / car", "score / core", "skid / kid", "goal / coal", "get / yet", "gear / year", "law / low", "saw / sew", "rub / rob", "mud / mod", "pull / pole", "full / foal", "berry / very", "bent / vent", "vane / bane", "viper / wiper", "path / pass", "math / mass", "moth / moss", "teeth / tease", "truth / truce", "thigh / tie", "theme / team", "din / dean", "sin / seen", "will / wheel", "knit / neat", "tin / teen", "would / wooed", "could / cooed", "cap / cup", "bat / but", "bad / bud", "pan / pun", "lack / luck", "rant / runt", "stack / stuck", "flash / flush", "back / bark", "pat / part", "cam / calm", "pack / park", "cap / carp", "sale / sell", "tale / tell", "fail / fell", "wait / wet", "coat / caught", "bays / base", "maze / mace", "she / see", "shop / sop", "shine / chine", "shock / chalk", "yule / jewel", "yell / gel", "hire / ire", "hue / yew", "wet / vet", "school / cool", "skill / kill", "zone / sewn", "link / leek", "snow / no", "smile / mile", "stop / top", "skin / kin", "sack / shack", "cash / catch", "lash / latch", "wish / witch", "chick / cheek", "fit / feet", "pin / pain", "sit / site", "putt / pout", "full / fall", "pull / pall", "cod / code", "cart / curt", "for / far", "those / dose", "thread / tread", "thin / thing", "song / son", "rung / run", "flank / frank", "lane / rain", "long / wrong", "lack / lark", "rack / rock", "cap / cape", "pack / puck", "fan / fun", "shot / jot", "shack / check", "yak / jack", "yawn / lawn", "year / ear", "sack / suck", "sad / said", "bed / bade", "bit / bite", "rod / road", "nut / note", "work / walk", "cheer / chair", "foot / fought", "will / well", "sail / sell", "coin / cone", "vow / wow", "veil / whale", "hear / ear", "spain / pain", "stare / tear", "spend / pend", "spent / pent", "spare / pare", "spark / park", "spore / pore", "spoke / poke", "sport / port", "spun / pun", "spit / pit", "spot / pot", "spine / pine", "skate / Kate", "skit / kit", "skip / kip", "skull / cull", "scare / care", "scold / cold", "scale / kale", "slow / low", "slope / lope", "slap / lap", "sled / led", "slime / lime", "slip / lip", "slot / lot", "smack / mac", "smash / mash", "smog / mog", "smug / mug", "smock / mock", "snip / nip", "snail / nail", "snack / knack", "sweep / weep", "swing / wing", "swan / wan", "spray / pray", "stripe / tripe", "street / treat", "splay / play", "splash / plash", "jail / Yale", "jaw / yaw", "jell / yell", "jeer / year", "joule / yule", "job / yob", "yoke / oak", "yore / ore", "yell / ell", "yawn / awn", "use / ooze", "cheep / sheep", "chin / shin", "chill / shill", "chard / shard", "chock / shock", "chuck / shuck", "chow / show", "choose / shoes", "cherry / sherry", "charred / shared", "chubby / shabby", "cheat / sheet", "spike / pike", "spoon / boon", "spool / pool", "spade / paid", "spire / pyre", "stare / tare", "stale / tale", "stole / toll", "stoke / toke", "stall / tall", "sting / ting", "stack / tack", "sketch / ketch", "skew / cue", "slack / lack", "sling / ling", "slug / lug", "smear / mere", "snap / nap", "snooze / noose", "swear / wear", "swell / well", "swim / whim", "swoop / whoop", "sweet / wheat", "squad / quad", "squid / quid", "squash / quash", "screen / green", "scream / cream", "screw / crew", "scrape / crape", "chaff / shaft", "chute / shoot", "thief / chief", "theft / deft", "thick / tick", "thirst / first", "zing / sing", "look / luck", "ferry / fairy", "cap / cop", "beg / bag", "ban / bun", "kin / keen", "lid / lead", "pip / peep", "pit / peat", "pick / peek", "sill / seal", "till / teal", "still / steal", "will / weal", "sin / scene", "mitt / meet", "rip / reap", "heal / hail", "meal / mail", "seal / sail", "teal / tail", "real / rail", "veal / vail", "lead / laid", "read / raid", "mead / maid", "lean / lain", "mean / main", "peal / pail", "wean / wain", "thought / taught", "thing / ting", "thumb / tum", "thug / dug", "thy / die", "thine / dine", "bath / bat", "path / pat", "teeth / teed", "seethe / seed", "loathe / load", "lathe / lade", "soothe / sued", "booth / booed", "writhe / ride", "other / udder", "thaw / taw", "how / hoe", "now / know", "wow / woe", "thou / though", "bough / beau", "bout / boat", "out / oat", "outs / oats", "loud / load", "couch / coach", "pouch / poach", "douse / dose", "rouse / rose", "rout / rote", "shout / shoat", "flout / float", "tout / tote", "mound / moaned", "bound / boned", "found / phoned", "hound / honed", "howl / hole", "cowl / coal", "prowl / prole", "crowd / crowed", "town / tone", "clown / clone", "crown / crone", "prow / pro", "scour / score", "pow / Poe", "fowl / foal", "cowed / code", "pay / bay", "pole / bowl", "pore / bore", "peer / beer", "tie / die", "till / dill", "kit / git", "cool / ghoul", "kale / gale", "coop / goop", "ton / don", "bug / buck", "fad / fed", "cod / cud", "rot / lot", "lid / lit", "hid / head", "bid / bead", "pit / pet", "peck / puck", "peck / peek", "beg / big", "peg / pig", "rag / rig", "rag / rug", "gap / gab", "goal / goad", "coal / coat", "west / vest", "ran / rang", "hung / hug", "teethe / teed", "boil / bile", "soul / soil", "toil / toll", "sale / sole", "pole / pale", "bait / bet", "put / pot", "cuff / cough", "rook / ruck", "luck / lick", "could / cud", "hood / hod", "should / shod", "booth / both", "sheep / seep", "shore / sore", "shine / sign", "cheer / sheer"];
+
+const WIN_LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6],
+];
+
+function shuffle(array) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function sample(array, n) {
+  if (array.length === 0) return [];
+  if (n >= array.length) return shuffle(array);
+  return shuffle(array).slice(0, n);
+}
+
+let currentPlayer = 'X';
+let boardMarks = Array(9).fill(null);
+let boardPairs = Array(9).fill(null);
+let gameOver = false;
+
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const newGameBtn = document.getElementById('newGameBtn');
+const keepPairsBtn = document.getElementById('keepPairsBtn');
+
+function highlightWin(line) {
+  const cells = Array.from(boardEl.children);
+  for (const idx of line) cells[idx].classList.add('win');
+}
+
+function clearWinHighlights() {
+  const cells = Array.from(boardEl.children);
+  for (const c of cells) c.classList.remove('win');
+}
+
+function renderBoard() {
+  boardEl.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('button');
+    cell.className = 'cell';
+    cell.setAttribute('aria-label', 'Cell ' + (i+1));
+    cell.dataset.index = i;
+    const hue = Math.floor(Math.random() * 360);
+    cell.style.setProperty('--h', hue);
+
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+
+    const pairEl = document.createElement('div');
+    pairEl.className = 'pair';
+
+    const text = boardPairs[i] || '';
+    if (text) {
+      const parts = text.split('/');
+      if (parts.length === 2) {
+        const a = document.createElement('span'); a.textContent = parts[0].trim();
+        const slash = document.createElement('span'); slash.textContent = '/'; slash.className = 'slash';
+        const b = document.createElement('span'); b.textContent = parts[1].trim();
+        pairEl.appendChild(a); pairEl.appendChild(slash); pairEl.appendChild(b);
+      } else {
+        pairEl.textContent = text;
+      }
+    }
+
+    inner.appendChild(pairEl);
+    cell.appendChild(inner);
+
+    if (boardMarks[i]) {
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const marker = document.createElementNS(svgNS, 'svg');
+      marker.setAttribute('class', 'marker');
+      marker.setAttribute('viewBox', '0 0 100 100');
+      marker.setAttribute('preserveAspectRatio', 'none');
+
+      if (boardMarks[i] === 'X') {
+        const l1 = document.createElementNS(svgNS, 'line');
+        l1.setAttribute('x1', '12'); l1.setAttribute('y1', '12');
+        l1.setAttribute('x2', '88'); l1.setAttribute('y2', '88');
+        const l2 = document.createElementNS(svgNS, 'line');
+        l2.setAttribute('x1', '88'); l2.setAttribute('y1', '12');
+        l2.setAttribute('x2', '12'); l2.setAttribute('y2', '88');
+        marker.appendChild(l1); marker.appendChild(l2);
+      } else if (boardMarks[i] === 'O') {
+        const c = document.createElementNS(svgNS, 'circle');
+        c.setAttribute('cx', '50'); c.setAttribute('cy', '50'); c.setAttribute('r', '38');
+        marker.appendChild(c);
+      }
+      cell.classList.add(boardMarks[i].toLowerCase());
+      cell.appendChild(marker);
+    }
+
+    cell.addEventListener('click', onCellClick);
+    boardEl.appendChild(cell);
+  }
+}
+
+function setStatus(text) { statusEl.textContent = text; }
+
+function checkWinner() {
+  for (const line of WIN_LINES) {
+    const [a,b,c] = line;
+    if (boardMarks[a] && boardMarks[a] === boardMarks[b] && boardMarks[a] === boardMarks[c]) {
+      highlightWin(line);
+      return boardMarks[a];
+    }
+  }
+  if (boardMarks.every(Boolean)) return 'draw';
+  return null;
+}
+
+// Click handler with toggle (undo) support
+function onCellClick(e) {
+  const idx = parseInt(e.currentTarget.dataset.index, 10);
+  const mark = boardMarks[idx];
+
+  if (mark) {
+    // Undo this mark: give the turn back to that player
+    boardMarks[idx] = null;
+    currentPlayer = mark;
+    gameOver = false;
+    clearWinHighlights();
+    renderBoard();
+    setStatus('Player ' + currentPlayer + '\'s turn (undo)');
+    return;
+  }
+
+  if (gameOver) return; // must undo first before placing again
+
+  boardMarks[idx] = currentPlayer;
+  renderBoard();
+  const result = checkWinner();
+  if (result === 'X' || result === 'O') {
+    setStatus('Player ' + result + ' wins! (tap any marked cell to undo)');
+    gameOver = true;
+    return;
+  } else if (result === 'draw') {
+    setStatus('It\'s a draw! (tap any marked cell to undo)');
+    gameOver = true;
+    return;
+  }
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  setStatus('Player ' + currentPlayer + '\'s turn');
+}
+
+function assignPairs(newSet) {
+  boardPairs = newSet.slice(0, 9);
+}
+
+function newGame(randomizePairs = true) {
+  boardMarks = Array(9).fill(null);
+  currentPlayer = Math.random() < 0.5 ? 'X' : 'O';
+  gameOver = false;
+  clearWinHighlights();
+  if (randomizePairs) {
+    if (ALL_PAIRS.length === 0) {
+      boardPairs = Array(9).fill('— / —');
+    } else {
+      const selection = ALL_PAIRS.length >= 9 ? sample(ALL_PAIRS, 9) : sample(ALL_PAIRS.concat(ALL_PAIRS), 9);
+      assignPairs(selection);
+    }
+  }
+  setStatus('Player ' + currentPlayer + '\'s turn');
+  renderBoard();
+}
+
+newGameBtn.addEventListener('click', function () { newGame(true); });
+keepPairsBtn.addEventListener('click', function () { newGame(false); });
+
+newGame(true);
+</script>
+</body>
+</html>
