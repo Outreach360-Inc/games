@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Minimal Pairs Spinner</title>
+  <meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<style>
+  :root {
+    --bg1: #971965;
+    --bg2: #c5398d;
+    --accent: #8ef6ff;
+    --accent2: #ffc26b;
+    --card: rgba(255,255,255,0.08);
+    --text: #f6f8ff;
+    --muted: #b9c2e1;
+    --shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(80vmax 80vmax at 15% 10%, #2b315f 0%, transparent 60%),
+      radial-gradient(60vmax 60vmax at 85% 15%, #243a6c 0%, transparent 60%),
+      radial-gradient(55vmax 55vmax at 50% 90%, #2a3e5f 0%, transparent 60%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    overflow: hidden;
+  }
+
+  .wrap {
+    width: min(100%, 1050px);
+    padding: clamp(12px, 3vmin, 28px);
+  }
+
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: clamp(16px, 4vmin, 40px);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: calc(100svh - clamp(24px, 6vmin, 56px));
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .title {
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    font-size: clamp(18px, 2.6vmin, 28px);
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+  }
+
+  button.spin {
+    appearance: none;
+    border: none;
+    border-radius: 1000px;
+    padding: clamp(12px, 1.6vmin, 16px) clamp(18px, 2.6vmin, 24px);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #02101a;
+    font-weight: 900;
+    font-size: clamp(14px, 2vmin, 18px);
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25), inset 0 -2px 0 rgba(0,0,0,0.2);
+    transform: translateZ(0);
+    transition: transform .12s ease, filter .2s ease;
+  }
+  button.spin:active {
+    transform: scale(0.98);
+  }
+
+  .wheel {
+    width: clamp(120px, 24vmin, 180px);
+    height: clamp(120px, 24vmin, 180px);
+    border-radius: 50%;
+    border: 10px solid rgba(255,255,255,0.2);
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin-inline: auto;
+    background:
+      conic-gradient(from 0deg, rgba(255,255,255,0.04), rgba(255,255,255,0.12)),
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 45%),
+      radial-gradient(circle at 70% 70%, rgba(255,255,255,0.2), transparent 45%);
+    box-shadow: var(--shadow);
+  }
+  .wheel::after {
+    content: "";
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 18px solid var(--accent);
+    position: absolute;
+    top: -28px;
+  }
+  .wheel-inner {
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    display: grid;
+    place-items: center;
+    font-size: clamp(12px, 1.8vmin, 16px);
+    color: var(--muted);
+    text-align: center;
+    padding: 8px;
+  }
+
+  main.display {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: clamp(12px, 3vmin, 24px);
+  }
+
+  .pair-box {
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    gap: clamp(10px, 2.6vmin, 22px);
+    align-content: center;
+    justify-items: center;
+  }
+  .pair-line {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(10px, 2vmin, 16px);
+    line-height: 1.05;
+    max-width: 90%;
+    word-break: break-word;
+  
+    font-size: clamp(40px, 14vw, 100px);
+  }
+  .label {
+    font-weight: 700;
+    font-size: 1em;
+    color: var(--muted);
+    opacity: 0.9;
+  }
+  .word {
+    font-weight: 900;
+    font-size: 1em;
+    letter-spacing: 0.01em;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.18), 0 10px 30px rgba(0,0,0,0.25);
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: clamp(12px, 1.8vmin, 14px);
+    opacity: 0.9;
+  }
+  .meta {
+    display: flex;
+    gap: clamp(8px, 2vmin, 16px);
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+  }
+
+  /* Spin animations */
+  .spinning .wheel {
+    animation: spin 1.2s cubic-bezier(.25,.8,.25,1);
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(720deg); }
+  }
+
+  /* Responsive safeguards so content never overflows viewport */
+  .card {
+    overflow: hidden;
+  }
+  main.display {
+    max-height: 100%;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="app">
+      <header>
+        <div class="title">Minimal Pairs Spinner</div>
+        <div class="controls">
+          <button class="spin" id="spinBtn" title="Spacebar also spins">SPIN</button>
+        </div>
+      </header>
+
+      <div class="wheel" aria-hidden="true">
+        <div class="wheel-inner">Spin to get a random pair</div>
+      </div>
+
+      <main class="display" role="main" aria-live="polite">
+        <div class="pair-box" id="pairBox">
+          <div class="pair-line"><span class="label">1️⃣</span> <span class="word" id="w1">—</span></div>
+          <div class="pair-line"><span class="label">2️⃣</span> <span class="word" id="w2">—</span></div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="meta">
+          </div>
+
+      </footer>
+    </div>
+  </div>
+
+<script>
+  const pairs = [["Minimal", "Pairs"], ["pat", "bat"], ["cap", "gap"], ["ten", "den"], ["tip", "dip"], ["coat", "goat"], ["fan", "van"], ["sip", "zip"], ["seal", "zeal"], ["thin", "tin"], ["thin", "sin"], ["then", "den"], ["cheap", "jeep"], ["chip", "ship"], ["light", "right"], ["glass", "grass"], ["clue", "crew"], ["fly", "fry"], ["wine", "vine"], ["witch", "rich"], ["yell", "well"], ["hat", "at"], ["heat", "eat"], ["cap", "cab"], ["back", "bag"], ["pick", "pig"], ["leaf", "leave"], ["safe", "save"], ["rope", "robe"], ["half", "have"], ["race", "raise"], ["sheep", "ship"], ["beat", "bit"], ["seat", "sit"], ["leave", "live"], ["pull", "pool"], ["full", "fool"], ["cot", "cut"], ["cat", "cot"], ["bed", "bad"], ["sit", "set"], ["luck", "lock"], ["Luke", "look"], ["put", "putt"], ["bus", "boss"], ["sale", "seal"], ["fail", "file"], ["boil", "bowl"], ["bait", "beat"], ["zoo", "sue"], ["key", "tea"], ["game", "dame"], ["fine", "pine"], ["nap", "map"], ["rat", "hat"], ["cat", "cad"], ["mat", "mad"], ["pen", "pan"], ["ban", "bang"], ["sum", "sun"], ["which", "witch"], ["pie", "buy"], ["fine", "vine"], ["sip", "ship"], ["vest", "best"], ["seat", "seed"], ["bit", "bet"], ["bet", "bat"], ["pan", "pen"], ["cot", "coat"], ["pull", "pill"], ["peel", "pill"], ["arm", "harm"], ["ill", "hill"], ["ate", "hate"], ["thin", "shin"], ["they", "day"], ["though", "dough"], ["met", "net"], ["ram", "ran"], ["sing", "sin"], ["rich", "ridge"], ["match", "mash"], ["chew", "shoe"], ["heel", "hill"], ["led", "red"], ["lice", "rice"], ["rock", "lock"], ["loose", "lose"], ["peace", "peas"], ["face", "phase"], ["sip", "seep"], ["tip", "tap"], ["cup", "cop"], ["bug", "bag"], ["dog", "dug"], ["cot", "cod"], ["fold", "gold"], ["goal", "goat"], ["feel", "fell"], ["fill", "feel"], ["mill", "meal"], ["bean", "bin"], ["pin", "pen"], ["hut", "hot"], ["late", "let"], ["note", "not"], ["fate", "feet"], ["phone", "bone"], ["park", "bark"], ["bark", "dark"], ["play", "pray"], ["glue", "clue"], ["bleed", "breed"], ["glow", "grow"], ["beer", "deer"], ["pear", "bear"], ["gear", "dear"], ["code", "coat"], ["sue", "shoe"], ["peach", "teach"], ["mood", "mud"], ["book", "buck"], ["cook", "kook"], ["tool", "tall"], ["leaf", "loaf"], ["reef", "roof"], ["full", "foul"], ["cape", "cave"], ["leak", "lick"], ["leap", "lip"], ["heap", "hip"], ["late", "laid"], ["bug", "big"], ["bog", "bag"], ["dog", "dig"], ["rot", "rod"], ["dab", "dad"], ["bird", "beard"], ["bad", "pad"], ["ban", "pan"], ["bar", "par"], ["back", "pack"], ["bag", "tag"], ["beam", "deem"], ["beat", "peat"], ["beach", "peach"], ["beak", "peak"], ["bell", "fell"], ["bet", "pet"], ["big", "pig"], ["bin", "pin"], ["bit", "pit"], ["bog", "dog"], ["bomb", "mom"], ["bone", "tone"], ["boon", "noon"], ["boot", "root"], ["boss", "moss"], ["bus", "fuss"], ["buck", "duck"], ["bug", "mug"], ["bun", "fun"], ["bunny", "funny"], ["buy", "guy"], ["coal", "goal"], ["cane", "gain"], ["cool", "pool"], ["could", "good"], ["cuff", "guff"], ["cup", "cub"], ["cut", "gut"], ["curl", "girl"], ["core", "gore"], ["date", "gate"], ["dale", "gale"], ["din", "tin"], ["dip", "zip"], ["doom", "zoom"], ["dock", "rock"], ["done", "ton"], ["duck", "luck"], ["dawn", "yawn"], ["dare", "care"], ["dark", "lark"], ["deer", "peer"], ["dip", "sip"], ["done", "dawn"], ["fat", "vat"], ["fear", "veer"], ["fee", "bee"], ["ferry", "very"], ["fail", "veil"], ["fig", "pig"], ["fit", "sit"], ["file", "vile"], ["fire", "tire"], ["fish", "dish"], ["fog", "dog"], ["gave", "cave"], ["gel", "yell"], ["get", "jet"], ["gin", "chin"], ["gill", "kill"], ["goal", "foal"], ["gum", "gun"], ["hop", "top"], ["hit", "it"], ["hid", "bid"], ["hind", "kind"], ["hip", "ship"], ["jam", "yam"], ["jam", "dam"], ["jeep", "sheep"], ["jet", "yet"], ["joke", "yoke"], ["kin", "pin"], ["kit", "sit"], ["cod", "pod"], ["lace", "race"], ["lake", "rake"], ["lamp", "ramp"], ["land", "rand"], ["lap", "lab"], ["lead", "led"], ["lip", "lit"], ["lime", "time"], ["ling", "ring"], ["live", "give"], ["load", "road"], ["long", "song"], ["look", "book"], ["lot", "not"], ["man", "men"], ["mouth", "mouse"], ["mass", "mess"], ["mesh", "mash"], ["met", "mat"], ["merry", "very"], ["mid", "bid"], ["mike", "bike"], ["mood", "moon"], ["moose", "loose"], ["nip", "tip"], ["net", "pet"], ["need", "deed"], ["near", "ear"], ["neat", "seat"], ["nod", "not"], ["pad", "paid"], ["peat", "pet"], ["peg", "beg"], ["pest", "best"], ["pit", "fit"], ["posh", "bosh"], ["pull", "bull"], ["pug", "bug"], ["pun", "bun"], ["push", "bush"], ["putt", "butt"], ["rag", "lag"], ["rip", "lip"], ["rid", "reed"], ["ring", "sing"], ["roof", "root"], ["rug", "lug"], ["rum", "run"], ["sad", "sat"], ["sap", "zap"], ["sand", "hand"], ["sash", "mash"], ["sick", "tick"], ["sit", "soot"], ["sock", "shock"], ["tan", "can"], ["tack", "tag"], ["tap", "map"], ["tar", "car"], ["team", "deem"], ["tear", "dear"], ["tell", "dell"], ["ten", "tin"], ["ten", "ton"], ["tip", "sip"], ["tire", "dire"], ["tuck", "duck"], ["toil", "foil"], ["top", "cop"], ["toy", "boy"], ["van", "ban"], ["vat", "bat"], ["veal", "feel"], ["vee", "bee"], ["vest", "west"], ["vote", "boat"], ["wall", "ball"], ["weave", "leave"], ["wick", "wig"], ["woke", "joke"], ["yap", "gap"], ["yam", "ram"], ["zen", "den"], ["zoo", "goo"], ["zoom", "loom"], ["thin", "fin"], ["thud", "dud"], ["thank", "tank"], ["thigh", "die"], ["those", "doze"], ["these", "dees"], ["bear", "burr"], ["bird", "board"], ["pat", "pet"], ["pack", "peck"], ["pick", "peck"], ["pin", "pan"], ["pit", "pat"], ["cat", "cut"], ["bed", "bid"], ["bed", "bud"], ["bid", "bud"], ["ban", "ben"], ["big", "bag"], ["big", "bog"], ["bug", "bog"], ["lag", "leg"], ["leg", "log"], ["lug", "log"], ["lug", "leg"], ["lip", "lap"], ["lip", "lop"], ["lip", "loop"], ["crab", "grab"], ["cram", "gram"], ["clash", "class"], ["clown", "crown"], ["blue", "clue"], ["brave", "grave"], ["brain", "grain"], ["zeal", "real"], ["zip", "ship"], ["zest", "best"], ["zeal", "veal"], ["fad", "vat"], ["sank", "thank"], ["thick", "sick"], ["thumb", "sum"], ["there", "dare"], ["then", "zen"], ["fee", "see"], ["grave", "grade"], ["laze", "lace"], ["light", "night"], ["mail", "nail"], ["gear", "jeer"], ["germ", "term"], ["pat", "fat"], ["toe", "doe"], ["ton", "son"], ["heat", "heap"], ["heed", "hid"], ["hat", "hut"], ["ham", "hum"], ["ham", "him"], ["hill", "hell"], ["hit", "heat"], ["hip", "hop"], ["rope", "lope"], ["rust", "lust"], ["rate", "rake"], ["rim", "ram"], ["bus", "buzz"], ["rice", "rise"], ["wing", "win"], ["king", "kin"], ["rang", "rag"], ["long", "log"], ["tongue", "tug"], ["bath", "bass"], ["gas", "gash"], ["cold", "gold"], ["coat", "boat"], ["cape", "gape"], ["call", "gall"], ["car", "gar"], ["pike", "bike"], ["pile", "bile"], ["pill", "bill"], ["tan", "dan"], ["tame", "dame"], ["code", "cote"], ["rode", "rote"], ["need", "neat"], ["rag", "rack"], ["lag", "lack"], ["flag", "frag"], ["foil", "foul"], ["coil", "call"], ["book", "boot"], ["foot", "food"], ["plan", "plane"], ["late", "lot"], ["rate", "rot"], ["mate", "mat"], ["mate", "met"], ["ban", "bad"], ["pen", "pet"], ["tan", "tad"], ["can", "cad"], ["man", "mad"], ["pear", "fear"], ["peak", "pick"], ["bead", "bed"], ["chip", "cheap"], ["boot", "boat"], ["goal", "gull"], ["peel", "pool"], ["fool", "foal"], ["foul", "foal"], ["sin", "shin"], ["soot", "shoot"], ["sell", "shell"], ["gear", "tear"], ["glow", "blow"], ["glue", "brew"], ["glue", "grew"], ["pry", "fry"], ["pray", "bray"], ["price", "prize"], ["ice", "eyes"], ["dose", "doze"], ["juice", "Jews"], ["three", "tree"], ["think", "sink"], ["thought", "sought"], ["thaw", "saw"], ["thorn", "torn"], ["breathe", "breed"], ["bathe", "bade"], ["vile", "bile"], ["veil", "bail"], ["veal", "peal"], ["vow", "bow"], ["vase", "base"], ["veer", "beer"], ["shop", "chop"], ["shore", "chore"], ["share", "chair"], ["sheer", "cheer"], ["shy", "chai"], ["seek", "sick"], ["peek", "pick"], ["bit", "beet"], ["wick", "week"], ["still", "steel"], ["slip", "sleep"], ["itch", "each"], ["rich", "reach"], ["green", "grin"], ["free", "flee"], ["rake", "lake"], ["ray", "lay"], ["road", "load"], ["rung", "lung"], ["pry", "ply"], ["cram", "clam"], ["crash", "clash"], ["had", "add"], ["hair", "air"], ["hall", "all"], ["heal", "eel"], ["hold", "old"], ["ham", "am"], ["span", "pan"], ["speak", "peak"], ["spill", "pill"], ["spin", "pin"], ["stick", "tick"], ["steal", "teal"], ["stone", "tone"], ["still", "till"], ["stool", "tool"], ["ski", "key"], ["scan", "can"], ["scar", "car"], ["score", "core"], ["skid", "kid"], ["goal", "coal"], ["get", "yet"], ["gear", "year"], ["law", "low"], ["saw", "sew"], ["rub", "rob"], ["mud", "mod"], ["pull", "pole"], ["full", "foal"], ["berry", "very"], ["bent", "vent"], ["vane", "bane"], ["viper", "wiper"], ["path", "pass"], ["math", "mass"], ["moth", "moss"], ["teeth", "tease"], ["truth", "truce"], ["thigh", "tie"], ["theme", "team"], ["din", "dean"], ["sin", "seen"], ["will", "wheel"], ["knit", "neat"], ["tin", "teen"], ["would", "wooed"], ["could", "cooed"], ["cap", "cup"], ["bat", "but"], ["bad", "bud"], ["pan", "pun"], ["lack", "luck"], ["rant", "runt"], ["stack", "stuck"], ["flash", "flush"], ["back", "bark"], ["pat", "part"], ["cam", "calm"], ["pack", "park"], ["cap", "carp"], ["sale", "sell"], ["tale", "tell"], ["fail", "fell"], ["wait", "wet"], ["coat", "caught"], ["bays", "base"], ["maze", "mace"], ["she", "see"], ["shop", "sop"], ["shine", "chine"], ["shock", "chalk"], ["yule", "jewel"], ["yell", "gel"], ["hire", "ire"], ["hue", "yew"], ["wet", "vet"], ["school", "cool"], ["skill", "kill"], ["zone", "sewn"], ["link", "leek"], ["snow", "no"], ["smile", "mile"], ["stop", "top"], ["skin", "kin"], ["sack", "shack"], ["cash", "catch"], ["lash", "latch"], ["wish", "witch"], ["chick", "cheek"], ["fit", "feet"], ["pin", "pain"], ["sit", "site"], ["putt", "pout"], ["full", "fall"], ["pull", "pall"], ["cod", "code"], ["cart", "curt"], ["for", "far"], ["those", "dose"], ["thread", "tread"], ["thin", "thing"], ["song", "son"], ["rung", "run"], ["flank", "frank"], ["lane", "rain"], ["long", "wrong"], ["lack", "lark"], ["rack", "rock"], ["cap", "cape"], ["pack", "puck"], ["fan", "fun"], ["shot", "jot"], ["shack", "check"], ["yak", "jack"], ["yawn", "lawn"], ["year", "ear"], ["sack", "suck"], ["sad", "said"], ["bed", "bade"], ["bit", "bite"], ["rod", "road"], ["nut", "note"], ["work", "walk"], ["cheer", "chair"], ["foot", "fought"], ["will", "well"], ["sail", "sell"], ["coin", "cone"], ["vow", "wow"], ["veil", "whale"], ["hear", "ear"], ["spain", "pain"], ["stare", "tear"], ["spend", "pend"], ["spent", "pent"], ["spare", "pare"], ["spark", "park"], ["spore", "pore"], ["spoke", "poke"], ["sport", "port"], ["spun", "pun"], ["spit", "pit"], ["spot", "pot"], ["spine", "pine"], ["skate", "Kate"], ["skit", "kit"], ["skip", "kip"], ["skull", "cull"], ["scare", "care"], ["scold", "cold"], ["scale", "kale"], ["slow", "low"], ["slope", "lope"], ["slap", "lap"], ["sled", "led"], ["slime", "lime"], ["slip", "lip"], ["slot", "lot"], ["smack", "mac"], ["smash", "mash"], ["smog", "mog"], ["smug", "mug"], ["smock", "mock"], ["snip", "nip"], ["snail", "nail"], ["snack", "knack"], ["sweep", "weep"], ["swing", "wing"], ["swan", "wan"], ["spray", "pray"], ["stripe", "tripe"], ["street", "treat"], ["splay", "play"], ["splash", "plash"], ["jail", "Yale"], ["jaw", "yaw"], ["jell", "yell"], ["jeer", "year"], ["joule", "yule"], ["job", "yob"], ["yoke", "oak"], ["yore", "ore"], ["yell", "ell"], ["yawn", "awn"], ["use", "ooze"], ["cheep", "sheep"], ["chin", "shin"], ["chill", "shill"], ["chard", "shard"], ["chock", "shock"], ["chuck", "shuck"], ["chow", "show"], ["choose", "shoes"], ["cherry", "sherry"], ["charred", "shared"], ["chubby", "shabby"], ["cheat", "sheet"], ["spike", "pike"], ["spoon", "boon"], ["spool", "pool"], ["spade", "paid"], ["spire", "pyre"], ["stare", "tare"], ["stale", "tale"], ["stole", "toll"], ["stoke", "toke"], ["stall", "tall"], ["sting", "ting"], ["stack", "tack"], ["sketch", "ketch"], ["skew", "cue"], ["slack", "lack"], ["sling", "ling"], ["slug", "lug"], ["smear", "mere"], ["snap", "nap"], ["snooze", "noose"], ["swear", "wear"], ["swell", "well"], ["swim", "whim"], ["swoop", "whoop"], ["sweet", "wheat"], ["squad", "quad"], ["squid", "quid"], ["squash", "quash"], ["screen", "green"], ["scream", "cream"], ["screw", "crew"], ["scrape", "crape"], ["chaff", "shaft"], ["chute", "shoot"], ["thief", "chief"], ["theft", "deft"], ["thick", "tick"], ["thirst", "first"], ["zing", "sing"], ["look", "luck"], ["ferry", "fairy"], ["cap", "cop"], ["beg", "bag"], ["ban", "bun"], ["kin", "keen"], ["lid", "lead"], ["pip", "peep"], ["pit", "peat"], ["pick", "peek"], ["sill", "seal"], ["till", "teal"], ["still", "steal"], ["will", "weal"], ["sin", "scene"], ["mitt", "meet"], ["rip", "reap"], ["heal", "hail"], ["meal", "mail"], ["seal", "sail"], ["teal", "tail"], ["real", "rail"], ["veal", "vail"], ["lead", "laid"], ["read", "raid"], ["mead", "maid"], ["lean", "lain"], ["mean", "main"], ["peal", "pail"], ["wean", "wain"], ["thought", "taught"], ["thing", "ting"], ["thumb", "tum"], ["thug", "dug"], ["thy", "die"], ["thine", "dine"], ["bath", "bat"], ["path", "pat"], ["teeth", "teed"], ["seethe", "seed"], ["loathe", "load"], ["lathe", "lade"], ["soothe", "sued"], ["booth", "booed"], ["writhe", "ride"], ["other", "udder"], ["thaw", "taw"], ["how", "hoe"], ["now", "know"], ["wow", "woe"], ["thou", "though"], ["bough", "beau"], ["bout", "boat"], ["out", "oat"], ["outs", "oats"], ["loud", "load"], ["couch", "coach"], ["pouch", "poach"], ["douse", "dose"], ["rouse", "rose"], ["rout", "rote"], ["shout", "shoat"], ["flout", "float"], ["tout", "tote"], ["mound", "moaned"], ["bound", "boned"], ["found", "phoned"], ["hound", "honed"], ["howl", "hole"], ["cowl", "coal"], ["prowl", "prole"], ["crowd", "crowed"], ["town", "tone"], ["clown", "clone"], ["crown", "crone"], ["prow", "pro"], ["scour", "score"], ["pow", "Poe"], ["fowl", "foal"], ["cowed", "code"], ["pay", "bay"], ["pole", "bowl"], ["pore", "bore"], ["peer", "beer"], ["tie", "die"], ["till", "dill"], ["kit", "git"], ["cool", "ghoul"], ["kale", "gale"], ["coop", "goop"], ["ton", "don"], ["bug", "buck"], ["fad", "fed"], ["cod", "cud"], ["rot", "lot"], ["lid", "lit"], ["hid", "head"], ["bid", "bead"], ["pit", "pet"], ["peck", "puck"], ["peck", "peek"], ["beg", "big"], ["peg", "pig"], ["rag", "rig"], ["rag", "rug"], ["gap", "gab"], ["goal", "goad"], ["coal", "coat"], ["west", "vest"], ["ran", "rang"], ["hung", "hug"], ["teethe", "teed"], ["boil", "bile"], ["soul", "soil"], ["toil", "toll"], ["sale", "sole"], ["pole", "pale"], ["bait", "bet"], ["put", "pot"], ["cuff", "cough"], ["rook", "ruck"], ["luck", "lick"], ["could", "cud"], ["hood", "hod"], ["should", "shod"], ["booth", "both"], ["sheep", "seep"], ["shore", "sore"], ["shine", "sign"], ["cheer", "sheer"]];
+  let pool = [...pairs];
+  let shown = 0;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function nextPair() {
+    if (pool.length === 0) {
+      pool = shuffle([...pairs]);
+      shown = 0;
+    }
+    const [w1, w2] = pool.pop();
+    shown++;
+    return [w1, w2];
+  }
+
+function setWords(a, b) {
+    document.getElementById('w1').textContent = a;
+    document.getElementById('w2').textContent = b;
+    }
+
+  function spin() {
+    const app = document.getElementById('app');
+    app.classList.add('spinning');
+    const [a, b] = nextPair();
+    setTimeout(() => {
+      setWords(a, b);
+      app.classList.remove('spinning');
+    }, 1050);
+  }
+
+  document.getElementById('spinBtn').addEventListener('click', spin);
+
+  // Keyboard: Space to spin
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      spin();
+    }
+  });
+
+  // Initialize
+  shuffle(pool);
+  if (pairs.length > 0) {
+    const [a, b] = nextPair();
+    setWords(a, b);
+  } else {
+    setWords('—', '—');
+  }
+</script>
+</body>
+</html>
