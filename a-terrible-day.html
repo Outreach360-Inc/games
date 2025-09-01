@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Terrible Day — Board Game</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<style>
+  :root {
+    --accent: #22d3ee;
+    --accent2: #a78bfa;
+    --text: #ecfeff;
+    --muted: #a5b4fc;
+    --panel: rgba(17, 24, 39, 0.7);
+    --border: rgba(148,163,184,0.25);
+    --bg: radial-gradient(1200px 800px at 20% 10%, #061020 0%, #030816 40%, #01030b 100%);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; padding: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-weight: 900; letter-spacing: 0.3px;
+    font-size: clamp(18px, 3vw, 28px);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 10px;
+    height: calc(100vh - 56px);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  input[type="text"] {
+    width: 100%; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(2,6,23,0.6); color: var(--text);
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,211,238,0.15); }
+
+  button {
+    padding: 9px 12px; border-radius: 12px; border: none;
+    color: #06121e; font-weight: 800;
+    background: linear-gradient(180deg, var(--accent), #18a7bf);
+    cursor: pointer; transition: transform 0.05s ease, filter 0.2s ease;
+    box-shadow: 0 8px 18px rgba(32, 211, 238, 0.25);
+  }
+  button:hover { filter: brightness(1.06); }
+  button:active { transform: translateY(1px); }
+  .btn-secondary {
+    background: linear-gradient(180deg, #c7d2fe, #a5b4fc);
+    box-shadow: 0 8px 18px rgba(129, 140, 248, 0.25);
+    color: #0b1020;
+  }
+  .controls { display: grid; gap: 8px; overflow: auto; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .add-player { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
+
+  .board-wrap {
+    position: relative;
+    display: grid; place-items: center;
+    height: 100%;
+    overflow: hidden;
+  }
+  .board {
+    position: relative;
+    --size: min(86vw, 70vh);
+    width: var(--size);
+    height: var(--size);
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    grid-template-rows: repeat(11, 1fr);
+    gap: 3px;
+    padding: 6px;
+    background: rgba(2, 6, 23, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.05), 0 24px 48px rgba(0,0,0,0.35);
+  }
+  .cell {
+    border-radius: 10px;
+    position: relative;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #06121e;
+    font-weight: 800;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .cell.inner { background: transparent; border: 1px dashed rgba(148,163,184,0.08); color: transparent; }
+  .cell.start { outline: 2px dashed #22c55e; }
+  .cell.finish { outline: 2px dashed #ef4444; }
+
+  .token {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0.45);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    transform: translate(-50%, -50%);
+  }
+  .token::after {
+    content: attr(data-initial);
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: #000; font-weight: 900; font-size: 10px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 8px; border-radius: 999px;
+    background: rgba(148,163,184,0.12); color: var(--text); font-size: 12px; font-weight: 700;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.5); }
+  .status { margin-top: 6px; padding: 8px; border-radius: 10px; background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.18); }
+
+  .prompt-box {
+    margin-top: 6px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: radial-gradient(700px 350px at 0% 0%, rgba(167,139,250,0.20), rgba(34,211,238,0.14) 30%, rgba(2,6,23,0.6) 80%);
+  }
+  .prompt-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .prompt-text {
+    font-size: clamp(20px, 3vw, 34px);
+    line-height: 1.35;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .prompt-pop {
+    animation: pop 300ms cubic-bezier(.2, .8, .3, 1.4);
+  }
+  @keyframes pop {
+    0% { transform: scale(0.96); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .dice {
+    display: grid; grid-template-columns: 1fr auto; gap: 6px;
+    align-items: center; margin-top: 4px;
+  }
+  .die-face {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 18px; font-weight: 900; color: #081222;
+    background: linear-gradient(180deg, #fef3c7, #fde68a);
+    box-shadow: 0 8px 18px rgba(251, 191, 36, 0.35), inset 0 2px 0 rgba(255,255,255,0.65);
+    border: 1px solid #f59e0b;
+  }
+
+  /* Center image block */
+  .center-media {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 52%; height: 52%;
+    border-radius: 16px;
+    border: 1px dashed rgba(255,255,255,0.35);
+    background: rgba(2,6,23,0.35);
+    display: grid; place-items: center;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .center-media img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+  <h1>A Terrible Day — Board Game</h1>
+  <div class="layout" id="layout">
+    <div class="panel">
+      <div class="controls">
+        <div class="row">
+          <button id="newGameBtn" class="btn-secondary">New Game</button>
+          <button id="startBtn">Start</button>
+        </div>
+
+        <div class="add-player">
+          <input id="addPlayerName" type="text" placeholder="Add player">
+          <button id="addPlayerBtn" class="btn-secondary">Add Player</button>
+        </div>
+
+        <div class="dice">
+          <button id="rollBtn" disabled>Roll Die</button>
+          <div class="die-face" id="dieFace">–</div>
+        </div>
+        <div class="status" id="status">Add at least two players, then press <b>Start</b>.</div>
+        <div class="legend" id="legend"></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Landed Prompt</div>
+          <div class="prompt-text" id="promptText">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel board-wrap">
+      <div class="board" id="board">
+        <div class="center-media" id="centerMedia">
+          <img src="https://github.com/Outreach360-Inc/games/blob/main/terrible-day.png?raw=true" alt="A Terrible Day">
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const PROMPTS = ["Prompts", "I (wake up) late this morning.", "My alarm (not ring) on time.", "My brother (spill) milk on the table.", "Mom (burn) the toast.", "Dad (lose) the car keys.", "We (miss) the school bus.", "My friend (forget) his homework.", "Our teacher (be) surprised in class.", "The dog (run) away with my sock.", "I (drop) my lunch on the floor.", "My pencil (break) during the test.", "My shoe (come) untied during PE.", "We (get) caught in the rain at recess.", "The ball (hit) me in the arm by accident.", "I (tear) my worksheet.", "I (sit) on a piece of gum.", "My backpack zipper (stick) halfway.", "The computer (freeze) during my project.", "I (forget) my library book at home.", "The cafeteria line (move) very slowly.", "Our class (wait) for the bus in the wrong spot.", "I (lose) my water bottle.", "My sandwich (fall) out of the bag.", "My marker (dry) out during art.", "The scissors (not cut) the paper well.", "I (spill) juice on my shirt.", "My friend (step) in a puddle.", "The playground swing (make) a squeaky sound.", "The basketball (bounce) away from me.", "My shoe (get) stuck in the mud.", "We (line up) at the wrong door.", "I (write) the date wrong on my paper.", "My glue stick (roll) under the desk.", "We (start) math without our notebooks.", "I (leave) my jacket on the bus.", "The classroom clock (stop) working.", "My headphones (tangle) in my bag.", "I (forget) my lunch card.", "My worksheet (fly) off the desk.", "The projector (not show) the picture.", "Our team (tie) the game.", "I (trip) on my shoelace.", "My friend (call) me the wrong name by accident.", "The teacher (hand) back the quiz.", "I (color) outside the lines by mistake.", "My crayon (snap) in two pieces.", "The stapler (jam) in the office.", "My folder (rip) at the corner.", "The bell (ring) during our story.", "My book (fall) behind the shelf.", "We (go) to the library on the wrong day.", "I (bring) the wrong notebook to class.", "My phone alarm (go) off in my backpack.", "Our teacher (change) the seats today.", "I (draw) on the wrong page.", "My eraser (smear) the pencil marks.", "We (sing) the song too fast.", "I (open) the door for the class.", "The classroom lights (flicker) in the morning.", "I (raise) my hand at the wrong time.", "My friend (share) her crayons with me.", "The paper airplane (land) on my desk.", "I (pack) the wrong homework.", "We (start) recess a bit late.", "I (finish) my work but (forget) my name on it.", "My lunchbox (smell) like oranges.", "The glue (spill) on my desk.", "My friend (drop) his tray in the cafeteria.", "I (mix) up page numbers in my book.", "Our bus (arrive) earlier than usual.", "I (copy) the homework from the board.", "The whiteboard marker (not write) clearly.", "I (hear) the instructions but (not understand) them.", "The class pet (sleep) during reading time.", "I (choose) the wrong answer on the quiz.", "My ruler (slide) off the table.", "We (forget) to water the class plant.", "I (borrow) a pencil and (lose) it.", "My sandwich (squish) in my backpack.", "I (wait) for my turn at the sink.", "Our team (play) a new game in PE.", "I (ask) a question about the homework.", "My locker (stick) and (not open) easily.", "The paper (cut) (be) not straight.", "I (carry) too many books at once.", "We (read) the story out loud.", "I (spell) my name incorrectly on the form.", "My friend (lend) me an eraser.", "I (drop) my jacket on the hallway floor.", "The class (listen) to the morning announcements.", "I (put) my homework in the wrong bin.", "The math problem (look) confusing at first.", "I (draw) a picture on the back of my worksheet.", "My shoes (be) completely wet after recess.", "Our teacher (say) we (have) a surprise quiz.", "I (try) to open a milk carton and it (splash).", "My friend (wave) at me from the window.", "I (sit) in the wrong seat after lunch.", "The bell (ring) before I (finish) my sentence.", "We (pack up) for home too early.", "I (leave) my hat in the classroom.", "The school bus (be) very noisy today.", "I (help) clean the art table.", "My friend (run) to catch the ball but (miss) it.", "I (carry) the class basket and it (tip).", "The library book (be) due today.", "We (line up) quietly in the hallway.", "I (wash) my hands and (splash) the sink.", "My homework folder (fall) open on the floor.", "I (write) with a dull pencil.", "The class (work) together on a puzzle.", "I (turn) in my homework without a name.", "My friend (drop) a card while we (play) a game.", "Our bus driver (ask) us to sit down quickly.", "I (put) my crayons away in the wrong box.", "Mom (spill) milk on my shirt.", "Dad (forget) my lunch.", "My sister (take) my crayons.", "My brother (lose) my hat.", "Our dog (tear) my homework.", "The cat (knock) my juice over.", "Grandma (call) during breakfast.", "I (miss) the bus.", "The bus (arrive) late.", "I (run) to school and (trip).", "My shoe (untie) on the sidewalk.", "My shoelace (snap) in my hand.", "My socks (get) wet in a puddle.", "I (drop) my backpack.", "My key (not fit) the locker.", "My locker (jam) shut.", "I (forget) my notebook.", "The teacher (collect) homework today.", "I (not bring) a pencil.", "My pencil (break) on the first word.", "My eraser (smear) the page.", "My marker (dry) out.", "The glue (not open).", "The scissors (bend) the paper.", "The ruler (snap) in half.", "The paper (rip) at the edge.", "The clock (stop) at nine.", "The lights (flicker) in class.", "The computer (freeze) on my work.", "The printer (print) a blank page.", "The tablet (run) out of battery.", "The wifi (not work) in the room.", "I (press) send and the app (crash).", "I (study) hard and (forget) the test.", "The bell (ring) early.", "I (hear) the rules and (mix) them up.", "I (write) my name wrong.", "I (spill) water on my desk.", "My shirt (get) a stain.", "My sandwich (squish) in my bag.", "My apple (fall) on the floor.", "The milk (splash) on my tray.", "The lunch line (move) very slow.", "The cafeteria (run) out of pizza.", "I (sit) at a wobbly table.", "My friend (not see) me at lunch.", "I (lose) my lunch card.", "I (leave) my jacket on the chair.", "The playground (close) for repair.", "It (start) to rain at recess.", "The wind (blow) my hat away.", "I (step) in mud.", "My shoe (get) stuck.", "The ball (hit) me by mistake.", "I (fall) on the grass.", "My knee (hurt) a lot.", "I (need) ice and the nurse (not have) any.", "I (tear) my pants a little.", "I (break) a crayon in art.", "My paint (drip) on the floor.", "My brush (shed) on my picture.", "The tape (not stick) to the wall.", "The stapler (jam) again.", "The whiteboard (not show) the picture.", "The projector (blink) off.", "The speaker (buzz) during reading.", "I (forget) my library book.", "The library computer (log) me out.", "The book I want (not be) there.", "I (bring) the wrong folder.", "I (copy) the page numbers wrong.", "I (answer) the wrong question.", "I (count) the points wrong.", "I (mix) two words on the quiz.", "I (line up) at the wrong door.", "I (go) to the wrong room.", "I (sit) in the wrong seat.", "The bus list (change) after school.", "I (miss) my stop.", "The bus (leave) without me.", "My phone (run) out of charge.", "My house key (drop) in the grass.", "The door (close) and (lock) me out.", "I (call) home and no one (answer).", "The sky (get) dark on my walk.", "It (rain) harder on the way.", "My socks (soak) through my shoes.", "I (sneeze) five times in a row.", "I (bump) my head on a shelf.", "I (stub) my toe on a chair.", "I (burn) my tongue on soup.", "I (spill) sauce on the couch.", "The TV remote (not work).", "The power (go) out for an hour.", "My homework file (delete) by mistake.", "I (save) my work and it (not save).", "I (plan) to relax and chores (appear).", "The trash bag (rip) on the floor.", "The dish (slip) and (break).", "The sink (clog) after dinner.", "The pet (knock) over a plant.", "I (clean) the mess and (drop) the towel.", "I (crawl) into bed and (remember) more homework.", "My alarm clock (fall) off the table.", "The ceiling (drip) on my desk.", "The yogurt cup (explode) in my lunchbox.", "My glasses (fog) up in PE.", "My new shoes (rub) a blister.", "A bee (chase) me at recess.", "The cafeteria tray (tip) into my lap.", "The straw (break) inside the carton.", "The zipper (pinch) my skin.", "My hoodie string (dip) in paint.", "The bus seat (be) wet this morning.", "The teacher (move) our test to today.", "The fire alarm (beep) all morning.", "The window (blow) cold air on my back.", "The heater (not turn) on in class.", "The restroom soap (run) out.", "The paper towel (tear) in tiny pieces.", "My glasses (fall) off during PE.", "My tooth (ache) during math.", "My earbud (not fit) my ear.", "The water fountain (spray) my face.", "The vending machine (not return) my coins.", "The sanitizer (sting) my cut.", "The puzzle (miss) two corner pieces.", "My reading buddy (be) absent today.", "Our class photo (show) my eyes closed.", "The paint water (turn) my sleeve blue.", "The cafeteria door (close) before I (enter).", "The math video (load) with no sound.", "The marker (leak) in my pocket.", "The sticky note (lose) its glue.", "The class fish (hide) under the rock.", "The wind (blow) my worksheet away.", "The chair (squeak) every time I (sit).", "My homework (print) with tiny letters.", "The bus (hit) a pothole and my drink (spill).", "The milk (taste) sour at lunch.", "My apple (bruise) when it (fall).", "My coin (drop) into the drain.", "A leaf (blow) into my face.", "A bird (steal) my snack.", "An ant line (cover) the bench.", "The chalk (snap) while I (draw).", "The jump rope (whip) my leg.", "The frisbee (land) on the roof.", "The baseball (roll) into the street.", "The PE whistle (not work).", "The bus heater (blow) hot air in summer.", "My book cover (tear) off.", "The page (stick) to glue.", "My shoelace (knot) tight and (not untie).", "My hands (get) sticky from glue.", "The science kit (miss) a battery.", "The math sheet (print) two-sided and I (miss) the back.", "The rain (wash) off my name tag.", "The snow (melt) into my socks.", "The bus (arrive) full and I (stand).", "My notebook (get) soaked in my bag.", "The timer (start) while I (sharpen) my pencil.", "The hallway sign (point) the wrong way.", "The cafeteria tray (stick) to the counter.", "The ketchup packet (explode) on my sleeve.", "The straw (bend) flat when I (sip).", "Two kids (cut) in line ahead of me.", "The class (start) while I (wash) my hands.", "My scooter (lose) a bolt.", "The crosswalk (be) closed for paint.", "The playground slide (feel) too hot.", "My ice cream (melt) onto my hand.", "My paper crown (rip) at the party.", "The balloon (pop) in the car.", "The sharpener (eat) my colored pencil.", "My library hold (expire) today.", "The rain (cancel) our field day.", "The bus driver (change) the stop order.", "The mailbox (jam) with flyers.", "The soccer net (rip) during the game.", "The referee (miss) our goal.", "The coach (forget) the balls.", "The music file (not play) on the stage.", "The sheet music (blow) off the stand.", "The clay (stick) to the table.", "The paint (run) out in the middle.", "The classroom fan (rattle) loudly.", "The milk (freeze) into slush.", "My cereal bar (crumble) in my pocket.", "The bus window (not open).", "The keycard (not scan) at the library.", "The password hint (not help) me.", "The Chromebook (update) for twenty minutes.", "The math site (time) out after one minute.", "The hall clock (show) the wrong time.", "The class plant (tip) onto my desk.", "The lab goggles (fog) up.", "A bee (land) on my sandwich.", "A seagull (grab) my snack.", "My pencil case zipper (break).", "My hoodie string (get) stuck in the zipper.", "My new shirt (itch) all day.", "My socks (slide) down in my shoes.", "The cashier (not take) my lunch card.", "The class list (spell) my name wrong.", "The bus app (show) the wrong route.", "My umbrella (snap) in the wind.", "The snow day (turn) into a regular day.", "My locker shelf (fall) on my foot.", "The stair rail (feel) sticky.", "The hand dryer (blow) cold air.", "My snack (fall) behind the fridge.", "The juice box (squirt) my eye.", "The toothpaste (fall) off my brush.", "My hairbrush (lose) its handle.", "A puddle (splash) my pants at the stop.", "The stoplight (stay) red forever.", "My shoelace (drop) in the toilet.", "My homework (blow) off the porch.", "The snowball (break) in my glove.", "The glue (string) between the pages.", "Eraser dust (cover) my desk.", "The cafeteria spoon (bend) in the soup.", "My locker hook (bend) sideways.", "The class timer (beep) during my answer.", "My bookmark tab (tear) off.", "The recess whistle (end) our game early.", "My water bottle lid (roll) under the lockers.", "The bus seat belt (twist) into a knot.", "The pencil clip (snap) in my hand.", "The art apron strap (break) in the hallway.", "I (wake) up and my curtains (fall) down.", "My toothbrush (drop) on the floor.", "The soap (slip) out of my hand.", "My towel (fall) into the sink.", "My sock (rip) when I (put) it on.", "My shoelace (drag) on the ground.", "My bike tire (go) flat on the way.", "My bike bell (not ring) at all.", "The sidewalk (close) near my street.", "The crosswalk button (not work) today.", "The bus sign (say) “out of service.”", "The bus (break) down on the bridge.", "I (wait) and the next bus (not stop).", "My bus card (not scan) at the door.", "I (run) and my backpack (open) by itself.", "My water bottle (leak) into my bag.", "My homework (get) wet in the leak.", "My pencil (roll) off the porch.", "My lunch money (fall) through a hole.", "The sky (blow) dust into my eyes.", "A mosquito (bite) my ankle twice.", "A dog (bark) and I (drop) my keys.", "The gate (swing) back and (hit) me.", "My keychain (break) on the steps.", "My phone (slip) from my pocket.", "I (press) power and the phone (not turn) on.", "The school door (close) right before me.", "The hallway sign (lead) me the wrong way.", "My desk lid (slam) on my finger.", "My desk (wobble) all morning.", "My chair leg (bend) a little.", "My name tag (fall) in the trash.", "My sticker (fall) off the chart.", "My notebook page (fall) out in math.", "My new pencil (not have) an eraser.", "My pencil cap (shoot) across the room.", "My pen (leak) on my hand.", "The paper clip (poke) my finger.", "A staple (scratch) my thumb.", "The binder ring (open) and papers (fall).", "The glue stick (lose) its cap.", "The tape (tear) the paper corner.", "The poster (peel) off the wall.", "The chalkboard eraser (make) a dust cloud.", "Chalk dust (make) me (sneeze) three times.", "The smartboard pen (not track) my line.", "The keyboard key (pop) off in class.", "The mouse (double-click) every time.", "The timer (not start) when I (press) it.", "The bell (not ring) at noon.", "The copy machine (jam) my worksheet.", "The scanner (crop) half my drawing.", "The math app (freeze) on step two.", "The login page (forget) my password.", "The headphones (buzz) in one ear.", "The camera (not focus) on my project.", "The microphone (cut) out during my talk.", "The lights (go) dim during reading.", "The window shade (stick) halfway down.", "The class fish (splash) water on me.", "The terrarium door (not latch) right.", "The class plant (spill) soil on my book.", "My ruler edge (chip) and (scratch) the desk.", "My compass point (fall) out of the tool.", "My protractor (slip) off the paper.", "My crayon (melt) in the sunshine.", "My marker cap (hide) under a shelf.", "My colored paper (bleed) onto my hands.", "My clay (fall) and (crack) on the floor.", "My paint cup (tip) and (stain) my shoe.", "My brush handle (split) in two.", "My music stand clip (drop) the page.", "My recorder strap (break) during music.", "My jump rope (knot) in the middle.", "My soccer sock (slide) down in PE.", "The basketball net (catch) the ball and (hold) it.", "The whistle lanyard (snap) near the field.", "The scoreboard light (flicker) off and on.", "The library return slot (stick) on my book.", "My library book (be) overdue today.", "The shelf label (show) the wrong letter.", "The computer clock (show) a wrong time.", "The printer (run) out of paper mid-page.", "The laminator (wrinkle) my pass.", "The hallway fan (push) my papers away.", "The restroom door (lock) from the inside.", "The soap pump (squeak) and (not pump).", "The hand dryer (stop) before my hands (dry).", "My lunchbox latch (not close) tight.", "My banana (bruise) in the bag.", "My chocolate (melt) in my pocket.", "My yogurt spoon (snap) in half.", "My sandwich bag (open) by itself.", "The orange (squirt) juice on my sleeve.", "The straw wrapper (stick) to my hand.", "The lunch bench (be) sticky all over.", "The milk straw (not reach) the bottom.", "The ketchup lid (drop) to the floor.", "A bee (hover) over my drink.", "A bird (circle) over our table.", "The playground gate (stick) after lunch.", "The slide (squeak) each time I (sit).", "The swing chain (twist) around my arm.", "The sandbox rake (break) in my hand.", "The tetherball rope (fray) at the top.", "The four-square ball (bounce) into the street.", "A cloud (burst) and rain (soak) my hood.", "My rain boots (leak) at the toe.", "My umbrella ribs (bend) in the wind.", "My scarf (drag) in the dirt.", "My mitten (lose) its pair.", "My snow pants (not fit) this year.", "The road (flood) near my stop.", "A puddle (hide) a deep hole.", "The crossing light (blink) forever.", "The stop sign (fall) over in wind.", "The bike pedal (fall) off the crank.", "The bike chain (rust) on the fence.", "My roller skate wheel (stick) on a rock.", "My kite (tear) across the top.", "My backpack strap (unthread) from the buckle.", "My zipper pull (come) off in my hand.", "My jacket hood (rip) at the seam.", "My bracelet (snap) while I (wave).", "My glasses lens (fall) out in class.", "My earring back (drop) into a crack.", "My shoelace tip (fray) until it (not fit).", "My tooth (feel) loose during lunch.", "My lip (split) in the cold air.", "My nose (bleed) after recess.", "My stomach (rumble) in quiet time.", "My throat (scratch) during reading circle.", "The nurse ice pack (leak) on my shirt.", "The bus seat belt (not click) right.", "The driver (forget) my stop today.", "The final bell (not sound) in our room.", "My house key (stick) in the lock.", "My front door (creak) and (wake) the baby.", "My cat (sit) on my face at nap time.", "My fish bowl (spill) on the shelf.", "My plant pot (chip) on the floor.", "My dinner soup (spill) on my shoe.", "My cracker (crumble) in my hand.", "My straw (split) in my drink at home.", "My homework page (tear) from the ring.", "My charger cord (not reach) the outlet.", "My night-light (burn) out before bed.", "My alarm app (update) overnight.", "My window (stick) shut.", "My curtain rod (bend) in the middle.", "My hair tie (break).", "My cereal (taste) stale.", "The toaster (not pop) up.", "My spoon (fall) into the sink.", "My juice box (leak) in my hand.", "My shoe insole (slide) forward.", "My backpack clip (snap).", "The bus stop sign (fall) down.", "The street (fill) with traffic.", "The crosswalk timer (not start).", "The bus route screen (freeze).", "The bus step (be) slippery.", "The bus radio (squeal) loudly.", "The bus roof (leak) on my seat.", "My bus pass (expire) today.", "My seat belt clip (stick).", "The driver (miss) my street.", "The school gate (jam) halfway.", "The school app (send) five alerts.", "The morning bell (echo) in the hall.", "The hallway cone (tip) in my path.", "The stair light (flicker) on and off.", "The cleaning cart (block) the stairs.", "The hallway bulletin (fall) down.", "The hallway heater (rattle) all day.", "The water cooler (be) empty.", "My locker combination (slip) my mind.", "My locker key (bend).", "My locker shelf (rattle).", "My locker mirror (crack) at the corner.", "My name label (peel) off.", "My ID card (not scan).", "My hall pass (tear).", "My pencil case latch (break).", "My binder zipper (jam).", "My schedule printout (smear).", "The classroom door handle (loosen).", "The window shade cord (snap).", "The whiteboard cleaner (smell) strong.", "The eraser tray (drop) to the floor.", "The marker tray (tilt) and (spill).", "The smartboard pen (skip) lines.", "The projector bulb (burn) out.", "The class timer remote (lose) its battery.", "The keyboard space bar (stick).", "The mouse pointer (jump) around.", "The pencil bin (be) empty.", "The pencil sharpener handle (loosen).", "The stapler spring (pop) out.", "The tape dispenser blade (dull).", "The paper stack (slide) off the desk.", "The handout edges (curl).", "The worksheet (print) crooked.", "The answer key (print) wrong.", "The graph lines (blur) on the page.", "The glue gun (not heat).", "The aquarium pump (hum) loudly.", "The terrarium lamp (burn) out.", "The fish food (spill) on the table.", "The class thermometer (not read) right.", "The magnet (not stick) to the board.", "The ruler numbers (fade).", "The compass hinge (wiggle).", "The protractor edge (chip).", "The science journal (get) wet.", "The art smock (not fit) me.", "The palette (drop) on my shoe.", "The paint tray (slide) off the rack.", "The clay tools (go) missing.", "The brush bristles (clump) together.", "The glue bottle (bubble) under the paper.", "The glitter (stick) to my face.", "The origami paper (wrinkle).", "The stamp pad (dry) out.", "The ink roller (smear) lines.", "The music room door (stick).", "The rehearsal chair (wobble).", "The sheet music (shuffle) out of order.", "The tuner (not work) for my note.", "The metronome (beep) too fast.", "The violin string (slip) loose.", "The drumstick (chip).", "The choir folder clip (bend).", "The stage curtain (stick).", "The sound check (fail).", "The gym lights (turn) off.", "The floor tape (peel) up.", "The cone (crack) in half.", "The mat (slide) on the floor.", "The scoreboard horn (not beep).", "The whistle (drop) to the ground.", "The PE pinnie (tear).", "The jump rope handle (spin) off.", "The foam ball (split).", "The locker room bench (rock).", "The library hold shelf (hide) my book.", "The barcode (not scan).", "The return cart wheel (squeal).", "The computer timer (log) me out.", "The catalog page (not load).", "The reading corner pillow (split).", "The bookmark (fall) into the vent.", "The study lamp (blink).", "The printer tray (stick).", "The laminator (warp) my pass.", "The cafeteria menu (change).", "The tray return belt (stop).", "The napkins (run) out.", "The carrot sticks (taste) bitter.", "The yogurt lid (tear) crooked.", "The fork (bend) in half.", "The milk seal (not open).", "The ketchup pump (jam).", "The bread (crumble) in my hand.", "The chair (rock) at my table.", "The recess field (close) for mud.", "The tetherball pole (lean).", "The four-square lines (fade).", "The slide ladder (rattle).", "The sandbox bucket (crack).", "The jump rope (knot) tight.", "The tether rope (fray).", "The whistle echo (hurt) my ears.", "The wind (carry) my hat.", "The rain gutter (dump) water on me."];
+
+  const COLORS_PRESET = [
+    '#ef4444', '#3b82f6', '#10b981', '#a78bfa', '#f59e0b', '#f472b6', '#22c55e', '#06b6d4',
+    '#eab308', '#8b5cf6', '#dc2626', '#2563eb', '#059669', '#db2777', '#14b8a6', '#f97316',
+    '#fb7185', '#38bdf8', '#34d399', '#c084fc'
+  ];
+  function colorForIndex(i) {
+    if (i < COLORS_PRESET.length) return COLORS_PRESET[i];
+    const h = (i * 47) % 360;
+    return `hsl(${h}deg 80% 55%)`;
+  }
+  function lighten(hex, amt=0.15) {
+    const h = hex.replace('#','');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    const lr = Math.round(r + (255 - r) * amt);
+    const lg = Math.round(g + (255 - g) * amt);
+    const lb = Math.round(b + (255 - b) * amt);
+    return `rgb(${lr}, ${lg}, ${lb})`;
+  }
+  function darken(hex, amt=0.15) {
+    const h = hex.replace('#','');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    const dr = Math.round(r * (1-amt));
+    const dg = Math.round(g * (1-amt));
+    const db = Math.round(b * (1-amt));
+    return `rgb(${dr}, ${dg}, ${db})`;
+  }
+
+  const boardEl = document.getElementById('board');
+  const layoutEl = document.getElementById('layout');
+  const statusEl = document.getElementById('status');
+  const legendEl = document.getElementById('legend');
+  const promptTextEl = document.getElementById('promptText');
+  const dieFaceEl = document.getElementById('dieFace');
+  const rollBtn = document.getElementById('rollBtn');
+  const startBtn = document.getElementById('startBtn');
+  const newGameBtn = document.getElementById('newGameBtn');
+  const addPlayerBtn = document.getElementById('addPlayerBtn');
+  const addPlayerNameEl = document.getElementById('addPlayerName');
+
+  const ringCells = [];
+  const allCells = [];
+
+  function buildBoard() {
+    ringCells.length = 0;
+    allCells.length = 0;
+    Array.from(boardEl.querySelectorAll('.cell')).forEach(el => el.remove());
+
+    const size = 11;
+    const ringOrder = [];
+    for (let c = 0; c < size; c++) ringOrder.push([0, c]);
+    for (let r = 1; r < size; r++) ringOrder.push([r, size-1]);
+    for (let c = size-2; c >= 0; c--) ringOrder.push([size-1, c]);
+    for (let r = size-2; r >= 1; r--) ringOrder.push([r, 0]);
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const cell = document.createElement('div');
+        const isRing = r === 0 || r === size-1 || c === 0 || c === size-1;
+        cell.className = 'cell' + (isRing ? '' : ' inner');
+        cell.style.gridRowStart = r + 1;
+        cell.style.gridColumnStart = c + 1;
+        const center = document.getElementById('centerMedia');
+        boardEl.insertBefore(cell, center);
+        allCells.push(cell);
+      }
+    }
+
+    const palette = ['#fca5a5','#fdba74','#fcd34d','#bef264','#86efac','#67e8f9','#93c5fd','#c4b5fd','#f0abfc','#fda4af'];
+    ringOrder.forEach((pos, idx) => {
+      const [rr, cc] = pos;
+      const el = allCells[rr * size + cc];
+      el.dataset.index = idx;
+      const base = palette[idx % palette.length];
+      el.style.background = `linear-gradient(180deg, ${lighten(base,0.15)}, ${darken(base,0.1)})`;
+      el.style.border = '1px solid rgba(0,0,0,0.15)';
+      el.textContent = idx === 0 ? 'START' : idx;
+      if (idx === 0) el.classList.add('start');
+      ringCells.push(el);
+    });
+
+    // END square
+    const endIndex = ringCells.length - 1;
+    const endCell = ringCells[endIndex];
+    endCell.classList.add('finish');
+    endCell.textContent = 'END';
+  }
+
+  function fitLayout() {
+    const headerH = document.querySelector('h1').getBoundingClientRect().height || 0;
+    const h = Math.max(320, window.innerHeight - headerH - 20 - 10);
+    layoutEl.style.height = `${h}px`;
+    const wrap = document.querySelector('.board-wrap');
+    const rect = wrap.getBoundingClientRect();
+    let size = Math.min(rect.width - 16, rect.height - 16);
+    if (!isFinite(size) || size <= 0) {
+      size = Math.min(window.innerWidth * 0.92, window.innerHeight * 0.7);
+    }
+    size = Math.max(260, size);
+    boardEl.style.setProperty('--size', size + 'px');
+  }
+  window.addEventListener('resize', () => { fitLayout(); });
+  window.addEventListener('orientationchange', () => { fitLayout(); });
+
+  let players = [];
+  let currentTurn = 0;
+  let rolling = false;
+  let usedPrompts = [];
+  let gameStarted = false;
+  const MAX_PLAYERS = 24;
+
+  function getInitial(name) { return name?.trim()?.[0]?.toUpperCase() || '?'; }
+
+  function drawLegend() {
+    legendEl.innerHTML = '';
+    players.forEach(p => {
+      const b = document.createElement('span');
+      b.className = 'badge';
+      const d = document.createElement('span');
+      d.className = 'dot';
+      d.style.background = p.color;
+      b.appendChild(d);
+      const t = document.createElement('span');
+      t.textContent = p.name;
+      b.appendChild(t);
+      legendEl.appendChild(b);
+    });
+  }
+
+  function createToken(player) {
+    const token = document.createElement('div');
+    token.className = 'token';
+    token.style.background = player.color;
+    token.dataset.initial = player.initial;
+    return token;
+  }
+
+  function positionTokensInCell(cell) {
+    const tokens = Array.from(cell.querySelectorAll('.token'));
+    const n = tokens.length;
+    if (n === 1) {
+      const t = tokens[0];
+      t.style.left = '50%'; t.style.top = '50%';
+      return;
+    }
+    const radius = 30;
+    for (let i = 0; i < n; i++) {
+      const angle = (2 * Math.PI * i) / n;
+      const x = 50 + radius * Math.cos(angle);
+      const y = 50 + radius * Math.sin(angle);
+      tokens[i].style.left = x.toFixed(1) + '%';
+      tokens[i].style.top  = y.toFixed(1) + '%';
+    }
+  }
+
+  function placeTokenAtIndex(player, index) {
+    player.pos = index % ringCells.length;
+    ringCells[player.pos].appendChild(player.token);
+    positionTokensInCell(ringCells[player.pos]);
+  }
+
+  function resetBoardKeepPlayers() {
+    Array.from(document.querySelectorAll('.token')).forEach(t => t.remove());
+    players.forEach(p => {
+      p.pos = 0;
+      p.token = createToken(p);
+      placeTokenAtIndex(p, 0);
+    });
+    drawLegend();
+  }
+
+  function resetUI(gameMsg='Add at least two players, then press <b>Start</b>.') {
+    usedPrompts = [];
+    currentTurn = 0;
+    rolling = false;
+    gameStarted = false;
+    dieFaceEl.textContent = '–';
+    promptTextEl.textContent = '—';
+    promptTextEl.classList.remove('prompt-pop');
+    statusEl.innerHTML = gameMsg;
+    rollBtn.disabled = true;
+  }
+
+  function addPlayerMidGame(name) {
+    const clean = (name || '').trim();
+    if (!clean) { alert('Enter a player name.'); return; }
+    if (players.some(p => p.name.toLowerCase() === clean.toLowerCase())) { alert('Name already in the game.'); return; }
+    if (players.length >= MAX_PLAYERS) { alert('Player limit reached.'); return; }
+    const p = { name: clean, color: colorForIndex(players.length), pos: 0, token: null, initial: getInitial(clean) };
+    p.token = createToken(p);
+    players.push(p);
+    placeTokenAtIndex(p, 0);
+    drawLegend();
+    if (!gameStarted) {
+      statusEl.innerHTML = `Players: <b>${players.length}</b>. Press <b>Start</b> when ready.`;
+    } else {
+      statusEl.innerHTML = `It’s <b>${players[currentTurn].name}</b>’s turn.`;
+    }
+    addPlayerNameEl.value = '';
+  }
+
+  function nextPrompt() {
+    if (usedPrompts.length >= PROMPTS.length) usedPrompts = [];
+    let p = null;
+    for (let i = 0; i < 10; i++) {
+      const idx = Math.floor(Math.random() * PROMPTS.length);
+      const candidate = PROMPTS[idx];
+      if (!usedPrompts.includes(idx)) { p = {text: candidate, idx}; break; }
+    }
+    if (!p) {
+      const idx = Math.floor(Math.random() * PROMPTS.length);
+      p = {text: PROMPTS[idx], idx};
+    }
+    usedPrompts.push(p.idx);
+    return p.text;
+  }
+
+  function animateMoveTo(player, steps, callback) {
+    // move up to 'steps' without wrapping past END
+    const endIndex = ringCells.length - 1;
+    let remaining = steps;
+    const moveOne = () => {
+      if (remaining <= 0) { callback && callback(); return; }
+      if (player.pos >= endIndex) { callback && callback(); return; }
+      player.pos = Math.min(player.pos + 1, endIndex);
+      ringCells[player.pos].appendChild(player.token);
+      positionTokensInCell(ringCells[player.pos]);
+      remaining--;
+      setTimeout(moveOne, 140);
+    };
+    moveOne();
+  }
+
+  function takeTurn() {
+    if (!gameStarted) { alert('Click Start first.'); return; }
+    if (players.length < 2) { alert('Need at least two players.'); return; }
+    if (rolling) return;
+    rolling = true;
+    const player = players[currentTurn];
+    const roll = 1 + Math.floor(Math.random() * 6);
+    dieFaceEl.textContent = roll;
+
+    const endIndex = ringCells.length - 1;
+    const stepsToEnd = (endIndex - player.pos);
+    const steps = Math.min(roll, stepsToEnd);
+
+    animateMoveTo(player, steps, () => {
+      const landed = player.pos;
+      const isEnd = (landed === endIndex);
+      const prompt = isEnd ? `🎉 ${player.name} reached END!` : nextPrompt();
+      promptTextEl.textContent = prompt;
+      promptTextEl.classList.remove('prompt-pop'); void promptTextEl.offsetWidth; promptTextEl.classList.add('prompt-pop');
+
+      if (isEnd) {
+        statusEl.innerHTML = `<b>${player.name}</b> wins! Click <b>New Game</b> to play again or add more players.`;
+        rollBtn.disabled = true;
+        gameStarted = false;
+        rolling = false;
+        return;
+      }
+
+      currentTurn = (currentTurn + 1) % players.length;
+      statusEl.innerHTML = `It’s <b>${players[currentTurn].name}</b>’s turn.`;
+      rolling = false;
+    });
+  }
+
+  // UI handlers
+  rollBtn.addEventListener('click', takeTurn);
+  startBtn.addEventListener('click', () => {
+    if (players.length < 2) { alert('Add at least two players before starting.'); return; }
+    gameStarted = true;
+    rollBtn.disabled = false;
+    statusEl.innerHTML = `It’s <b>${players[0].name}</b>’s turn. Click <b>Roll Die</b>.`;
+  });
+  newGameBtn.addEventListener('click', () => {
+    resetBoardKeepPlayers();
+    resetUI('New game ready. Press <b>Start</b> to begin.');
+  });
+  addPlayerBtn.addEventListener('click', () => addPlayerMidGame(addPlayerNameEl.value));
+  addPlayerNameEl.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addPlayerMidGame(addPlayerNameEl.value);
+  });
+
+  // Initial render
+  buildBoard();
+  resetUI();
+  setTimeout(() => { fitLayout(); }, 0);
+</script>
+</body>
+</html>
