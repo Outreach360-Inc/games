@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Advice Game — Board Game</title>
+<meta content="noindex, nofollow" name="robots"/>
+<link rel="icon" type="image/png" sizes="32x32"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16"
+      href="https://github.com/Outreach360-Inc/games/raw/main/favicon.png">
+<style>
+  :root {
+    --accent: #f472b6;    /* pink */
+    --accent2: #f59e0b;   /* amber */
+    --text: #fff7ed;      /* warm off-white */
+    --muted: #fecdd3;     /* soft pink */
+    --panel: rgba(250, 250, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.2);
+    --bg: radial-gradient(1200px 800px at 20% 10%, #2a163c 0%, #180f2a 40%, #0c0a1a 100%);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; padding: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-weight: 900; letter-spacing: 0.3px;
+    font-size: clamp(18px, 3vw, 28px);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 10px;
+    height: calc(100vh - 56px);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  input[type="text"] {
+    width: 100%; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(8, 7, 20, 0.5); color: var(--text);
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
+
+  button {
+    padding: 9px 12px; border-radius: 12px; border: none;
+    color: #1b0c12; font-weight: 800;
+    background: linear-gradient(180deg, var(--accent), #fb7185);
+    cursor: pointer; transition: transform 0.05s ease, filter 0.2s ease;
+    box-shadow: 0 8px 18px rgba(244, 114, 182, 0.25);
+  }
+  button:hover { filter: brightness(1.06); }
+  button:active { transform: translateY(1px); }
+  .btn-secondary {
+    background: linear-gradient(180deg, #fcd34d, var(--accent2));
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.3);
+    color: #1b1105;
+  }
+  .controls { display: grid; gap: 8px; overflow: auto; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .add-player { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
+
+  .board-wrap {
+    position: relative;
+    display: grid; place-items: center;
+    height: 100%;
+    overflow: hidden;
+  }
+  .board {
+    position: relative;
+    --size: min(86vw, 70vh);
+    width: var(--size);
+    height: var(--size);
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    grid-template-rows: repeat(11, 1fr);
+    gap: 3px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.06), 0 24px 48px rgba(0,0,0,0.35);
+  }
+  .cell {
+    border-radius: 10px;
+    position: relative;
+    display: grid; place-items: center;
+    font-size: 11px;
+    color: #2a1a12;
+    font-weight: 800;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .cell.inner { background: transparent; border: 1px dashed rgba(255,255,255,0.08); color: transparent; }
+  .cell.start { outline: 2px dashed #34d399; }
+  .cell.finish { outline: 2px dashed #fb7185; }
+
+  .token {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0.45);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    transform: translate(-50%, -50%);
+  }
+  .token::after {
+    content: attr(data-initial);
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: #000; font-weight: 900; font-size: 10px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.12); color: var(--text); font-size: 12px; font-weight: 700;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.5); }
+  .status { margin-top: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); }
+
+  .prompt-box {
+    margin-top: 6px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: radial-gradient(700px 350px at 0% 0%, rgba(244,114,182,0.22), rgba(245,158,11,0.14) 30%, rgba(12,10,26,0.6) 80%);
+  }
+  .prompt-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .prompt-text {
+    font-size: clamp(20px, 3vw, 34px);
+    line-height: 1.35;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .prompt-pop {
+    animation: pop 300ms cubic-bezier(.2, .8, .3, 1.4);
+  }
+  @keyframes pop {
+    0% { transform: scale(0.96); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .dice {
+    display: grid; grid-template-columns: 1fr auto; gap: 6px;
+    align-items: center; margin-top: 4px;
+  }
+  .die-face {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 18px; font-weight: 900; color: #1b0c12;
+    background: linear-gradient(180deg, #fde68a, #f59e0b);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.4), inset 0 2px 0 rgba(255,255,255,0.75);
+    border: 1px solid #d97706;
+  }
+
+  /* Center image */
+  .center-media {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 52%; height: 52%;
+    border-radius: 16px;
+    border: 1px dashed rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    display: grid; place-items: center;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .center-media img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+  <h1>The Advice Game — Board Game</h1>
+  <div class="layout" id="layout">
+    <div class="panel">
+      <div class="controls">
+        <div class="row">
+          <button id="newGameBtn" class="btn-secondary">New Game</button>
+          <button id="startBtn">Start</button>
+        </div>
+
+        <div class="add-player">
+          <input id="addPlayerName" type="text" placeholder="Add player (works anytime)">
+          <button id="addPlayerBtn" class="btn-secondary">Add Player</button>
+        </div>
+
+        <div class="dice">
+          <button id="rollBtn" disabled>Roll Die</button>
+          <div class="die-face" id="dieFace">–</div>
+        </div>
+        <div class="status" id="status">Add at least two players, then press <b>Start</b>.</div>
+        <div class="legend" id="legend"></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Advice Prompt</div>
+          <div class="prompt-text" id="promptText">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel board-wrap">
+      <div class="board" id="board">
+        <div class="center-media" id="centerMedia">
+          <img src="https://github.com/Outreach360-Inc/games/blob/main/advice-game.png?raw=true" alt="The Advice Game">
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const PROMPTS = ["My car broke down on the motorway.", "I have a headache.", "I think my parents hate me. We don’t get along.", "I’m going on holiday to London.", "I can’t sleep at night.", "I failed my English exam.", "A stray dog bit me.", "My father’s in the hospital.", "I’ve booked a trip to Egypt.", "I’m allergic to cats and dogs.", "There’s no water or electricity in the house.", "It’s my mother’s birthday tomorrow.", "I got lost in the desert.", "My left eye hurts when I drink coffee.", "I think I’m ugly.", "I’ve got a bad case of agoraphobia.", "I can’t swim.", "I’ve got a bad case of claustrophobia.", "I’m fat.", "My girlfriend dumped me.", "I don’t know what to do after secondary school.", "I’m exhausted.", "An alien spaceship landed in my garden.", "I stepped on a rusty nail.", "I’m bored with my job.", "I’m bored all of the time.", "I’ve been bitten by a snake.", "I’m in love with Beyoncé.", "I got hit while crossing the street.", "The weather is hot and sunny.", "I lost my keys.", "A bully stole my money.", "The weather is cold and rainy.", "I’m starving.", "I had a car accident. It was my fault.", "I got into a fight at school yesterday.", "I often get carsick and seasick.", "Someone stole my wallet.", "I’m feeling lonely.", "I’m depressed.", "I have chest pains.", "I’m broke.", "I’m thirsty and the fridge is empty.", "My English isn’t very good.", "I got fired from my job.", "I’ve got only six months to live.", "I got detention because I was late.", "I get homesick when I’m away on a trip.", "I want to help fight climate change.", "I want to marry a millionaire.", "My bike chain fell off.", "I dropped my ice cream.", "I forgot my homework.", "I lost my library book.", "I spilled juice on my shirt.", "I’m nervous about show-and-tell.", "I’m new at school.", "I can’t find my backpack.", "I missed the bus.", "I don’t know anyone on my team.", "I got picked last for a game.", "My best friend is playing with someone else.", "I had a bad dream.", "I’m scared of the dark.", "I have a wiggly tooth.", "It’s my birthday tomorrow.", "It rained on our field trip day.", "It’s too hot to play outside.", "It’s too cold to play outside.", "I can’t tie my shoelaces.", "I can’t ride a bike yet.", "My kite got stuck in a tree.", "Our soccer ball went over the fence.", "My pet made a mess.", "My little brother broke my toy.", "I broke my favorite pencil.", "I have a new baby in the family.", "I miss my grandparents.", "We moved to a new house.", "We moved to a new school.", "I want to make new friends.", "I’m worried about taking a test.", "I got a low score on a quiz.", "I said something unkind by accident.", "Someone cut in line.", "Someone won’t share.", "I’m not being included in a game.", "I don’t understand today’s lesson.", "I forgot my lunch.", "I can’t open my snack.", "I need help with a big school project.", "I want to help the planet.", "I want to start a kindness club.", "I found a wallet on the playground.", "I want to learn to swim.", "I want to learn a new instrument.", "I want to read a big chapter book.", "I want to save money for a toy.", "I want to volunteer to help others.", "My class is getting a new student.", "Our team lost the game.", "Our team won the game.", "I’m nervous about performing on stage.", "I’m excited for the school fair.", "I forgot the permission slip.", "I stayed up too late and feel tired.", "I don’t like broccoli.", "I’m trying a new food.", "I’m afraid of thunderstorms.", "I have allergies and need tissues.", "I have a small scrape on my knee.", "I got a haircut I don’t like.", "My art project didn’t turn out how I wanted.", "I want to be better at math.", "I want to be a better friend.", "I’m learning to be patient.", "I need to apologize to someone.", "I lost a game and feel upset.", "I won a game and want to be humble.", "I’m saving water at home.", "I’m planting a tree with my class.", "I saw litter on the playground.", "I’m nervous about sleeping at a friend’s house.", "My tablet battery died during homework.", "I can’t find my favorite book.", "My shoelace broke.", "I got gum on my shoe.", "The internet stopped working during homework.", "I want to learn a magic trick.", "I want to start a collection.", "I want to write a story.", "I want to build a fort.", "A bee is in the classroom.", "The fire drill scared me.", "I want to be more organized.", "I’m learning a new language.", "I’m excited to travel to a new city.", "My cousin is visiting.", "I’m excited for summer break.", "I don’t want summer to end.", "I want to start a morning routine.", "I want to try a new sport.", "I’m nervous to talk to the class.", "I’m practicing good manners.", "I want to help my teacher.", "I made a new friend today.", "I helped someone at recess.", "I shared my toys with my sibling.", "I stood up for someone being left out.", "I forgot my gym clothes", "I left my lunchbox on the bus", "I can’t find my water bottle", "I got marker on my hands", "My science experiment didn’t work", "My glasses keep slipping", "My shoelaces keep coming untied", "I forgot my locker combination", "The substitute teacher can’t pronounce my name", "I want to learn to code", "I want to draw comics", "I want to make a time capsule", "I found a caterpillar and want to care for it", "My friend moved away", "I got invited to two parties on the same day", "I have to wear a cast for a few weeks", "I forgot my library card", "I want to practice mindfulness", "I want to join the chess club", "I want to learn juggling", "I want to run for student council", "I got sunburned at the park", "I lost my hat", "I want to make a lemonade stand for a cause", "I want to start a school garden", "I want to write thank-you notes", "I missed a step in the dance routine", "I want to learn sign language", "I spilled paint on the floor", "The class pet escaped", "My pencil case is missing", "I glued my fingers together", "I have hiccups that won’t stop", "I want to try playing goalie", "My snowman melted", "Our team tied the game", "The power went out during a sleepover", "I forgot my lines in the play", "I want to donate toys I don’t use", "I want to be kinder in online games", "I want to create a homework schedule", "I want to spend less time on screens", "I want to wake up earlier for school", "I want to eat more vegetables", "I want to drink more water", "I want to read every day for a month", "I want to help a younger student read", "I want to be a peer mentor", "I want to finish a very hard puzzle", "I want to build a model rocket", "I want to train for a fun run", "I want to learn to bake bread", "I want to learn origami", "I want to grow a plant from a seed", "I want to keep a gratitude journal", "I want to start a recycling drive", "I found a lost puppy tag", "I saw a classmate crying and want to help", "I want to practice one kind act daily", "I want to help two friends solve a disagreement", "I want to apologize to my coach", "I want to invite someone new to play", "I want to celebrate different cultures in class", "I want to organize a book swap", "I want to plan a no-waste lunch week", "I want to make a birthday card for someone", "I want to write a letter to my future self", "I want to learn to tell time", "I want to learn multiplication tables", "I want to memorize a poem", "I want to learn cursive", "I want to learn to whistle", "I want to jump rope 100 times", "I want to build a birdhouse", "I want to create a comic strip", "I want to make a stop-motion video", "I want to practice piano every day", "I want to try the recorder", "I want to join a theater club", "I want to start a nature journal", "I want to use a compass on a hike", "I want to take better care of my backpack", "I want to keep my desk tidy", "I want to manage my allowance", "I want to pack my own lunch", "I want to help cook dinner once a week", "I want to teach my sibling a new game", "I want to be brave at the dentist", "I’m nervous to get a vaccination", "I lost my mitten", "I got mud on my new shoes", "I can’t find matching socks", "I forgot my umbrella and got soaked", "I left my homework on the printer", "I forgot to charge my school laptop", "My book report is due tomorrow", "My plant at home is drooping", "My lunch spilled in my backpack", "My water bottle leaked in my bag", "I wrote on the whiteboard with permanent marker", "I clicked reply all by accident", "I want to start a pen-pal friendship", "I want to host a board game night for friends", "I want to practice deep breathing when I’m upset", "I want to set a timer to focus on homework", "I want to practice positive self-talk", "I want to ask more questions in class", "I want to thank someone who helped me", "I want to learn to sew a button", "I want to fix a broken toy", "I want to create a family chore chart", "I want to learn to fold laundry", "I want to ride the bus by myself", "I want to cross the monkey bars", "I want to climb the rock wall at recess", "I want to learn to ice skate", "I want to learn to snowboard", "I want to learn to surf", "I’m nervous about the first day of middle school", "Our class pet needs a name", "The tooth fairy forgot to visit", "My friend and I want to start a podcast", "I want to write a thank-you email to a coach", "I want to learn to take better notes", "I want to study with a buddy", "I want to keep my gaming time balanced", "I want to take stretch breaks while studying", "I want to try meditation before bed", "I want to plan a family game night", "I want to create a rainy-day activity list", "I want to build a marble run", "I want to design a LEGO city", "I want to help my neighbor with groceries", "I want to collect canned food for charity", "I want to hold the door for others more often", "I want to start a puzzle club at school", "I want to memorize all the states and capitals", "I want to learn world flags", "I want to learn to play checkers", "I want to be a better listener", "I want to ask before borrowing things", "I want to organize my art supplies", "I want to label my school stuff", "I want to practice typing faster", "I want to improve my handwriting", "I want to try out for the spelling bee", "I want to try out for band", "I want to try cross-country", "I want to program a small robot kit", "I want to build a soapbox car", "I want to enter the science fair", "I want to help plan a class party", "I want to learn to braid hair", "I want to learn to bake a cake", "I want to open a savings account with a parent", "I want to create a vision board", "I want to keep a daily planner", "I want to send a postcard to a friend", "I want to identify constellations", "I want to watch a sunrise with my family", "I want to build a kite", "I want to start composting at home", "I want to repair a torn page in a book", "I want to replace batteries in a toy", "I want to manage my time after school", "I want to keep a steady sleep schedule", "I want to bring a healthy snack to school", "I want to read a recipe by myself", "I want to follow a recipe without help", "I want to plant herbs on the windowsill", "I want to draw every day for a week", "I want to take care of a pet fish", "I want to write a poem for someone I care about", "I want to start a gratitude jar", "I want to make a homemade gift", "I want to fix a friendship after an argument", "I want to include someone sitting alone", "I want to share attention fairly in a group", "I want to be patient while waiting my turn", "I want to practice losing gracefully", "I want to practice winning kindly", "I want to set goals for the new school year", "I want to pack my backpack the night before", "I want to check the weather before dressing", "I want to plan outfits for the week", "I want to be ready for a substitute teacher", "I want to learn to switch classes on time", "I want to track assignments in a planner", "I want to organize my locker", "I want to decorate my locker responsibly", "I want to clean my sports gear regularly", "I want to wash my water bottle daily", "I want to practice internet safety rules", "I want to learn basic first aid for kids", "I want to be a reading buddy", "I want to help set the table at home", "I want to help pack for a trip", "I want to write a list before shopping", "I want to make a budget for a toy", "I want to save part of my allowance", "I want to donate part of my allowance", "I want to track my habits", "I want to keep a screen time log", "I want to learn to make a spreadsheet", "I want to draw a map of my neighborhood", "I want to give a book talk to my class", "I want to make a diorama for science", "I want to build a volcano experiment", "I want to stay calm when plans change", "I want to try something even if I might fail", "I want to ask for help when I need it", "I want to sit with someone new at lunch", "I want to write a thank-you note to a librarian", "I want to learn to play frisbee", "I want to fly a paper airplane farther", "I want to skip stones at a lake", "I want to identify birds in my yard", "I want to memorize the words to a favorite song", "I want to learn a tricky tongue twister", "I want to build a domino chain reaction", "I want to design a family flag", "I want to take care of a classroom plant", "I want to water a neighbor’s garden", "I want to pick up trash at the park", "I want to help paint a mural", "I want to create a calendar for chores", "I want to brainstorm ideas for kindness week", "I want to pack an emergency kit for home", "I want to make a map for a treasure hunt", "I want to organize a toy swap", "I want to teach my grandparents a new app", "I want to interview a family member about their childhood", "I want to practice introducing myself confidently", "I want to learn to give a compliment", "I want to practice active listening", "I want to be calm when I lose a turn in a game", "I want to help clean the classroom library", "I want to put the chairs up at the end of the day", "I want to create a checklist for my morning", "I want to pre-pack my sports bag", "I want to make a bookmark to share", "I want to write a script for a skit", "I want to perform a puppet show for my family", "I want to learn to balance on a unicycle", "I want to keep score fairly during games", "I want to create a scoreboard for our class games", "I want to lead warm-ups for my team", "I want to try a new club this semester", "I want to help a classmate catch up after an absence", "I want to form a study group for a big test", "I want to learn to pronounce a classmate’s name correctly", "I want to start a school news bulletin", "I want to create a weather chart for the week", "I want to build a wind-powered car", "I want to make a solar oven for s’mores", "I want to track the moon’s phases", "I want to keep a nature sketchbook", "I want to identify rocks and minerals", "I want to build a sundial", "I want to write a letter to a local hero", "I want to leave a surprise compliment note for someone", "I want to make calm-down glitter jars for my class", "I want to organize a read-a-thon", "I want to set up a little free library box", "I want to host a toy drive", "I want to invite a guest reader to our class", "I lost my bus pass", "My printer ran out of ink at home", "My glue stick dried out", "My scissors are too dull to cut", "My schedule changed and I went to the wrong class", "The cafeteria ran out of my favorite lunch", "My PE shoes are too small", "I need to borrow a calculator", "I can’t find my art smock", "I spilled glitter everywhere", "My clay project cracked in the kiln", "I forgot to bring my show-and-tell item", "The book fair is today and I didn’t bring money", "Chalk dust makes me sneeze", "My earphones broke during computer class", "My science fair board got bent on the bus", "My Chromebook won’t turn on", "I forgot to get my reading log signed", "My gym locker is jammed", "I left my instrument on the bus", "I mixed up the A day and B day schedule", "My babysitter is late", "Visiting relatives are sleeping in my room", "Our puppy keeps chewing my shoelaces", "The goldfish tank needs cleaning", "I forgot to feed the cat", "My sibling used my crayons without asking", "Some game pieces are missing from our family game", "A thunderstorm knocked down a tree branch in our yard", "Our carpool forgot to pick me up", "My suitcase zipper broke", "I lost my house key", "I have a cold and can’t go to practice", "I’m getting braces and feel nervous", "I’m getting glasses for the first time", "I’m nervous about my karate belt test", "My new skateboard feels wobbly", "My scooter wheel is squeaky", "My drone got stuck on the roof", "Our frisbee landed on the school roof", "My remote car batteries are dead", "Our puzzle is missing one piece", "I want to learn yo-yo tricks", "I want to solve a Rubik’s Cube", "I want to learn photography", "I want to make a bird feeder", "I want to try geocaching", "I want to learn calligraphy", "I want to build a treehouse", "I want to learn some chess openings", "I want to program a simple video game", "I want to 3D print a keychain", "I want to make slime without a mess", "I want to bake cookies for our neighbors", "I want to host a talent show", "I want to organize a coat drive", "I want to design posters that promote recycling", "I want to start a kindness mailbox", "I want to write thank-you cards for our custodians", "I want to make care packages for a shelter", "I want to plant flowers at the park", "I want to chalk positive messages on the sidewalk", "I want to write letters to seniors", "I’m worried about a rumor at school", "A classmate borrowed my book and lost it", "Two friends are arguing and I feel stuck in the middle", "I’m nervous about talking to the principal", "I got stage fright during rehearsal", "I feel shy meeting new neighbors", "I feel jealous when someone else wins an award", "I’m disappointed our game was canceled", "I feel overwhelmed by too many after-school activities", "I feel proud but don’t want to brag", "I’m scared of big dogs", "I miss a parent who is traveling for work", "I have a nosebleed in class", "I sprained my ankle at recess", "I forgot my hat on a sunny day", "I got a bee sting at recess", "A loose shoelace made me trip", "I need to remember my allergy medicine", "I ran out of water at practice", "I forgot my password for the math app", "I can’t print the homework PDF", "My video froze during virtual class", "My camera won’t turn on in a video call", "My laptop microphone is too quiet", "My files are all over the place and need organizing", "My tablet storage is full", "A snow day canceled our field trip", "I tracked mud into the house", "I lost a glove at the playground", "My shoes squeak in the hallway", "I’m worried about picture day hair", "My shirt is wrinkled on picture day", "My book jacket ripped", "I’m worried about a library fine", "My table partner keeps tapping a pencil", "My chair is wobbly", "Today’s lunch was too spicy", "My milk carton won’t open", "My straw wrapper flew away", "I got paint on my favorite hoodie", "The glue stick cap is stuck", "I couldn’t find the page in the textbook", "I ran out of notebook paper", "My pencil keeps breaking", "My eraser smudges my work", "I lost my place in my chapter book", "My bookmark fell out", "I couldn’t hear the instructions over the noise", "The bus is late today", "The cafeteria line was too long", "I forgot to bring a coat", "My snow boots got soaked", "Our bus route changed suddenly", "My rain boots have a hole", "I want to learn how to use a dictionary", "I want to learn how to use a thesaurus", "I want to give a slideshow presentation", "I want to learn how to cite sources in a report", "I want to learn the steps of the scientific method", "I want to learn how to outline an essay", "I want to learn useful keyboard shortcuts", "I want to use a graphing app for math", "I want to read a map legend", "I want to learn basic Spanish phrases", "I want to learn to sing harmony", "I want to keep rhythm with a metronome", "I want to learn to tune a guitar", "I want to start a compost worm bin", "I want to identify cloud types and track the weather", "I want to build a bug hotel", "I want to press leaves in a book", "I want to measure rainfall with a homemade gauge", "I want to set up a birdbath", "I want to plant a pollinator garden", "I want to track daily temperatures for a week", "I want to photograph the same tree each season", "I want to make a cardboard arcade game", "I want to write a mystery story", "I want to illustrate a picture book", "I want to create a board game with rules", "I want to design a team logo", "I want to choreograph a dance with friends", "I want to write a catchy song chorus", "I want to build a puppet from a sock", "I want to sew a simple pillow", "I want to knit a scarf", "I want to make friendship bracelets", "I want to test different paper airplane designs", "I want to tidy the overflowing lost and found", "I want to help clean the classroom supply closet", "I want to plan a reading corner makeover", "I want to host a lunchtime poetry slam", "I want to plan a spirit day theme", "I want to plan a pajama day", "I want to plan a crazy hair day", "I want to decorate for a school dance", "I want to set up a snack rotation for my team", "I want to sign up to be a library helper", "I want to track my volunteer hours", "I want to help collect field trip money", "I want to remember to bring my instrument on Tuesdays", "The hamster cage needs new bedding", "I want to make a watering schedule for classroom plants", "Our class needs a map for the fire drill route", "My bike helmet strap is too loose", "My locker shelf fell down", "I need to label my lunch container", "My winter coat zipper is stuck", "My backpack strap tore", "My pencil sharpener is missing", "I got chalk on my pants", "I’m worried about missing the school bus after club", "I mixed up AM and PM on the alarm", "I forgot to refill my pencil case", "I need to practice tying a tie for the concert", "My sheet music is wrinkled", "I need to learn how to set reminders on my tablet", "Our team needs a warm-up playlist", "I want to create a calm corner in my room", "I want to build a reading fort with blankets", "I want to design tickets for our class show", "I want to film a book trailer for a novel", "I want to make a timeline for a history project", "I want to label the classroom recycling bins", "I want to map out a safe walking route to school", "I want to assemble a first-aid kit for my backpack", "I want to practice introducing a guest speaker", "I want to make name tags for a club meeting", "I want to plan a thank-you breakfast for bus drivers", "I want to make pet care checklists for home", "I want to set quiet hours for homework time", "I want to plan a weekend nature walk itinerary", "I want to start a “lost tooth” class chart", "I want to keep track of how many books I read this year", "I want to create a class jobs rotation chart", "I want to draft rules for a fair debate", "I want to design a poster about growth mindset", "I want to practice mindful stretching before tests", "I want to build a simple periscope for science", "I want to make a weather vane out of cardboard", "I want to test which paper towel absorbs the most water", "I want to compare plant growth with and without sunlight", "I want to create a classroom noise meter", "I want to plan a celebration for finishing a big project", "I’m stuck on a math word problem", "My locker won’t open and I’m late to class", "I can’t see the board from my seat", "I forgot my glasses at home", "I left my textbook in my desk at school", "My study guide is missing", "The project directions are confusing", "My group partner isn’t doing their part", "My partner was absent on presentation day", "The due date moved up and I’m not finished", "The classroom is too noisy to concentrate", "I dropped my lunch tray and spilled everything", "The cafeteria ran out of utensils", "My assigned seat is next to someone who distracts me", "I can’t access the online textbook", "The school printer is jammed and I need my essay", "The website for homework won’t load", "The assignment link is broken", "I can’t upload my file to the portal", "I forgot to save my document and lost my work", "The wrong slideshow opened during my presentation", "The projector won’t connect to my laptop", "The video has no sound in class", "I logged into the wrong account and can’t find my files", "I forgot my locker PE combination card at home", "My hall locker shelf collapsed", "My binder rings broke and papers fell everywhere", "My highlighter leaked in my backpack", "I ran out of lined paper during a test", "My pencil keeps rolling off the desk", "My pencil grip hurts my fingers", "The only open seat on the bus makes me carsick", "The substitute bus driver missed my stop", "I forgot my lunch PIN at the register", "My lunch money didn’t get added to my account", "I left my water bottle on the playground", "My thermos lid is stuck and won’t open", "My reheated lunch is still cold in the middle", "The microwave made my food explode", "I have a stomachache during class", "My head hurts from the loud assembly", "My nose is stuffed and I forgot tissues", "I got a splinter on the playground", "My new shoes gave me blisters", "I scraped my elbow on the blacktop", "A mosquito bite keeps itching in class", "My retainer is missing after lunch", "I forgot my inhaler at home", "My lip is chapped and stings", "Hand sanitizer made my hands sting", "The classroom is too cold and I don’t have a sweater", "The classroom is too hot and I feel sleepy", "Indoor recess all week is making me restless", "Strong wind blew my homework out of my hand", "It started raining and I don’t have a jacket", "Fog made the bus late and I missed warm-ups", "Snow blocked the sidewalk and I was late", "Construction closed my usual walking route", "The crosswalk signal near school isn’t working", "The fire alarm went off during a test", "The drill happened while I was in the bathroom", "I got locked out of the classroom after recess", "I lost my house key and no one is home yet", "My sibling’s activity overlaps and I’m late to practice", "My carpool forgot it was my pick-up day", "I left my cleats at home", "My jersey is missing before the game", "My mouthguard fell in the grass and got dirty", "My instrument reed cracked right before band", "My drumstick snapped during rehearsal", "My music pages are out of order", "The stage microphone keeps squealing", "The costume doesn’t fit correctly", "I spilled paint water on the floor", "My clay project broke on the way home", "The scissors are too dull for our project", "The glue bottle is sealed shut", "We ran out of glue sticks mid-project", "Our class set of markers is dried out", "My calculator battery died during math", "I forgot my headphones for the computer lab", "My password expired and I can’t log in", "Two-factor code goes to my parent’s phone and they’re at work", "I forgot to log out on a shared computer", "The tablet keyboard won’t type certain letters", "My camera won’t focus for a required photo", "My slideshow images won’t paste", "The internet is slow and kicks me out of the quiz", "My screen froze during an online test", "I clicked the wrong Zoom link for class", "The captions are covering the questions on a video", "My assigned reading book is missing from the shelf", "The book I reserved is still checked out", "My library hold expired before I could pick it up", "My library card number isn’t working online", "I have a fine and can’t borrow new books", "Someone accidentally took my jacket from the hook", "I can’t find my coat in the overflowing lost and found", "My shoes are still wet from recess", "My sock has a hole and it hurts", "A pebble got stuck in my shoe during PE", "The classroom chair is wobbly and squeaks", "The desk is too low and my knees hit", "My tablemate keeps tapping the desk and it’s distracting", "Someone keeps interrupting me when I answer", "Someone sat in my spot at lunch", "Someone cut in front of me and brought three friends", "Someone borrowed my supplies and didn’t return them", "Someone copied my homework and now I’m in trouble too", "Someone made a joke about my accent and it hurt", "People laughed when I misread a word aloud", "My name keeps getting mispronounced after I corrected it", "My friends made plans without me", "Two friends are arguing and both want me to choose sides", "A rumor is being spread about me in the grade chat", "A classmate posted an unkind comment about my project", "I was left out of a group in PE", "I got paired with someone I’ve had conflicts with", "I feel invisible when hands are chosen", "I froze during my turn to speak", "I forgot what I was going to say in the debate", "I practiced, but I still got stage fright", "I lost my permission slip on the way home", "My field trip money envelope is missing", "I left my art smock at home and we’re painting today", "I left my recorder at home on music day", "I forgot my science notebook and we’re doing an experiment", "I missed the instructions while I was at the nurse", "I was absent and don’t know what I missed", "I turned in the wrong version of my assignment", "I submitted the form twice and it caused a mix-up", "I answered on the wrong side of the test paper", "I bubbled the wrong number on the answer sheet", "I brought the wrong book for silent reading", "I studied the wrong chapter for the quiz", "I misread the rubric and lost points", "I can’t remember the steps of long division during the test", "I keep mixing up mean and median", "I don’t understand today’s grammar rule", "I can’t keep track of multiple deadlines", "My planner is missing and I can’t see my homework", "I forgot to charge my device and it died during notes", "My charger cord is frayed and unsafe", "My earbud got stuck in the case and broke", "My backpack zipper is stuck half open", "My lunch leaked inside my backpack", "My water bottle keeps leaking", "My locker neighbor’s stuff falls into my space", "The hallway traffic made me late to class", "The bell schedule changed for an assembly and I got confused", "I was marked tardy while I was helping a teacher", "I need to leave class for an appointment and will miss a lab", "I have to fast for a test and feel lightheaded", "I feel nervous before shots at the clinic", "Grass made my skin itchy after recess", "A bee is near me and I’m scared to stay still", "I bit my cheek and it hurts to eat", "I have a loose tooth that started bleeding", "My ears hurt from loud whistles in PE", "Chalk dust is making me sneeze", "I have motion sickness on the field trip bus", "I got mud on the classroom floor and need to clean it", "I spilled water on my worksheet and the ink smeared", "My project won’t fit in my backpack to take home", "I forgot my instrument after school and the music room is locked", "I left my art project to dry and someone moved it", "I accidentally deleted photos I needed", "My parent is late for pick-up and I’m worried", "Aftercare is full and I don’t know where to go", "I mixed up practice location and went to the wrong field", "The referee changed the game time and we didn’t know", "The team roster has my name spelled wrong", "My uniform number is the same as someone else’s", "My shoelace snapped during warm-ups", "My water ran out before the second half", "The wind keeps blowing my sheet music", "The scoreboard stopped working mid-game", "The whistle startle makes me lose focus", "I missed breakfast and I’m shaky before lunch", "I tried a new food and now my stomach hurts", "I forgot my allergy band on field day", "I touched something sticky and can’t wash hands yet", "I have paint on my skin and it won’t come off", "I got a paper cut while handing out worksheets", "I bumped my knee on a desk and it’s sore", "The classroom pet cage smells and I feel sick", "The restroom line is too long between classes", "My pass went missing and I can’t leave the room", "The soap dispenser is empty and my hands are messy", "The drinking fountain isn’t working on our floor", "I spilled water on the floor and need to warn people", "I can’t reach the top shelf where my materials are", "The door closer is heavy and I can’t open it alone", "The window shade is stuck and the sun is in my eyes", "The clock is wrong and I’m worried about the time", "I’m confused by different rules in different classes", "I didn’t hear my name when they called groups", "I can’t find the rubrics in the online folder", "I turned in a PDF the teacher can’t open", "My name isn’t on the attendance even though I’m here", "I’m fasting for a holiday and feel tired in PE", "I’m anxious about a parent-teacher conference", "I’m nervous about getting my first report card", "I’m upset that my seat was moved without explanation", "I’m embarrassed I answered a question wrong out loud", "I’m worried I’ll say the wrong thing in a group chat", "I’m scared to ask for help and get told no", "I’m overwhelmed by multiple tests on the same day", "I’m frustrated when I study hard and still forget facts", "I’m sad that my friend changed lunch periods", "I’m disappointed our club got canceled today", "I’m stressed because our internet at home keeps dropping", "I’m worried about losing my streak on a learning app", "I’m confused about which platform each teacher uses", "I’m unsure how to cite a source and afraid of getting it wrong", "I’m stuck waiting for a late lab partner while time runs out", "I’m afraid of slipping on the wet hallway floor", "I’m worried about forgetting my lines again tomorrow", "My alarm didn’t go off and I missed soccer practice", "The game controller won’t pair with the console", "The TV remote batteries are dead", "The Wi-Fi keeps dropping during a family movie", "The streaming app signed me out and I forgot the password", "The phone storage is full so I can’t take photos", "The Bluetooth speaker won’t connect", "The tablet says “update required” right when I want to play", "The game needs a huge update and there isn’t enough space", "The QR code won’t scan at the museum", "The smart bulb won’t turn on", "The doorbell camera keeps sending false alerts", "We ran out of milk at breakfast", "The cereal box is empty but still in the cupboard", "The bread is moldy", "The toaster burned my toast", "The jam jar lid is stuck", "The peanut butter is too hard to spread", "The last clean fork is missing", "The dishwasher is full of clean dishes and no one unloaded it", "The sink is full and the drain is slow", "The garbage bag leaked on the floor", "The recycling got mixed with trash", "I forgot to take the bin to the curb before the truck came", "The compost smells bad", "The fridge smells and I can’t find the cause", "The freezer is frosted over", "The ice maker is empty", "The oven timer didn’t beep and the cookies burned", "I dropped eggs on the floor", "I spilled juice on the couch", "The blender won’t start", "The mixer splattered batter everywhere", "The can opener won’t cut", "The jar lid won’t open", "The microwave plate won’t spin", "The pizza stuck to the pan", "The sandwich fell apart", "My favorite shirt has a stain", "My zipper is stuck on my jacket", "A button popped off my shorts", "My boots are still wet from yesterday", "My umbrella flipped inside out", "My hat blew away", "My gloves got separated", "My raincoat leaks", "My shoelace is frayed", "I got soap in my eyes in the shower", "The shampoo bottle is empty", "The hot water ran out", "The towel is still damp", "I can’t find my toothbrush", "The toothpaste tube is empty", "The hairbrush is tangled with hair", "My hair tie snapped", "I cut my nail too short and it hurts", "I have a hangnail that keeps catching", "My lips are chapped and I can’t find lip balm", "A mosquito keeps buzzing in my room at night", "I have itchy mosquito bites", "I scraped my knee on the driveway", "I got a splinter from the deck", "I got chain grease on my leg from my bike", "My helmet pinches my chin", "I stepped on a tiny piece of LEGO", "I bumped my toe on the coffee table", "The bandage won’t stick", "The ice pack leaks", "The car seat buckle is sticky", "The seatbelt is twisted", "The child lock won’t open from inside", "I get bored on long car rides", "We hit a traffic jam and missed the movie start", "We forgot the tickets at home", "The GPS took us the long way", "The gas station bathroom was closed", "The rest stop we planned to use was closed", "I felt queasy on a boat ride", "My ears popped in the mountains", "My suitcase zipper jammed", "I can’t lift my suitcase", "I left my favorite stuffed animal at the hotel", "The amusement park ride has a height requirement I don’t meet", "The line was too long and we ran out of time", "We missed the ferry", "It rained during our picnic", "Wind blew sand into my eyes at the beach", "A wasp hovered near our picnic food", "The kite string snapped at the park", "Our frisbee landed in a puddle", "The soccer ball rolled into the road", "The bike tire went flat", "The bike pedal keeps squeaking", "The dog got muddy footprints all over the floor", "The dog tracked water everywhere after a bath", "The dog won’t take its medicine", "The dog is scared of fireworks", "The cat knocked a glass off the table", "The cat scratched the couch", "The cat won’t get into its carrier", "The cat hair is all over my clothes", "The guinea pig water bottle leaks", "The hamster chewed through a tunnel", "The fish tank is green with algae", "The turtle’s heat lamp burnt out", "The bird seed spilled everywhere", "The pet escaped under the couch", "The pet had an accident on the rug", "The litter box smells and needs changing", "The smoke detector won’t stop beeping", "A lightbulb burned out in my room", "The nightlight stopped working", "The door handle is loose", "The sliding door is stuck", "The window won’t latch", "The curtain rod fell down", "The drawer won’t close", "The vacuum cleaner is clogged", "The mop leaves streaks", "The broom bristles are bent", "The step stool is missing", "The garage door remote won’t work", "The batteries drawer is empty", "The phone charger won’t charge", "The power went out during a storm", "The faucet is dripping", "The toilet keeps running", "The sink sprayer leaks", "The bathtub drain is slow", "Ants are in the kitchen", "Fruit flies are in the compost", "A spider is in the bathtub", "A gecko got inside the house", "The window screen has a hole", "My sibling keeps changing the TV channel", "My sibling took the last cookie", "My sibling uses my things without asking", "My sibling won’t give back the remote", "My sibling snores and keeps me awake", "My sibling leaves the door open when the AC is on", "We can’t agree on a movie", "We can’t agree on a board game", "We lost a board game piece", "We can’t remember the game rules", "The puzzle is missing a piece", "The card deck is missing a card", "The dice rolled under the couch", "We can’t decide whose turn it is", "The timer ran out before I finished my turn", "The family car trip playlist causes arguments", "Someone ate leftovers I was saving", "We ran out of pet food", "The grocery store was out of my favorite snack", "The store closed early", "The package arrived late", "The package was delivered to the wrong house", "The new toy needs batteries we don’t have", "The new toy broke on the first day", "The birthday gift arrived without a note so we don’t know who sent it", "The party balloons popped in the car", "The costume mask is itchy", "The face paint stained my skin", "The glitter won’t vacuum up", "The tape lost its stickiness", "The wrapping paper tore while wrapping", "The scissors are missing", "The glue dried out", "The markers bled through the table", "The playground slide is too hot from the sun", "The swings are all taken", "The splash pad is closed for maintenance", "The park bathroom is closed", "The ice cream melted before I could finish", "The food truck only takes cash", "The vending machine ate my money", "The arcade ticket counter ran out of prizes I wanted", "The bowling lane jammed", "The mini-golf ball got stuck in a water hazard", "The movie theater volume is too loud", "The 3D glasses are uncomfortable", "The museum exhibit we came to see is closed", "The pool is too crowded", "The lifeguard whistle startles me", "The sunscreen stings my eyes", "The beach towel got buried in sand", "The picnic table is sticky", "Bees keep landing on my soda can", "I lost my allowance money", "My piggy bank cracked", "My gift card says “invalid”", "The item I saved for went on sale after I bought it", "The price went up before I had enough", "The coupon expired yesterday", "I miscounted my change", "I forgot my wallet at home", "The chore chart is confusing", "I can’t remember which chores are mine", "I spilled the mop bucket", "The vacuum cord is tangled", "The laundry whites turned pink", "A red sock dyed my clothes", "I shrank my shirt in the dryer", "I left a tissue in my pocket and it shredded", "The dryer ate a sock", "The iron left a shiny mark", "The zipper on the pillowcase broke", "The sheets won’t fit the mattress", "The bed frame squeaks", "The closet rod fell", "The shoe rack collapsed", "The shoe’s insole keeps sliding", "I can’t sleep without my stuffed animal", "The night is too noisy and I hear creaks", "The fan is too loud", "The room feels stuffy", "The blackout curtains fell down", "The pillow is too flat", "The blanket is too scratchy", "The heater made the room too dry", "The humidifier ran out of water", "The air purifier filter needs changing", "The alarm clock light is too bright", "The family calendar event didn’t sync", "The smart speaker misunderstood my request", "The parental controls block a video I’m allowed to watch", "The app keeps asking for permission I don’t understand", "The photo printed too dark", "The printer is out of paper", "The webcam shows me upside down", "The headphones make a buzzing noise", "The controller has joystick drift", "The charging cable is too short", "The power strip switch got flipped off", "The e-book disappeared from the app", "The audiobooks won’t download", "The weather app shows the wrong city", "The sidewalk chalk won’t show on rough pavement", "The hose is kinked", "The sprinkler head popped off", "The garden soil spilled over the patio", "A squirrel knocked over the bird feeder", "Snails ate the lettuce", "The rake is missing a tine", "The wheelbarrow tire is flat", "The garage is too cluttered to find anything", "The bike pump needle is missing", "The gate latch is stuck", "The mailbox door won’t stay shut", "A friend canceled a playdate last minute", "A neighbor friend moved away", "I feel left out when cousins play a game I don’t know", "I feel shy meeting new kids at the park", "I said something that hurt a friend’s feelings by accident", "I’m nervous to sleep at a friend’s house", "I’m homesick on a family trip", "I worry about loud fireworks at night", "I’m scared of thunder at bedtime", "I’m upset our camping trip got rained out", "I miss my grandparents who live far away"];
+
+  const COLORS_PRESET = [
+    '#ef4444', '#3b82f6', '#10b981', '#a78bfa', '#f59e0b', '#f472b6', '#22c55e', '#06b6d4',
+    '#eab308', '#8b5cf6', '#dc2626', '#2563eb', '#059669', '#db2777', '#14b8a6', '#f97316',
+    '#fb7185', '#38bdf8', '#34d399', '#c084fc'
+  ];
+  function colorForIndex(i) {
+    if (i < COLORS_PRESET.length) return COLORS_PRESET[i];
+    const h = (i * 47) % 360;
+    return `hsl(${h}deg 80% 55%)`;
+  }
+  function lighten(hex, amt=0.15) {
+    const h = hex.replace('#','');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    const lr = Math.round(r + (255 - r) * amt);
+    const lg = Math.round(g + (255 - g) * amt);
+    const lb = Math.round(b + (255 - b) * amt);
+    return `rgb(${lr}, ${lg}, ${lb})`;
+  }
+  function darken(hex, amt=0.15) {
+    const h = hex.replace('#','');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    const dr = Math.round(r * (1-amt));
+    const dg = Math.round(g * (1-amt));
+    const db = Math.round(b * (1-amt));
+    return `rgb(${dr}, ${dg}, ${db})`;
+  }
+
+  const boardEl = document.getElementById('board');
+  const layoutEl = document.getElementById('layout');
+  const statusEl = document.getElementById('status');
+  const legendEl = document.getElementById('legend');
+  const promptTextEl = document.getElementById('promptText');
+  const dieFaceEl = document.getElementById('dieFace');
+  const rollBtn = document.getElementById('rollBtn');
+  const startBtn = document.getElementById('startBtn');
+  const newGameBtn = document.getElementById('newGameBtn');
+  const addPlayerBtn = document.getElementById('addPlayerBtn');
+  const addPlayerNameEl = document.getElementById('addPlayerName');
+
+  const ringCells = [];
+  const allCells = [];
+
+  function buildBoard() {
+    ringCells.length = 0;
+    allCells.length = 0;
+    Array.from(boardEl.querySelectorAll('.cell')).forEach(el => el.remove());
+
+    const size = 11;
+    const ringOrder = [];
+    for (let c = 0; c < size; c++) ringOrder.push([0, c]);
+    for (let r = 1; r < size; r++) ringOrder.push([r, size-1]);
+    for (let c = size-2; c >= 0; c--) ringOrder.push([size-1, c]);
+    for (let r = size-2; r >= 1; r--) ringOrder.push([r, 0]);
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const cell = document.createElement('div');
+        const isRing = r === 0 || r === size-1 || c === 0 || c === size-1;
+        cell.className = 'cell' + (isRing ? '' : ' inner');
+        cell.style.gridRowStart = r + 1;
+        cell.style.gridColumnStart = c + 1;
+        const center = document.getElementById('centerMedia');
+        boardEl.insertBefore(cell, center);
+        allCells.push(cell);
+      }
+    }
+
+    const palette = ['#fecaca','#fbcfe8','#fde68a','#bbf7d0','#a7f3d0','#bae6fd','#c7d2fe','#ddd6fe','#f5d0fe','#fed7aa'];
+    ringOrder.forEach((pos, idx) => {
+      const [rr, cc] = pos;
+      const el = allCells[rr * size + cc];
+      el.dataset.index = idx;
+      const base = palette[idx % palette.length];
+      el.style.background = `linear-gradient(180deg, ${lighten(base,0.12)}, ${darken(base,0.08)})`;
+      el.style.border = '1px solid rgba(0,0,0,0.15)';
+      el.textContent = idx === 0 ? 'START' : idx;
+      if (idx === 0) el.classList.add('start');
+      ringCells.push(el);
+    });
+
+    // END square
+    const endIndex = ringCells.length - 1;
+    const endCell = ringCells[endIndex];
+    endCell.classList.add('finish');
+    endCell.textContent = 'END';
+  }
+
+  function fitLayout() {
+    const headerH = document.querySelector('h1').getBoundingClientRect().height || 0;
+    const h = Math.max(320, window.innerHeight - headerH - 20 - 10);
+    layoutEl.style.height = `${h}px`;
+    const wrap = document.querySelector('.board-wrap');
+    const rect = wrap.getBoundingClientRect();
+    let size = Math.min(rect.width - 16, rect.height - 16);
+    if (!isFinite(size) || size <= 0) {
+      size = Math.min(window.innerWidth * 0.92, window.innerHeight * 0.7);
+    }
+    size = Math.max(260, size);
+    boardEl.style.setProperty('--size', size + 'px');
+  }
+  window.addEventListener('resize', () => { fitLayout(); });
+  window.addEventListener('orientationchange', () => { fitLayout(); });
+
+  let players = [];
+  let currentTurn = 0;
+  let rolling = false;
+  let usedPrompts = [];
+  let gameStarted = false;
+  const MAX_PLAYERS = 24;
+
+  function getInitial(name) { return name?.trim()?.[0]?.toUpperCase() || '?'; }
+
+  function drawLegend() {
+    legendEl.innerHTML = '';
+    players.forEach(p => {
+      const b = document.createElement('span');
+      b.className = 'badge';
+      const d = document.createElement('span');
+      d.className = 'dot';
+      d.style.background = p.color;
+      b.appendChild(d);
+      const t = document.createElement('span');
+      t.textContent = p.name;
+      b.appendChild(t);
+      legendEl.appendChild(b);
+    });
+  }
+
+  function createToken(player) {
+    const token = document.createElement('div');
+    token.className = 'token';
+    token.style.background = player.color;
+    token.dataset.initial = player.initial;
+    return token;
+  }
+
+  function positionTokensInCell(cell) {
+    const tokens = Array.from(cell.querySelectorAll('.token'));
+    const n = tokens.length;
+    if (n === 1) {
+      const t = tokens[0];
+      t.style.left = '50%'; t.style.top = '50%';
+      return;
+    }
+    const radius = 30;
+    for (let i = 0; i < n; i++) {
+      const angle = (2 * Math.PI * i) / n;
+      const x = 50 + radius * Math.cos(angle);
+      const y = 50 + radius * Math.sin(angle);
+      tokens[i].style.left = x.toFixed(1) + '%';
+      tokens[i].style.top  = y.toFixed(1) + '%';
+    }
+  }
+
+  function placeTokenAtIndex(player, index) {
+    player.pos = index % ringCells.length;
+    ringCells[player.pos].appendChild(player.token);
+    positionTokensInCell(ringCells[player.pos]);
+  }
+
+  function resetBoardKeepPlayers() {
+    Array.from(document.querySelectorAll('.token')).forEach(t => t.remove());
+    players.forEach(p => {
+      p.pos = 0;
+      p.token = createToken(p);
+      placeTokenAtIndex(p, 0);
+    });
+    drawLegend();
+  }
+
+  function resetUI(gameMsg='Add at least two players, then press <b>Start</b>.') {
+    usedPrompts = [];
+    currentTurn = 0;
+    rolling = false;
+    gameStarted = false;
+    dieFaceEl.textContent = '–';
+    promptTextEl.textContent = '—';
+    promptTextEl.classList.remove('prompt-pop');
+    statusEl.innerHTML = gameMsg;
+    rollBtn.disabled = true;
+  }
+
+  function addPlayerMidGame(name) {
+    const clean = (name || '').trim();
+    if (!clean) { alert('Enter a player name.'); return; }
+    if (players.some(p => p.name.toLowerCase() === clean.toLowerCase())) { alert('Name already in the game.'); return; }
+    if (players.length >= MAX_PLAYERS) { alert('Player limit reached.'); return; }
+    const p = { name: clean, color: colorForIndex(players.length), pos: 0, token: null, initial: getInitial(clean) };
+    p.token = createToken(p);
+    players.push(p);
+    placeTokenAtIndex(p, 0);
+    drawLegend();
+    if (!gameStarted) {
+      statusEl.innerHTML = `Players: <b>${players.length}</b>. Press <b>Start</b> when ready.`;
+    } else {
+      statusEl.innerHTML = `It’s <b>${players[currentTurn].name}</b>’s turn.`;
+    }
+    addPlayerNameEl.value = '';
+  }
+
+  function nextPrompt() {
+    if (usedPrompts.length >= PROMPTS.length) usedPrompts = [];
+    let p = null;
+    for (let i = 0; i < 10; i++) {
+      const idx = Math.floor(Math.random() * PROMPTS.length);
+      const candidate = PROMPTS[idx];
+      if (!usedPrompts.includes(idx)) { p = {text: candidate, idx}; break; }
+    }
+    if (!p) {
+      const idx = Math.floor(Math.random() * PROMPTS.length);
+      p = {text: PROMPTS[idx], idx};
+    }
+    usedPrompts.push(p.idx);
+    return p.text;
+  }
+
+  function animateMoveTo(player, steps, callback) {
+    const endIndex = ringCells.length - 1;
+    let remaining = steps;
+    const moveOne = () => {
+      if (remaining <= 0) { callback && callback(); return; }
+      if (player.pos >= endIndex) { callback && callback(); return; }
+      player.pos = Math.min(player.pos + 1, endIndex);
+      ringCells[player.pos].appendChild(player.token);
+      positionTokensInCell(ringCells[player.pos]);
+      remaining--;
+      setTimeout(moveOne, 140);
+    };
+    moveOne();
+  }
+
+  function takeTurn() {
+    if (!gameStarted) { alert('Click Start first.'); return; }
+    if (players.length < 2) { alert('Need at least two players.'); return; }
+    if (rolling) return;
+    rolling = true;
+    const player = players[currentTurn];
+    const roll = 1 + Math.floor(Math.random() * 6);
+    dieFaceEl.textContent = roll;
+
+    const endIndex = ringCells.length - 1;
+    const stepsToEnd = (endIndex - player.pos);
+    const steps = Math.min(roll, stepsToEnd);
+
+    animateMoveTo(player, steps, () => {
+      const landed = player.pos;
+      const isEnd = (landed === endIndex);
+      const prompt = isEnd ? `🎉 ${player.name} reached END!` : nextPrompt();
+      promptTextEl.textContent = prompt;
+      promptTextEl.classList.remove('prompt-pop'); void promptTextEl.offsetWidth; promptTextEl.classList.add('prompt-pop');
+
+      if (isEnd) {
+        statusEl.innerHTML = `<b>${player.name}</b> wins! Click <b>New Game</b> to play again or add more players.`;
+        rollBtn.disabled = true;
+        gameStarted = false;
+        rolling = false;
+        return;
+      }
+
+      currentTurn = (currentTurn + 1) % players.length;
+      statusEl.innerHTML = `It’s <b>${players[currentTurn].name}</b>’s turn.`;
+      rolling = false;
+    });
+  }
+
+  // UI handlers
+  rollBtn.addEventListener('click', takeTurn);
+  startBtn.addEventListener('click', () => {
+    if (players.length < 2) { alert('Add at least two players before starting.'); return; }
+    gameStarted = true;
+    rollBtn.disabled = false;
+    statusEl.innerHTML = `It’s <b>${players[0].name}</b>’s turn. Click <b>Roll Die</b>.`;
+  });
+  newGameBtn.addEventListener('click', () => {
+    resetBoardKeepPlayers();
+    resetUI('New game ready. Press <b>Start</b> to begin.');
+  });
+  addPlayerBtn.addEventListener('click', () => addPlayerMidGame(addPlayerNameEl.value));
+  addPlayerNameEl.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addPlayerMidGame(addPlayerNameEl.value);
+  });
+
+  // Initial render
+  buildBoard();
+  resetUI();
+  setTimeout(() => { fitLayout(); }, 0);
+</script>
+</body>
+</html>
