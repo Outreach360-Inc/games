@@ -152,5 +152,52 @@
     </section>
   </div>
 
+  <script>
+  (function () {
+    // Only modify navigation when this page is running inside an iframe.
+    if (window.self === window.top) return;
+
+    // Force any links on this page to stay inside the current iframe.
+    function forceIframeNavigation(root = document) {
+      root.querySelectorAll('a[href]').forEach(function (link) {
+        link.setAttribute('target', '_self');
+      });
+    }
+
+    forceIframeNavigation();
+
+    // Also handle links that may be added dynamically later.
+    const observer = new MutationObserver(function () {
+      forceIframeNavigation();
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    // Prevent scripts on this page from opening a new tab/window.
+    window.open = function (url) {
+      if (url) window.location.href = url;
+      return window;
+    };
+
+    // Capture link clicks and explicitly navigate this iframe.
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href]');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+      if (href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      window.location.href = link.href;
+    }, true);
+  })();
+  </script>
+
 </body>
 </html>
